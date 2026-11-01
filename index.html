@@ -89,6 +89,26 @@ section{padding-block:56px}
 .final p{color:var(--mute);margin:0 auto 22px;max-width:34em}
 .final .note{display:inline-block;border:1.5px dashed var(--line);border-radius:6px;padding:12px 18px;color:var(--ink);font-weight:500;margin:0;background:var(--surface)}
 footer{padding-block:28px 40px;color:var(--mute);font-size:14px;border-top:1px solid var(--line)}
+/* Top menus: Tools and The Vault drop down from the nav */
+.dd{position:relative}
+.dd>summary{list-style:none;display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 14px;border-radius:6px;font:600 16px Barlow,sans-serif;cursor:pointer;user-select:none;border:1.5px solid transparent}
+.dd>summary::-webkit-details-marker{display:none}
+.dd>summary::after{content:"";width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:translateY(-2px) rotate(45deg);transition:transform .2s}
+.dd[open]>summary::after{transform:translateY(1px) rotate(-135deg)}
+.dd.tools>summary{background:var(--accent);color:var(--accent-ink)}
+.dd.vault>summary{border-color:currentColor}
+.dd>summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.menu{position:absolute;right:0;top:calc(100% + 8px);z-index:20;width:min(300px,calc(100vw - 32px));background:var(--surface);color:var(--ink);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:8px;padding:8px;box-shadow:0 12px 32px rgba(10,18,32,.28);display:flex;flex-direction:column;gap:2px}
+.menu .mh{font:700 12px Barlow,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);padding:8px 10px 4px}
+.menu a,.menu .soon{display:flex;flex-direction:column;gap:1px;padding:8px 10px;border-radius:6px;text-decoration:none}
+.menu a:hover,.menu a:focus-visible{background:var(--bg);outline:none}
+.menu b{font:600 16px Barlow,sans-serif}
+.menu small{font-size:13px;color:var(--mute);line-height:1.35}
+.menu .soon{opacity:.75}
+.menu .soon b::after{content:"Coming soon";margin-left:8px;font:600 11px Barlow,sans-serif;letter-spacing:.06em;text-transform:uppercase;border:1.5px solid var(--line);color:var(--mute);border-radius:99px;padding:1px 7px;vertical-align:2px}
+nav{position:relative}
+@media (max-width:720px){.dd{position:static}.dd>summary{height:36px;padding:0 9px;font-size:15px;gap:5px}.menu{left:0;right:0;width:auto}.logo{font-size:20px}nav .links{gap:8px}}
+@media (max-width:440px){.dd.vault .the{display:none}}
 @media (max-width:720px){.herogrid{grid-template-columns:1fr;padding-bottom:44px}nav .links .l{display:none}}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
@@ -98,7 +118,7 @@ footer{padding-block:28px 40px;color:var(--mute);font-size:14px;border-top:1px s
   <div class="wrap">
     <nav>
       <a class="logo" href="#top">crnrstone<span class="dash">-</span>co</a>
-      <div class="links"><button class="tgl" id="theme" type="button" aria-label="Switch to night mode"><svg id="theme-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg><span class="t" id="theme-t">Night</span></button><a class="l" href="#tools">Tools</a><a class="l" href="#who">Who it’s for</a><a class="btn" href="#tools" style="padding:9px 16px;font-size:16px">Try the tools</a></div>
+      <div class="links"><button class="tgl" id="theme" type="button" aria-label="Switch to night mode"><svg id="theme-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg><span class="t" id="theme-t">Night</span></button><a class="l" href="#who">Who it’s for</a><details class="dd tools"><summary>Tools</summary><div class="menu"><a href="calculations/calculator/"><b>Calculator</b><small>Basic and scientific, with GST keys and a history log</small></a><a href="calculations/plan-triangle/"><b>Plan triangle</b><small>Rafter and hip or valley lengths and angles</small></a><a href="calculations/trig-solver/"><b>Trig solver</b><small>Any right-angle triangle from two values</small></a><a href="learn/floor-model/"><b>3D floor model</b><small>See how slab and timber floors go together</small></a><div class="soon"><b>Job calculators and quotes</b><small>Materials for a job, straight into a quote</small></div></div></details><details class="dd vault"><summary><span class="the">The</span>Vault</summary><div class="menu"><div class="mh">Safety and documents</div><div class="soon"><b>JSA Builder</b><small>Job safety analysis with a risk matrix and crew sign-on</small></div><div class="soon"><b>SWMS Builder</b><small>Safe work method statements for high risk work</small></div><div class="soon"><b>SDS register</b><small>Safety data sheets, PPE at a glance and review dates</small></div><div class="soon"><b>Installation guides</b><small>Manufacturers’ guides and specs on your phone</small></div><div class="soon"><b>Tool registry</b><small>Tools and equipment, who has them, test and tag dates</small></div></div></details></div>
     </nav>
     <div class="herogrid">
       <div>
@@ -325,6 +345,15 @@ footer{padding-block:28px 40px;color:var(--mute);font-size:14px;border-top:1px s
   size(); cur = 3;
   if (still) { show(3); }
   else { show(0); timer = setInterval(function () { show((cur + 1) % STAGES.length); }, 2600); }
+})();
+/* Top menus: one open at a time; close on outside tap or Escape */
+(function () {
+  var dds = document.querySelectorAll('details.dd');
+  dds.forEach(function (d) {
+    d.addEventListener('toggle', function () { if (d.open) dds.forEach(function (o) { if (o !== d) o.open = false; }); });
+  });
+  document.addEventListener('click', function (e) { dds.forEach(function (d) { if (d.open && !d.contains(e.target)) d.open = false; }); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') dds.forEach(function (d) { if (d.open) { d.open = false; d.querySelector('summary').focus(); } }); });
 })();
 </script>
 
