@@ -48,15 +48,14 @@ nav a.l:hover{opacity:1}
 .btn{display:inline-block;font:600 17px Barlow,sans-serif;padding:13px 22px;border-radius:6px;background:var(--accent);color:var(--accent-ink);text-decoration:none;border:2px solid var(--accent)}
 .btn.ghost{background:transparent;color:inherit;border-color:currentColor}
 .btn:focus-visible,a:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
-.herogrid{display:grid;grid-template-columns:1.2fr 1fr;gap:32px;align-items:center;padding-block:36px 64px}
+.herogrid{display:grid;grid-template-columns:minmax(0,46rem);gap:32px;align-items:center;padding-block:44px 72px}
 .herogrid > *{min-width:0}
 .herogrid p{font-size:19px;max-width:34em;opacity:.9;margin:16px 0 24px}
 .cta{display:flex;gap:12px;flex-wrap:wrap}
-.herogrid svg{width:100%;height:auto;max-width:340px;justify-self:center}
 section{padding-block:56px}
 .lead{color:var(--mute);max-width:38em;margin:0 0 28px}
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(230px,100%),1fr));gap:14px}
-@media (min-width:900px){#tools .cards.live{grid-template-columns:repeat(2,minmax(0,1fr))}#tools .cards.soon4{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (min-width:900px){#tools .cards.live{grid-template-columns:repeat(2,minmax(0,1fr))}#tools .cards.soon4{grid-template-columns:repeat(3,minmax(0,1fr))}}
 #tools h3.sub{font:700 13px Barlow,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin:30px 0 12px}
 #tools .lead + h3.sub{margin-top:0}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:20px;border-top:5px solid var(--c,var(--accent))}
@@ -107,17 +106,6 @@ footer{padding-block:28px 40px;color:var(--mute);font-size:14px;border-top:1px s
         <p>Calculators that show their working, safety tools and quick references, built by an educator for apprentices, teachers and tradies.</p>
         <div class="cta"><a class="btn" href="#tools">Try the tools</a><a class="btn ghost" href="#model">See the 3D floor model</a></div>
       </div>
-      <svg viewBox="0 0 300 300" role="img" aria-label="Illustration of a plan triangle for a hip roof corner">
-        <polygon points="110,170 110,60 220,170" fill="var(--plan)" fill-opacity=".3"/>
-        <polygon points="50,60 110,60 110,170" fill="var(--g)" fill-opacity=".18"/>
-        <polygon points="110,60 152,18 220,170" fill="var(--b)" fill-opacity=".2"/>
-        <polygon points="110,170 220,170 110,280" fill="var(--r)" fill-opacity=".16"/>
-        <g stroke-width="4" stroke-linecap="round" fill="none">
-          <path d="M50,60 H110 V170 Z" stroke="var(--g)"/>
-          <path d="M110,60 L152,18 L220,170 Z" stroke="var(--b)"/>
-          <path d="M110,170 H220 L110,280 Z" stroke="var(--r)"/>
-        </g>
-      </svg>
     </div>
   </div>
 </header>
@@ -127,9 +115,9 @@ footer{padding-block:28px 40px;color:var(--mute);font-size:14px;border-top:1px s
   <h2>Built for the classroom and the site</h2>
   <p class="lead">One toolkit with a role for everyone. Pick yours and see only what you need.</p>
   <div class="cards">
+    <div class="card" style="--c:var(--accent)"><h3>Tradies</h3><p>Fast calculators, quotes and safety paperwork on your phone.</p></div>
     <div class="card" style="--c:var(--g)"><h3>Students</h3><p>See the working behind every answer and build confidence before the job.</p></div>
     <div class="card" style="--c:var(--b)"><h3>Educators</h3><p>Tools that show every step of the working, ready to use in class. Built by an educator.</p></div>
-    <div class="card" style="--c:var(--accent)"><h3>Tradies</h3><p>Fast calculators, quotes and safety paperwork on your phone.</p></div>
   </div>
 </div></section>
 
@@ -165,9 +153,8 @@ footer{padding-block:28px 40px;color:var(--mute);font-size:14px;border-top:1px s
   <h3 class="sub">Coming next</h3>
   <div class="cards soon4">
     <div class="card"><span class="tag soon">Planned</span><h3>Calculators and quotes</h3><p>Concrete, framing, flooring and rafters, plus a simple quote builder with GST.</p></div>
-    <div class="card"><span class="tag soon">Planned</span><h3>Formula cheat sheet</h3><p>The everyday construction calculations in one quick reference.</p></div>
-    <div class="card"><span class="tag soon">Planned</span><h3>JSA and SWMS builder</h3><p>Step-by-step hazard, risk and controls with a risk matrix.</p></div>
-    <div class="card"><span class="tag soon">Planned</span><h3>Standards guide</h3><p>Where to find which Australian standard, and what it covers.</p></div>
+    <div class="card"><span class="tag soon">Planned</span><h3>The Vault</h3><p>All your safety paperwork in one place: SDSs, installation guides, JSAs and SWMS. Build JSAs and SWMS, see the PPE for every product at a glance, and get reminders when an SDS is due for review.</p></div>
+    <div class="card"><span class="tag soon">Planned</span><h3>Tool registry</h3><p>Every tool and piece of equipment in one list: who has it, where it is, and when its next test and tag or service is due.</p></div>
   </div>
 </div></section>
 
@@ -178,7 +165,7 @@ footer{padding-block:28px 40px;color:var(--mute);font-size:14px;border-top:1px s
 
 <section id="updates" class="band final"><div class="wrap">
   <h2>More tools on the way</h2>
-  <p>New calculators, cheat sheets and safety tools are being built and tested with students now.</p>
+  <p>New calculators and safety tools are being built and tested now.</p>
   <p class="note">Sign-up for updates opens soon.</p>
 </div></section>
 </main>
