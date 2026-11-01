@@ -88,6 +88,34 @@ section{padding-block:56px}
 .final{text-align:center}
 .final p{color:var(--mute);margin:0 auto 22px;max-width:34em}
 .final .note{display:inline-block;border:1.5px dashed var(--line);border-radius:6px;padding:12px 18px;color:var(--ink);font-weight:500;margin:0;background:var(--surface)}
+/* Early access sign-up: our own form, answers sent to Eric's Google Form */
+.signup{max-width:560px;margin:8px auto 0;text-align:left;background:var(--surface);border:1px solid var(--line);border-top:5px solid var(--accent);border-radius:8px;padding:22px;display:flex;flex-direction:column;gap:14px}
+.signup h3{margin:0}
+.signup .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.signup .row2>*{min-width:0}
+.fld{display:flex;flex-direction:column;gap:5px}
+.fld>span,.signup legend{font-weight:600;font-size:15px;color:var(--ink)}
+.fld .opt{font-weight:400;color:var(--mute)}
+.signup input[type=text],.signup input[type=email],.signup textarea{width:100%;font:500 16px Barlow,sans-serif;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:6px;padding:10px 12px}
+.signup textarea{min-height:76px;resize:vertical}
+.signup input:focus-visible,.signup textarea:focus-visible{outline:3px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+.signup fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pills label{position:relative}
+.pills input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.pills span{display:inline-block;border:1.5px solid var(--line);border-radius:99px;padding:7px 14px;font-weight:600;font-size:15px;color:var(--mute);cursor:pointer}
+.pills input:checked+span{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.pills input:focus-visible+span{outline:3px solid var(--accent);outline-offset:2px}
+.consent{display:flex;gap:10px;align-items:flex-start;font-size:15px;color:var(--ink)}
+.consent input{width:18px;height:18px;margin-top:2px;accent-color:var(--accent);flex:none}
+.signup .privacy{font-size:13px;color:var(--mute);margin:0;max-width:none}
+.signup .btn{align-self:flex-start;cursor:pointer}
+.signup .msg{margin:0;max-width:none;font-weight:500;min-height:1.2em}
+.signup .msg.err{color:var(--r)}
+.signup .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.thanks{text-align:center;padding:12px 4px}
+.thanks h3{margin-bottom:6px}
+@media (max-width:560px){.signup .row2{grid-template-columns:1fr}.signup{padding:18px}}
 footer{padding-block:28px 40px;color:var(--mute);font-size:14px;border-top:1px solid var(--line)}
 /* Top menus: Tools and The Vault drop down from the nav */
 .dd{position:relative}
@@ -190,7 +218,29 @@ nav{position:relative}
 <section id="updates" class="band final"><div class="wrap">
   <h2>More tools on the way</h2>
   <p>More safety and document tools, calculators and estimating tools are in development now.</p>
-  <p class="note">Sign-up for updates opens soon.</p>
+  <form class="signup" id="signup" novalidate>
+    <h3>Join the early access list</h3>
+    <div class="row2">
+      <label class="fld"><span>Name</span><input type="text" id="su-name" name="name" autocomplete="name" required></label>
+      <label class="fld"><span>Email</span><input type="email" id="su-email" name="email" autocomplete="email" inputmode="email" required></label>
+    </div>
+    <fieldset>
+      <legend>I’m a</legend>
+      <div class="pills" id="su-role">
+        <label><input type="radio" name="role" id="su-role-1" value="Tradesperson"><span>Tradesperson</span></label>
+        <label><input type="radio" name="role" id="su-role-2" value="Business owner"><span>Business owner</span></label>
+        <label><input type="radio" name="role" id="su-role-3" value="Apprentice or student"><span>Apprentice or student</span></label>
+        <label><input type="radio" name="role" id="su-role-4" value="Educator or trainer"><span>Educator or trainer</span></label>
+      </div>
+    </fieldset>
+    <label class="fld"><span>Your trade <span class="opt">(optional)</span></span><input type="text" id="su-trade" name="trade" placeholder="e.g. Carpentry"></label>
+    <label class="fld"><span>What would save you the most time? <span class="opt">(optional)</span></span><textarea id="su-help" name="help" placeholder="e.g. Getting SDSs and JSAs sorted for each job"></textarea></label>
+    <label class="consent"><input type="checkbox" id="su-consent"> <span>I’m happy to receive crnrstone-co updates by email</span></label>
+    <label class="hp" aria-hidden="true">Leave this empty <input type="text" id="su-hp" tabindex="-1" autocomplete="off"></label>
+    <p class="privacy">We only use your details to tell you about crnrstone-co. We won’t share them. Ask us any time and we’ll remove you.</p>
+    <button class="btn" type="submit" id="su-send">Join the list</button>
+    <p class="msg" id="su-msg" role="status" aria-live="polite"></p>
+  </form>
 </div></section>
 </main>
 
@@ -354,6 +404,37 @@ nav{position:relative}
   });
   document.addEventListener('click', function (e) { dds.forEach(function (d) { if (d.open && !d.contains(e.target)) d.open = false; }); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') dds.forEach(function (d) { if (d.open) { d.open = false; d.querySelector('summary').focus(); } }); });
+})();
+/* Early access sign-up: send answers to the Google Form behind the scenes */
+(function () {
+  var FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSeDEbHqDRvv1jlRhpGr9iCSLDKW2GO_2rzKFfPGC7hCo9Qc-A/formResponse';
+  var ENTRY = { name: 'entry.1437964283', email: 'entry.141119520', role: 'entry.1705562084', trade: 'entry.167239602', help: 'entry.184965777', consent: 'entry.1583784202' };
+  var CONSENT = 'I’m happy to receive crnrstone-co updates by email';
+  var f = document.getElementById('signup'); if (!f) return;
+  var msg = document.getElementById('su-msg'), btn = document.getElementById('su-send');
+  function val(id) { return document.getElementById(id).value.trim(); }
+  function say(t, err) { msg.textContent = t; msg.className = 'msg' + (err ? ' err' : ''); }
+  f.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var name = val('su-name'), email = val('su-email');
+    var roleEl = f.querySelector('input[name=role]:checked');
+    if (!name) { say('Add your name.', true); document.getElementById('su-name').focus(); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { say('Check your email address.', true); document.getElementById('su-email').focus(); return; }
+    if (!roleEl) { say('Pick the option that fits you best.', true); document.getElementById('su-role-1').focus(); return; }
+    if (val('su-hp')) { done(); return; }
+    var data = new URLSearchParams();
+    data.append(ENTRY.name, name); data.append(ENTRY.email, email); data.append(ENTRY.role, roleEl.value);
+    if (val('su-trade')) data.append(ENTRY.trade, val('su-trade'));
+    if (val('su-help')) data.append(ENTRY.help, val('su-help'));
+    if (document.getElementById('su-consent').checked) data.append(ENTRY.consent, CONSENT);
+    btn.disabled = true; say('Sending…');
+    fetch(FORM, { method: 'POST', mode: 'no-cors', body: data })
+      .then(done)
+      .catch(function () { btn.disabled = false; say('That didn’t send. Check your connection and try again.', true); });
+  });
+  function done() {
+    f.innerHTML = '<div class="thanks"><h3>You’re on the list</h3><p>Thanks for signing up. We’ll be in touch as new tools open.</p></div>';
+  }
 })();
 </script>
 
