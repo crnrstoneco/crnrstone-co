@@ -1,0 +1,711 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Calculator</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap">
+<style>
+/* Layout: one narrow column like the Trig Solver. Display and keypad sit together in one card; history tape and tip below.
+   Colours follow the Design Brief (claude/design-brief.md). No extra colours: operator keys use the page background, = uses the accent, GST keys get the amber border. */
+:root {
+  --bg: #EDF0F5; --surface: #FFFFFF; --ink: #0E1A2E; --mute: #56657A; --line: #D0D7E1;
+  --accent: #E3A857; --logo-accent: #E3A857; --accent-ink: #0E1A2E;
+  --r: #D93636;
+  --gridline: rgba(14,26,46,.055); --gridmajor: rgba(14,26,46,.09);
+  --font-display: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+  --font-body: 'Barlow', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0A1220; --surface: #111C30; --ink: #E6ECF5; --mute: #8FA0B8; --line: #22324A;
+    --accent: #E3A857; --logo-accent: #E3A857; --accent-ink: #0E1A2E;
+    --r: #FF7070;
+    --gridline: rgba(230,236,245,.035); --gridmajor: rgba(230,236,245,.07);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0A1220; --surface: #111C30; --ink: #E6ECF5; --mute: #8FA0B8; --line: #22324A;
+  --accent: #E3A857; --logo-accent: #E3A857; --accent-ink: #0E1A2E;
+  --r: #FF7070;
+  --gridline: rgba(230,236,245,.035); --gridmajor: rgba(230,236,245,.07);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+/* Page grid (Design Brief): one continuous drafting sheet in soft scattered patches plus one diagonal streak. Page is one to two screens tall. */
+body { position: relative; }
+body::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image: linear-gradient(var(--gridmajor) 1px, transparent 1px), linear-gradient(90deg, var(--gridmajor) 1px, transparent 1px), linear-gradient(var(--gridline) 1px, transparent 1px), linear-gradient(90deg, var(--gridline) 1px, transparent 1px);
+  background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px; background-position: center top;
+  --patches: radial-gradient(ellipse 55% 18% at 86% 8%, #000, transparent 70%), radial-gradient(ellipse 42% 15% at 10% 30%, #000, transparent 70%), linear-gradient(28deg, transparent 44%, rgba(0,0,0,.55) 50%, transparent 56%), radial-gradient(ellipse 50% 16% at 88% 62%, rgba(0,0,0,.85), transparent 70%), radial-gradient(ellipse 40% 12% at 16% 90%, rgba(0,0,0,.8), transparent 70%);
+  -webkit-mask-image: var(--patches); mask-image: var(--patches); }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.45;
+  padding-block: 20px 32px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { position: relative; z-index: 1; max-width: 440px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+.tape { height: 14px; border-radius: 2px; margin-bottom: 14px; background: var(--accent);
+  background-image: repeating-linear-gradient(90deg, var(--accent-ink) 0 1.5px, transparent 1.5px 10px), repeating-linear-gradient(90deg, var(--accent-ink) 0 1.5px, transparent 1.5px 50px);
+  background-size: 100% 6px, 100% 11px; background-repeat: no-repeat; }
+.toprow { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.brand { font: 700 24px var(--font-display); letter-spacing: .02em; color: var(--ink); }
+.brand span { color: var(--logo-accent); }
+.brand .dash { margin: 0 .15em; }
+.tgl { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px; border-radius: 999px; background: transparent; color: var(--ink); border: 1.5px solid var(--line); font: 600 14px var(--font-body); cursor: pointer; }
+.tgl:hover { border-color: var(--mute); }
+.tgl svg { width: 16px; height: 16px; flex: none; }
+@media (max-width: 720px) { .tgl { width: 36px; padding: 0; justify-content: center; } .tgl .t { display: none; } }
+h1 { font: 700 40px/1 var(--font-display); letter-spacing: .01em; margin: 6px 0 8px; text-wrap: balance; }
+.lead { color: var(--mute); margin: 0; max-width: 46ch; }
+
+/* Basic / Scientific switch */
+.titlerow { display: flex; flex-direction: column; }
+.titlerow .mode { margin-top: 16px; }
+.mode { display: grid; grid-template-columns: 1fr 1fr; flex: none; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 3px; }
+.mode button { font: 600 15px var(--font-body); color: var(--mute); background: transparent; border: 0; border-radius: 999px; padding: 8px 0; cursor: pointer; }
+.mode button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+
+/* Calculator card */
+.calc { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+.screen { border: 1px solid var(--line); border-radius: 8px; background: var(--bg); padding: 10px 12px 8px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.expr { font: 500 26px/1.2 var(--font-body); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; overflow-x: auto; scrollbar-width: none; min-height: 32px; color: var(--ink); transition: font-size .15s, color .15s; }
+.expr::-webkit-scrollbar { display: none; }
+.expr .ph { color: var(--mute); }
+.res { font: 600 20px/1.2 var(--font-body); font-variant-numeric: tabular-nums; text-align: right; color: var(--mute); min-height: 26px; white-space: nowrap; overflow-x: auto; scrollbar-width: none; cursor: pointer; transition: font-size .15s, color .15s; }
+.res::-webkit-scrollbar { display: none; }
+.screen.done .expr { font-size: 17px; color: var(--mute); }
+.screen.done .res { font: 700 42px/1.1 var(--font-display); color: var(--ink); min-height: 46px; }
+.screen.done .res.long { font-size: 32px; }
+.meta { display: flex; align-items: center; gap: 10px; min-height: 28px; }
+.note { font-size: 14px; font-weight: 500; color: var(--mute); min-width: 0; flex: 1; }
+.copy { flex: none; }
+.angle { flex: none; }
+.note.err { color: var(--r); }
+.note.gst { color: var(--ink); }
+.meta-r { display: flex; align-items: center; gap: 8px; flex: none; }
+.angle { font: 700 12px var(--font-body); letter-spacing: .1em; color: var(--mute); }
+.copy { display: inline-flex; align-items: center; gap: 5px; font: 600 13px var(--font-body); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 4px 9px; cursor: pointer; }
+.copy svg { width: 14px; height: 14px; }
+.copy:disabled { opacity: .45; cursor: default; }
+
+/* Keys */
+.pad { display: grid; gap: 8px; }
+.pad.basic { grid-template-columns: repeat(4, 1fr); }
+.pad.sci { grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.k { font: 500 24px var(--font-body); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; height: 56px; cursor: pointer; display: flex; align-items: center; justify-content: center; user-select: none; -webkit-user-select: none; touch-action: manipulation; transition: transform .06s, filter .1s; }
+.k:active, .k.hit { transform: scale(.96); filter: brightness(.94); }
+.k.op { background: var(--bg); font-weight: 600; font-size: 26px; }
+.k.fn { background: var(--bg); font-size: 18px; font-weight: 600; }
+.k.ac { background: var(--bg); color: var(--r); font-size: 18px; font-weight: 700; }
+.k.eq { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 700; font-size: 28px; }
+.k.wide { grid-column: span 2; }
+.k.gst { border: 1.5px solid var(--accent); font: 700 17px var(--font-body); height: 44px; letter-spacing: .02em; }
+.pad.sci .k { height: 42px; font-size: 16px; background: var(--bg); font-weight: 600; }
+.pad.sci .k.on { border-color: var(--accent); }
+.k sup { font-size: .62em; margin-left: 1px; }
+.k i { font-style: italic; font-family: Georgia, 'Times New Roman', serif; font-weight: 400; }
+.k:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.kbd { font-size: 13px; color: var(--mute); margin: 0; text-align: center; }
+@media (hover: none) { .kbd { display: none; } }
+
+/* History tape */
+.hist { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+.hist-h { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+.hist h2 { font: 700 12px var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--mute); margin: 0; }
+.hbtns { display: flex; gap: 14px; }
+.clear { font: 600 13px var(--font-body); color: var(--mute); background: none; border: 0; padding: 2px 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.hist p.hint { font-size: 13px; color: var(--mute); margin: 0 0 6px; }
+.hist ol { list-style: none; margin: 0; padding: 0; max-height: 280px; overflow-y: auto; }
+.row { width: 100%; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; text-align: left; background: none; border: 0; border-top: 1px dashed var(--line); padding: 8px 2px; cursor: pointer; color: var(--ink); font: 400 15px var(--font-body); font-variant-numeric: tabular-nums; }
+li:first-child .row { border-top: 0; }
+.row:hover .ans { text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 3px; }
+.row .q { color: var(--mute); min-width: 0; overflow-wrap: anywhere; }
+.row .ans { font-weight: 700; flex: none; text-align: right; }
+.row .sub { display: block; font-size: 12px; font-weight: 500; color: var(--mute); }
+.row.ex { opacity: .7; }
+.tag { font: 700 10px var(--font-body); letter-spacing: .1em; text-transform: uppercase; color: var(--accent-ink); background: var(--accent); border-radius: 3px; padding: 1px 5px; margin-right: 6px; vertical-align: 1px; }
+
+.tip { border-top: 1px solid var(--line); padding-top: 14px; font-size: 15px; }
+.tip strong { font: 700 13px var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--ink); display: block; margin-bottom: 2px; }
+.foot { font-size: 12px; color: var(--mute); margin: 0; }
+@media (max-width: 720px) {
+  body { padding-block: 12px 28px; }
+  .tape { height: 10px; margin-bottom: 10px; background-size: 100% 4px, 100% 8px; }
+  .brand { font-size: 21px; }
+  h1 { font-size: 28px; }
+  .titlerow { flex-direction: row; align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px; }
+  .titlerow h1 { margin: 0; }
+  .titlerow .lead { display: none; }
+  .titlerow .mode { margin-top: 0; }
+  .mode button { font-size: 14px; padding: 6px 10px; }
+
+  .wrap { gap: 12px; }
+  .calc { padding: 10px; gap: 10px; }
+  .pad.basic { gap: 7px; }
+  .k { height: 50px; }
+  .k.gst { height: 38px; }
+  .pad.sci .k { height: 38px; }
+  .screen.done .res { font-size: 38px; min-height: 42px; }
+}
+@media (max-width: 350px) { .titlerow { flex-wrap: wrap; } }
+/* Scientific on phones: everything shrinks a step so all 41 keys fit one screen */
+@media (max-width: 720px) {
+  body.is-sci { padding-block: 8px 24px; }
+  body.is-sci .tape { display: none; }
+  body.is-sci .wrap { gap: 8px; }
+  body.is-sci .titlerow { margin-top: 4px; }
+  body.is-sci h1 { font-size: 24px; }
+  body.is-sci .calc { padding: 8px; gap: 7px; }
+  body.is-sci .screen { padding: 6px 10px 6px; }
+  body.is-sci .expr { font-size: 22px; min-height: 27px; }
+  body.is-sci .screen.done .expr { font-size: 15px; }
+  body.is-sci .res { min-height: 22px; font-size: 18px; }
+  body.is-sci .screen.done .res { font-size: 32px; min-height: 36px; }
+  body.is-sci .pad.basic { gap: 5px; }
+  body.is-sci .pad.sci { gap: 5px; }
+  /* Key height follows the screen height: taller phones get bigger keys, short phones still fit */
+  body.is-sci { --u: clamp(34px, calc((100vh - 290px) / 8.1), 50px); --u: clamp(34px, calc((100dvh - 290px) / 8.1), 50px); }
+  body.is-sci .k { height: var(--u); font-size: 22px; }
+  body.is-sci .k.op { font-size: 24px; }
+  body.is-sci .k.gst { height: calc(var(--u) * .78); font-size: 15px; }
+  body.is-sci .pad.sci .k { height: calc(var(--u) * .78); font-size: 15px; }
+}
+@media (prefers-reduced-motion: reduce) { .k, .expr, .res { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="tape" aria-hidden="true"></div>
+    <div class="toprow">
+      <div class="brand">crnrstone<span class="dash">-</span>co</div>
+      <button class="tgl" id="theme" type="button" aria-label="Switch to night mode"><svg id="theme-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg><span class="t" id="theme-t">Night</span></button>
+    </div>
+    <div class="titlerow">
+      <h1>Calculator</h1>
+      <p class="lead">An example is loaded. Tap any key to start your own. Sums follow BODMAS, so 2&nbsp;+&nbsp;3&nbsp;×&nbsp;4&nbsp;=&nbsp;14.</p>
+      <div class="mode" role="group" aria-label="Calculator type">
+        <button type="button" id="m-basic" aria-pressed="true">Basic</button>
+        <button type="button" id="m-sci" aria-pressed="false">Scientific</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="calc" aria-label="Calculator">
+    <div class="screen" id="screen">
+      <div class="expr" id="expr" aria-live="off"></div>
+      <div class="res" id="res" role="status" aria-live="polite" title="Tap to copy"></div>
+      <div class="meta">
+        <button class="copy" id="copy" type="button" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Copy</button>
+        <span class="note" id="note"></span>
+        <span class="angle" id="angle" hidden>DEG</span>
+      </div>
+    </div>
+    <div class="pad sci" id="sci" hidden></div>
+    <div class="pad basic" id="basic"></div>
+  </section>
+  <p class="kbd">On a laptop you can type with your keyboard. Enter for =, Esc to clear.</p>
+
+  <section class="hist" aria-label="History">
+    <div class="hist-h"><h2>History</h2><span class="hbtns"><button class="clear" id="copyall" type="button">Copy all</button><button class="clear" id="clear" type="button">Clear</button></span></div>
+    <p class="hint">Tap a line to use its answer in your next sum.</p>
+    <ol id="hlist"></ol>
+  </section>
+
+  <div class="tip" id="tip"></div>
+  <p class="foot">Prototype. Check answers against your own working while we test it.</p>
+</div>
+
+<script>
+// ENGINE START (pure functions, tested separately)
+const DEG = Math.PI / 180;
+const FN = ['sin⁻¹(', 'cos⁻¹(', 'tan⁻¹(', 'sin(', 'cos(', 'tan(', '√('];
+const VAL_END = t => /^[\d.]$/.test(t) || t === ')' || t === 'π' || t === 'Ans' || t === '²' || t === '%';
+
+function tokenize(s) {
+  const out = [];
+  let i = 0;
+  while (i < s.length) {
+    const c = s[i];
+    if (c === ' ') { i++; continue; }
+    const m = /^(\d+\.?\d*|\.\d+)/.exec(s.slice(i));
+    if (m) { out.push({ t: 'num', v: parseFloat(m[1]) }); i += m[1].length; continue; }
+    if (s.startsWith('Ans', i)) { out.push({ t: 'ans' }); i += 3; continue; }
+    const f = FN.find(n => s.startsWith(n, i));
+    if (f) { out.push({ t: 'fn', f: f.slice(0, -1) }); out.push({ t: '(' }); i += f.length; continue; }
+    const map = { '-': '−', '*': '×', '/': '÷' };
+    const ch = map[c] || c;
+    if ('+−×÷^%²()π'.includes(ch)) { out.push(ch === 'π' ? { t: 'pi' } : { t: ch }); i++; continue; }
+    throw new Error('That sum has a symbol the calculator does not know.');
+  }
+  // implicit multiplication: 2π, 2(3), 3sin(30), )(, Ans2
+  const res = [];
+  const ends = k => ['num', 'pi', 'ans', ')', '²', '%'].includes(k.t);
+  const starts = k => ['num', 'pi', 'ans', '(', 'fn'].includes(k.t);
+  out.forEach((k, j) => { if (j && ends(out[j - 1]) && starts(k)) res.push({ t: '×' }); res.push(k); });
+  return res;
+}
+
+function calc(src, opt) {
+  opt = opt || {};
+  const deg = opt.deg !== false;
+  const ans = opt.ans || 0;
+  try {
+    let open = 0;
+    for (const ch of src) { if (ch === '(') open++; if (ch === ')') open--; if (open < 0) throw new Error('There is a closing bracket with no opening bracket.'); }
+    src += ')'.repeat(open); // close any brackets left open
+    const tk = tokenize(src);
+    if (!tk.length) return { empty: true };
+    let p = 0;
+    const peek = () => tk[p] && tk[p].t;
+    const pv = n => (n.pct ? n.v / 100 : n.v);
+    const incomplete = () => new Error('Finish the sum first.');
+
+    function expr() {
+      let l = term();
+      while (peek() === '+' || peek() === '−') {
+        const op = tk[p++].t;
+        if (!tk[p]) throw incomplete();
+        const r = term();
+        const lv = pv(l);
+        const rv = r.pct ? lv * r.v / 100 : r.v; // 200 + 10% = 220
+        l = { v: op === '+' ? lv + rv : lv - rv };
+      }
+      return l;
+    }
+    function term() {
+      let l = unary();
+      while (peek() === '×' || peek() === '÷') {
+        const op = tk[p++].t;
+        if (!tk[p]) throw incomplete();
+        const r = unary();
+        if (op === '÷' && pv(r) === 0) throw new Error('You cannot divide by zero.');
+        // A percentage carries through × and ÷ so 200 + 10% × 2 = 240 (20% of 200 added)
+        if (op === '×' && l.pct !== r.pct) l = { v: l.v * r.v, pct: true };
+        else if (op === '÷' && l.pct && !r.pct) l = { v: l.v / r.v, pct: true };
+        else l = { v: op === '×' ? pv(l) * pv(r) : pv(l) / pv(r) };
+      }
+      return l;
+    }
+    function unary() {
+      if (peek() === '−') { p++; if (!tk[p]) throw incomplete(); const n = unary(); return { v: -n.v, pct: n.pct }; }
+      if (peek() === '+') { p++; return unary(); }
+      return power();
+    }
+    function power() {
+      const b = postfix();
+      if (peek() === '^') {
+        p++;
+        if (!tk[p]) throw incomplete();
+        const e = unary();
+        const v = Math.pow(pv(b), pv(e));
+        if (isNaN(v)) throw new Error('That power has no real answer.');
+        return { v };
+      }
+      return b;
+    }
+    function postfix() {
+      let n = primary();
+      while (peek() === '²' || peek() === '%') {
+        const op = tk[p++].t;
+        n = op === '²' ? { v: pv(n) * pv(n) } : { v: pv(n), pct: true };
+      }
+      return n;
+    }
+    function primary() {
+      const k = tk[p];
+      if (!k) throw incomplete();
+      if (k.t === 'num') { p++; return { v: k.v }; }
+      if (k.t === 'pi') { p++; return { v: Math.PI }; }
+      if (k.t === 'ans') { p++; return { v: ans }; }
+      if (k.t === '(' || k.t === 'fn') {
+        p++;
+        if (k.t === 'fn') p++; // skip its '('
+        if (peek() === ')') throw new Error('Put a number inside the brackets.');
+        const inner = pv(expr());
+        if (peek() !== ')') throw incomplete();
+        p++;
+        return { v: k.t === 'fn' ? fn(k.f, inner) : inner };
+      }
+      throw incomplete();
+    }
+    function fn(f, x) {
+      const snap = v => (Math.abs(v) < 1e-12 ? 0 : v);
+      const a = deg ? x * DEG : x;
+      switch (f) {
+        case 'sin': return snap(Math.sin(a));
+        case 'cos': return snap(Math.cos(a));
+        case 'tan':
+          if (snap(Math.cos(a)) === 0) throw new Error('tan of ' + (deg ? '90°' : 'π/2') + ' (and every half turn on) has no answer.');
+          return snap(Math.tan(a));
+        case 'sin⁻¹': case 'cos⁻¹':
+          if (x < -1 || x > 1) throw new Error(f + ' needs a number from −1 to 1.');
+          return (f === 'sin⁻¹' ? Math.asin(x) : Math.acos(x)) / (deg ? DEG : 1);
+        case 'tan⁻¹': return Math.atan(x) / (deg ? DEG : 1);
+        case '√':
+          if (x < 0) throw new Error('You cannot take the square root of a negative number.');
+          return Math.sqrt(x);
+      }
+    }
+
+    const r = expr();
+    if (p < tk.length) throw incomplete();
+    const v = pv(r);
+    if (!isFinite(v)) return { error: 'That answer is too big to show.' };
+    return { value: Object.is(v, -0) ? 0 : v };
+  } catch (e) {
+    return { error: e.message };
+  }
+}
+
+const SUP = { '-': '⁻', '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹' };
+// Shown number: 10 significant digits (hides tiny float noise such as 0.1 + 0.2), commas for thousands.
+function fmt(v) {
+  if (v === 0) return '0';
+  const a = Math.abs(v);
+  if (a >= 1e15 || a < 1e-6) {
+    const [m, e] = v.toPrecision(10).split('e');
+    return (String(Number(m)) + '×10' + String(Number(e)).replace(/./g, c => SUP[c])).replace(/^-/, '−');
+  }
+  return Number(v.toPrecision(10)).toLocaleString('en-AU', { maximumFractionDigits: 10 }).replace('-', '−');
+}
+// Plain number for copying and reusing (no commas).
+function money(v) { return v.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace('-', '−'); }
+function plain(v) { return String(Number(v.toPrecision(10))); }
+// ENGINE END
+
+const el = id => document.getElementById(id);
+const OPS = ['+', '−', '×', '÷', '^'];
+let toks = [], done = false, lastToks = [], ans = 0, deg = true;
+let history = [], showExample = true, lastNote = null, lastShown = '', lastMoney = false;
+
+const BASIC = [
+  ['+ GST', 'gst+', 'gst wide'], ['− GST', 'gst-', 'gst wide'],
+  ['AC', 'ac', 'ac'], ['⌫', 'del', 'fn'], ['%', '%', 'op'], ['÷', '÷', 'op'],
+  ['7', '7'], ['8', '8'], ['9', '9'], ['×', '×', 'op'],
+  ['4', '4'], ['5', '5'], ['6', '6'], ['−', '−', 'op'],
+  ['1', '1'], ['2', '2'], ['3', '3'], ['+', '+', 'op'],
+  ['0', '0', 'wide'], ['.', '.'], ['=', 'eq', 'eq'],
+];
+const SCI = [
+  ['DEG', 'deg'], ['sin', 'sin('], ['cos', 'cos('], ['tan', 'tan('], ['π', 'π'],
+  ['sin<sup>−1</sup>', 'sin⁻¹('], ['cos<sup>−1</sup>', 'cos⁻¹('], ['tan<sup>−1</sup>', 'tan⁻¹('], ['(', '('], [')', ')'],
+  ['<i>x</i><sup>2</sup>', '²'], ['√', '√('], ['<i>x</i><sup><i>y</i></sup>', '^'], ['1/<i>x</i>', 'inv'], ['Ans', 'Ans'],
+];
+const LABEL = { 'deg': 'Switch between degrees and radians', '²': 'Square', '^': 'Power', 'inv': 'One divided by the number', '√(': 'Square root', 'del': 'Delete', 'ac': 'All clear', 'eq': 'Equals', 'gst+': 'Add GST', 'gst-': 'Remove GST', 'sin⁻¹(': 'Inverse sine', 'cos⁻¹(': 'Inverse cosine', 'tan⁻¹(': 'Inverse tangent' };
+const KEYS = {};
+function buildPad(id, list) {
+  for (const [lab, act, cls] of list) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'k' + (cls ? ' ' + cls : '');
+    b.innerHTML = '<span>' + lab + '</span>';
+    if (LABEL[act]) b.setAttribute('aria-label', LABEL[act]);
+    b.addEventListener('click', () => key(act));
+    el(id).appendChild(b);
+    KEYS[act] = b;
+  }
+}
+
+const TIPS = [
+  'To find the GST inside a price, divide by 11. A $1,100 invoice includes $100 GST.',
+  'The % key works like a desk calculator: 200 + 10% gives 220, and 200 × 10% gives 20.',
+  'Roof pitch from rise and run: tan⁻¹(rise ÷ run). Try tan⁻¹(1450 ÷ 3500) in Scientific. It is about 22.5°.',
+  'Check a corner is square: √(3² + 4²) = 5. It works for 600, 800 and 1000 mm too.',
+  'Floor area in m²: change mm to metres first. 4800 × 3600 mm is 4.8 × 3.6 = 17.28 m².',
+  'BODMAS: brackets, orders (powers and roots), division and multiplication, then addition and subtraction.',
+];
+let tipIdx = 0;
+function setTip() { el('tip').innerHTML = '<strong>Did you know</strong>' + TIPS[tipIdx % TIPS.length]; }
+
+function openCount() { let n = 0; for (const t of toks) { if (t.endsWith('(')) n++; if (t === ')') n--; } return n; }
+function curNumber() { let s = ''; for (let i = toks.length - 1; i >= 0 && /^[\d.]$/.test(toks[i]); i--) s = toks[i] + s; return s; }
+
+function insert(t) {
+  if (done) {
+    done = false;
+    toks = (OPS.includes(t) || t === '²' || t === '%') ? ['Ans'] : [];
+  }
+  const last = toks[toks.length - 1];
+  if (toks.length > 120) return;
+  if (OPS.includes(t)) {
+    if (!toks.length) { if (t === '−') toks.push(t); return; }
+    if (OPS.includes(last)) {
+      if (t === '−' && ['×', '÷', '^'].includes(last)) { toks.push(t); return; }
+      while (OPS.includes(toks[toks.length - 1])) toks.pop();
+      if (!toks.length || toks[toks.length - 1].endsWith('(')) { if (t === '−') toks.push(t); return; }
+      toks.push(t); return;
+    }
+    if (last.endsWith('(') && t !== '−') return;
+    toks.push(t); return;
+  }
+  if (t === '.') {
+    if (curNumber().includes('.')) return;
+    if (!last || !/^\d$/.test(last)) { if (last && VAL_END(last)) return; toks.push('0'); }
+    toks.push('.'); return;
+  }
+  if (t === '²' || t === '%') { if (last && VAL_END(last)) toks.push(t); return; }
+  if (t === ')') { if (openCount() > 0 && last && VAL_END(last)) toks.push(t); return; }
+  // Show the × that is implied, e.g. 4.8 then tan gives 4.8 × tan(
+  const isDigit = /^\d$/.test(t);
+  if (last && VAL_END(last) && !(isDigit && /^[\d.]$/.test(last))) toks.push('×');
+  toks.push(t);
+}
+
+function current() {
+  if (done) return { value: ans };
+  return calc(toks.join(''), { deg, ans });
+}
+
+function addHistory(q, v, sub, isMoney) {
+  if (showExample) { history = []; showExample = false; }
+  history.unshift({ q, v, sub: sub || '', money: !!isMoney });
+  history = history.slice(0, 40);
+  save();
+}
+
+function equals() {
+  if (done || !toks.length) return;
+  const r = calc(toks.join(''), { deg, ans });
+  if (r.error) { note(r.error, 'err'); return; }
+  while (openCount() > 0) toks.push(')');
+  lastToks = toks.slice(); lastShown = pretty(toks); lastMoney = false;
+  ans = r.value;
+  addHistory(pretty(toks), ans);
+  done = true; lastNote = null;
+}
+
+function gst(add) {
+  const r = current();
+  if (r.empty || (!done && !toks.length)) { note('Enter an amount first, then tap ' + (add ? '+ GST' : '− GST') + '.', 'err'); return; }
+  if (r.error) { note(r.error, 'err'); return; }
+  const v = r.value;
+  const out = Math.round((add ? v * 1.1 : v / 1.1) * 100) / 100; // money: to the cent
+  const g = Math.abs(out - v);
+  const q = money(v) + (add ? ' + GST' : ' − GST');
+  const sub = 'GST $' + money(g);
+  // Delete afterwards brings back the amount (or the sum) before GST
+  if (!done) lastToks = toks.slice();
+  else { const pl = plain(v); lastToks = pl.includes('e') ? [] : [...pl.replace('-', '−')]; }
+  lastShown = q;
+  ans = out; lastMoney = true;
+  addHistory(q, out, sub, true);
+  done = true;
+  lastNote = { text: sub + (add ? ' added (10%)' : ' taken out (1/11 of the price)'), cls: 'gst' };
+}
+
+function key(act) {
+  lastNote = done ? lastNote : null;
+  switch (act) {
+    case 'ac': toks = []; done = false; lastNote = null; break;
+    case 'del':
+      if (done) { toks = lastToks.slice(); done = false; }
+      else toks.pop();
+      lastNote = null; break;
+    case 'eq': equals(); break;
+    case 'gst+': gst(true); break;
+    case 'gst-': gst(false); break;
+    case 'deg': deg = !deg; KEYS.deg.textContent = deg ? 'DEG' : 'RAD'; KEYS.deg.classList.toggle('on', !deg); save(); break;
+    case 'inv':
+      if (done) { done = false; toks = ['1', '÷', 'Ans']; }
+      else if (!toks.length) toks = ['1', '÷'];
+      else toks = ['1', '÷', '(', ...toks, ')'];
+      lastNote = null; break;
+    default:
+      if (done && (OPS.includes(act) || act === '²' || act === '%')) lastNote = null;
+      else if (done) lastNote = null;
+      insert(act);
+  }
+  render();
+}
+
+function pretty(list) {
+  let s = '';
+  list.forEach((t, i) => {
+    const binary = OPS.includes(t) && t !== '^' && i > 0 && VAL_END(list[i - 1]);
+    s += binary ? ' ' + t + ' ' : t;
+  });
+  return s;
+}
+
+let noteTimer = null;
+function note(text, cls) {
+  el('note').textContent = text; el('note').className = 'note' + (cls ? ' ' + cls : '');
+  clearTimeout(noteTimer);
+  if (cls === 'err') noteTimer = setTimeout(() => { if (el('note').className.includes('err')) { el('note').textContent = ''; el('note').className = 'note'; } }, 4000);
+}
+
+function render() {
+  const scr = el('screen'), e = el('expr'), r = el('res');
+  scr.classList.toggle('done', done);
+  if (done) {
+    e.textContent = (lastShown || pretty(lastToks)) + ' =';
+    const shown = lastMoney ? money(ans) : fmt(ans);
+    r.textContent = shown;
+    r.classList.toggle('long', shown.length > 13);
+    el('copy').disabled = false;
+  } else {
+    if (toks.length) {
+      const closing = ')'.repeat(Math.max(0, openCount()));
+      e.innerHTML = '';
+      e.append(pretty(toks));
+      if (closing) { const s = document.createElement('span'); s.className = 'ph'; s.textContent = closing; e.append(s); }
+    } else e.innerHTML = '<span class="ph">0</span>';
+    const c = toks.length ? calc(toks.join(''), { deg, ans }) : {};
+    const single = toks.every(t => /^[\d.]$/.test(t));
+    r.textContent = (c.value != null && !single) ? '= ' + fmt(c.value) : '';
+    r.classList.remove('long');
+    el('copy').disabled = c.value == null;
+  }
+  e.scrollLeft = e.scrollWidth;
+  if (lastNote) note(lastNote.text, lastNote.cls);
+  else if (!el('note').className.includes('err')) note('');
+  el('angle').hidden = el('sci').hidden;
+  el('angle').textContent = deg ? 'DEG' : 'RAD';
+  renderHistory();
+}
+
+const EXAMPLES = [
+  { q: '4.8 × 3.6', v: 17.28, sub: 'Floor area in m²' },
+  { q: '1,000.00 + GST', v: 1100, sub: 'GST $100.00', money: true },
+  { q: '√(3² + 4²)', v: 5, sub: 'Square check' },
+];
+function renderHistory() {
+  const list = el('hlist');
+  list.innerHTML = '';
+  const items = showExample ? EXAMPLES : history;
+  el('clear').hidden = el('copyall').hidden = showExample || !history.length;
+  if (!items.length) { list.innerHTML = '<li class="hint" style="color:var(--mute);font-size:14px;padding:6px 2px">Your sums will show here.</li>'; return; }
+  for (const h of items) {
+    const li = document.createElement('li');
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'row' + (showExample ? ' ex' : '');
+    const q = document.createElement('span'); q.className = 'q';
+    if (showExample) { const t = document.createElement('span'); t.className = 'tag'; t.textContent = 'Example'; q.append(t); }
+    q.append(h.q);
+    const a = document.createElement('span'); a.className = 'ans'; a.textContent = '= ' + (h.money ? money(h.v) : fmt(h.v));
+    if (h.sub) { const s = document.createElement('span'); s.className = 'sub'; s.textContent = h.sub; a.append(s); }
+    b.append(q, a);
+    b.setAttribute('aria-label', 'Use ' + fmt(h.v));
+    b.addEventListener('click', () => useAnswer(h.v));
+    li.append(b); list.append(li);
+  }
+}
+
+function useAnswer(v) {
+  const p = plain(v);
+  if (done) { done = false; toks = []; }
+  const last = toks[toks.length - 1];
+  if (last && VAL_END(last)) toks.push('×');
+  if (p.includes('e')) { ans = v; toks.push('Ans'); }
+  else { if (v < 0 && last && !OPS.includes(last)) toks.push('('); for (const ch of p.replace('-', '−')) toks.push(ch); if (v < 0 && last && !OPS.includes(last)) toks.push(')'); }
+  lastNote = null;
+  render();
+  note('Added ' + fmt(v) + ' to your sum.');
+}
+
+function copyAnswer() {
+  const r = current();
+  if (r.value == null) return;
+  const text = plain(r.value);
+  const ok = () => note('Copied ' + text);
+  try {
+    navigator.clipboard.writeText(text).then(ok, () => fallback(text));
+  } catch (e) { fallback(text); }
+}
+function fallback(text) {
+  const r = el('res');
+  const sel = window.getSelection(), range = document.createRange();
+  range.selectNodeContents(r); sel.removeAllRanges(); sel.addRange(range);
+  note('Selected. Press copy on your device to copy ' + text + '.');
+}
+
+function setMode(sci) {
+  el('sci').hidden = !sci;
+  document.body.classList.toggle('is-sci', sci);
+  el('m-basic').setAttribute('aria-pressed', String(!sci));
+  el('m-sci').setAttribute('aria-pressed', String(sci));
+  save(); render();
+}
+
+function save() {
+  try {
+    localStorage.setItem('crnrstone-calc', JSON.stringify({ history: showExample ? [] : history, sci: !el('sci').hidden, deg, ans }));
+  } catch (e) {}
+}
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem('crnrstone-calc') || 'null');
+    if (!d) return;
+    if (Array.isArray(d.history) && d.history.length) { history = d.history.filter(h => h && typeof h.v === 'number').slice(0, 40); showExample = !history.length; }
+    if (typeof d.ans === 'number') ans = d.ans;
+    if (d.deg === false) { deg = false; KEYS.deg.textContent = 'RAD'; KEYS.deg.classList.add('on'); }
+    if (d.sci) { el('sci').hidden = false; document.body.classList.add('is-sci'); el('m-basic').setAttribute('aria-pressed', 'false'); el('m-sci').setAttribute('aria-pressed', 'true'); }
+  } catch (e) {}
+}
+
+// Laptop keyboard
+const KB = { '+': '+', '-': '−', '*': '×', 'x': '×', '/': '÷', '^': '^', '%': '%', '(': '(', ')': ')', '.': '.', ',': '.', 'Enter': 'eq', '=': 'eq', 'Backspace': 'del', 'Escape': 'ac', 'Delete': 'ac', 'p': 'π', 's': 'sin(', 'c': 'cos(', 't': 'tan(', 'r': '√(' };
+document.addEventListener('keydown', ev => {
+  if (ev.ctrlKey || ev.metaKey || ev.altKey) {
+    if ((ev.ctrlKey || ev.metaKey) && ev.key === 'c' && !String(window.getSelection())) { copyAnswer(); ev.preventDefault(); }
+    return;
+  }
+  const act = /^\d$/.test(ev.key) ? ev.key : KB[ev.key];
+  if (!act) return;
+  if (act === 'eq' && document.activeElement && document.activeElement.tagName === 'BUTTON' && document.activeElement !== document.body) { document.activeElement.blur(); }
+  ev.preventDefault();
+  key(act);
+  const b = KEYS[act];
+  if (b) { b.classList.add('hit'); setTimeout(() => b.classList.remove('hit'), 90); }
+});
+
+buildPad('sci', SCI);
+buildPad('basic', BASIC);
+load();
+setTip();
+el('m-basic').addEventListener('click', () => setMode(false));
+el('m-sci').addEventListener('click', () => setMode(true));
+el('copy').addEventListener('click', copyAnswer);
+el('res').addEventListener('click', copyAnswer);
+el('copyall').addEventListener('click', () => {
+  const text = history.map(h => h.q + ' = ' + (h.money ? money(h.v) : fmt(h.v)) + (h.sub ? '  (' + h.sub + ')' : '')).reverse().join('\n');
+  const ok = () => note('History copied. Paste it into a note, email or quote.');
+  try { navigator.clipboard.writeText(text).then(ok, () => note('Your device blocked copying. Try again from a browser.', 'err')); }
+  catch (e) { note('Your device blocked copying. Try again from a browser.', 'err'); }
+});
+el('clear').addEventListener('click', () => { history = []; save(); tipIdx++; setTip(); render(); });
+// Open with a worked example (a floor area sum) already answered. Any key starts a new sum.
+lastToks = ['4', '.', '8', '×', '3', '.', '6']; lastShown = '4.8 × 3.6';
+if (showExample) { ans = 17.28; done = true; } else lastToks = [];
+render();
+
+(function () {
+  var root = document.documentElement, btn = el('theme');
+  var SUN = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>';
+  var MOON = '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>';
+  function isDark() {
+    var t = root.getAttribute('data-theme');
+    if (t) return t === 'dark';
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  function paint() {
+    var dark = isDark();
+    el('theme-ic').innerHTML = dark ? SUN : MOON;
+    el('theme-t').textContent = dark ? 'Day' : 'Night';
+    btn.setAttribute('aria-label', dark ? 'Switch to day mode' : 'Switch to night mode');
+  }
+  try { var saved = localStorage.getItem('crnrstone-theme'); if (saved === 'dark' || saved === 'light') root.setAttribute('data-theme', saved); } catch (e) {}
+  btn.addEventListener('click', function () {
+    var next = isDark() ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('crnrstone-theme', next); } catch (e) {}
+    paint();
+  });
+  paint();
+})();
+</script>
+
+</body></html>

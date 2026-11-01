@@ -1,0 +1,340 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>crnrstone-co</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/* Layout: dark hero on a drafting grid with the plan triangle, then roles, toolkit (live tools, 3D model preview, planned), the name story, and an updates band. Faint grid linework runs through the hero and banded sections, echoing the 3D model's ground grid. */
+:root{--bg:#EDF0F5;--surface:#fff;--ink:#0E1A2E;--mute:#56657A;--line:#D0D7E1;--accent:#E3A857;--accent-ink:#0E1A2E;--plan:#C4821F;--hero:#0E1A2E;--hero-ink:#EAF0F8;--g:#1E9E5A;--b:#0F7FBF;--r:#D93636;--gridline:rgba(14,26,46,.055);--gridmajor:rgba(14,26,46,.09);--hgrid:rgba(234,240,248,.04);--hgridmajor:rgba(234,240,248,.08)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0A1220;--surface:#111C30;--ink:#E6ECF5;--mute:#8FA0B8;--line:#22324A;--plan:#E3A857;--hero:#0A1220;--g:#3FCF85;--b:#4CC3F5;--r:#FF7070;--gridline:rgba(230,236,245,.035);--gridmajor:rgba(230,236,245,.07);color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0A1220;--surface:#111C30;--ink:#E6ECF5;--mute:#8FA0B8;--line:#22324A;--plan:#E3A857;--hero:#0A1220;--g:#3FCF85;--b:#4CC3F5;--r:#FF7070;--gridline:rgba(230,236,245,.035);--gridmajor:rgba(230,236,245,.07);color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 Barlow,system-ui,sans-serif}
+a{color:inherit}
+.wrap{max-width:1040px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.tape{height:14px;background:var(--accent);background-image:repeating-linear-gradient(90deg,var(--accent-ink) 0 1.5px,transparent 1.5px 10px),repeating-linear-gradient(90deg,var(--accent-ink) 0 1.5px,transparent 1.5px 50px);background-size:100% 6px,100% 11px;background-repeat:no-repeat}
+h1,h2,h3{font-family:"Barlow Condensed",sans-serif;line-height:1.02;margin:0;text-wrap:balance}
+h1{font-size:clamp(40px,8vw,72px);font-weight:700}
+h2{font-size:clamp(28px,5vw,40px);font-weight:700;margin-bottom:10px}
+h3{font-size:22px;font-weight:700;margin-bottom:4px}
+
+/* Drafting grid: minor lines every 24px, major every 120px (like the 1 m lines in the 3D model) */
+.gridded{position:relative;isolation:isolate}
+.gridded::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background-image:linear-gradient(var(--gl-major) 1px,transparent 1px),linear-gradient(90deg,var(--gl-major) 1px,transparent 1px),linear-gradient(var(--gl) 1px,transparent 1px),linear-gradient(90deg,var(--gl) 1px,transparent 1px);
+  background-size:120px 120px,120px 120px,24px 24px,24px 24px;background-position:center top}
+.hero.gridded::before{--gl:var(--hgrid);--gl-major:var(--hgridmajor);-webkit-mask-image:radial-gradient(ellipse 80% 90% at 70% 45%,#000 30%,transparent 85%);mask-image:radial-gradient(ellipse 80% 90% at 70% 45%,#000 30%,transparent 85%)}
+/* Page grid: one continuous sheet behind all sections, revealed in soft scattered patches so it drifts in and out */
+main{position:relative}
+main::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(var(--gridmajor) 1px,transparent 1px),linear-gradient(90deg,var(--gridmajor) 1px,transparent 1px),linear-gradient(var(--gridline) 1px,transparent 1px),linear-gradient(90deg,var(--gridline) 1px,transparent 1px);
+  background-size:120px 120px,120px 120px,24px 24px,24px 24px;background-position:center top;
+  --patches:radial-gradient(ellipse 48% 9% at 88% 4%,#000,transparent 70%),radial-gradient(ellipse 38% 7% at 10% 17%,#000,transparent 70%),radial-gradient(ellipse 60% 11% at 64% 33%,rgba(0,0,0,.8),transparent 70%),linear-gradient(28deg,transparent 44%,rgba(0,0,0,.55) 50%,transparent 56%),radial-gradient(ellipse 32% 8% at 18% 52%,#000,transparent 70%),radial-gradient(ellipse 52% 10% at 82% 67%,rgba(0,0,0,.9),transparent 70%),radial-gradient(ellipse 44% 8% at 34% 84%,#000,transparent 70%),radial-gradient(ellipse 28% 6% at 72% 96%,rgba(0,0,0,.8),transparent 70%);
+  -webkit-mask-image:var(--patches);mask-image:var(--patches)}
+main > section > .wrap{position:relative;z-index:1}
+
+.hero{background:var(--hero);color:var(--hero-ink)}
+nav{display:flex;justify-content:space-between;align-items:center;padding-block:18px;gap:12px}
+.logo{font:700 24px "Barlow Condensed",sans-serif;text-decoration:none;letter-spacing:.02em;white-space:nowrap}
+.logo span{color:var(--accent)}
+.logo .dash{margin:0 .15em}
+nav .links{display:flex;gap:18px;align-items:center;font-weight:500}
+nav a.l{text-decoration:none;opacity:.85}
+nav a.l:hover{opacity:1}
+.tgl{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;min-width:40px;padding:0 12px;border-radius:99px;background:transparent;color:inherit;border:1.5px solid currentColor;font:600 15px Barlow,sans-serif;cursor:pointer;opacity:.9}
+.tgl:hover{opacity:1}
+.tgl svg{width:18px;height:18px;flex:none}
+@media (max-width:720px){.tgl .t{display:none}.tgl{padding:0}nav .links{gap:10px}nav .links .btn{padding:8px 12px!important;font-size:15px!important}}
+.btn{display:inline-block;font:600 17px Barlow,sans-serif;padding:13px 22px;border-radius:6px;background:var(--accent);color:var(--accent-ink);text-decoration:none;border:2px solid var(--accent)}
+.btn.ghost{background:transparent;color:inherit;border-color:currentColor}
+.btn:focus-visible,a:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.herogrid{display:grid;grid-template-columns:1.2fr 1fr;gap:32px;align-items:center;padding-block:36px 64px}
+.herogrid > *{min-width:0}
+.herogrid p{font-size:19px;max-width:34em;opacity:.9;margin:16px 0 24px}
+.cta{display:flex;gap:12px;flex-wrap:wrap}
+.herogrid svg{width:100%;height:auto;max-width:340px;justify-self:center}
+section{padding-block:56px}
+.lead{color:var(--mute);max-width:38em;margin:0 0 28px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(230px,100%),1fr));gap:14px}
+@media (min-width:900px){#tools .cards.live{grid-template-columns:repeat(2,minmax(0,1fr))}#tools .cards.soon4{grid-template-columns:repeat(4,minmax(0,1fr))}}
+#tools h3.sub{font:700 13px Barlow,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin:30px 0 12px}
+#tools .lead + h3.sub{margin-top:0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:20px;border-top:5px solid var(--c,var(--accent))}
+.card p{margin:4px 0 0;color:var(--mute);font-size:16px}
+.tag{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:99px;margin-bottom:8px;background:var(--accent);color:var(--accent-ink)}
+.tag.soon{background:transparent;border:1.5px solid var(--line);color:var(--mute)}
+.tag.test{background:transparent;border:1.5px solid var(--plan);color:var(--plan)}
+.card a.go{display:inline-block;margin-top:10px;font-weight:600}
+.band{background:var(--surface);border-block:1px solid var(--line)}
+
+/* 3D floor model preview */
+.feature{display:grid;grid-template-columns:1fr 1.25fr;gap:0;padding:0;overflow:hidden;border-top-color:var(--plan)}
+.feature > *{min-width:0}
+.feature .txt{padding:22px}
+.feature ul{margin:10px 0 0;padding-left:18px;color:var(--mute);font-size:16px}
+.feature li{margin:2px 0}
+.stage{position:relative;background:#121519;color:var(--hero-ink);padding:14px 14px 12px;display:flex;flex-direction:column;gap:10px}
+.stage .view{position:relative;width:100%;aspect-ratio:16/10;max-width:100%;border-radius:6px;overflow:hidden;cursor:grab;touch-action:pan-y}
+.stage .view:active{cursor:grabbing}
+.stage canvas{display:block;width:100%;height:100%}
+.stage .fallback{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:16px;font-size:14px;opacity:.8;margin:0}
+.stage .hint{position:absolute;right:8px;bottom:6px;font-size:12px;opacity:.6;pointer-events:none}
+.steps{display:flex;gap:6px;flex-wrap:wrap}
+.steps button{font:600 13px Barlow,sans-serif;letter-spacing:.04em;color:var(--hero-ink);background:rgba(234,240,248,.06);border:1px solid rgba(234,240,248,.22);border-radius:99px;padding:5px 11px;cursor:pointer}
+.steps button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.stage .cap{font-size:13px;opacity:.75;margin:0;min-height:2.6em}
+@media (max-width:760px){.feature{grid-template-columns:1fr}.feature .stage{order:-1}}
+
+.story{max-width:40em;font-size:19px;margin:0}
+.final{text-align:center}
+.final p{color:var(--mute);margin:0 auto 22px;max-width:34em}
+.final .note{display:inline-block;border:1.5px dashed var(--line);border-radius:6px;padding:12px 18px;color:var(--ink);font-weight:500;margin:0;background:var(--surface)}
+footer{padding-block:28px 40px;color:var(--mute);font-size:14px;border-top:1px solid var(--line)}
+@media (max-width:720px){.herogrid{grid-template-columns:1fr;padding-bottom:44px}nav .links .l{display:none}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+
+<header class="hero gridded" id="top">
+  <div class="tape" aria-hidden="true"></div>
+  <div class="wrap">
+    <nav>
+      <a class="logo" href="#top">crnrstone<span class="dash">-</span>co</a>
+      <div class="links"><button class="tgl" id="theme" type="button" aria-label="Switch to night mode"><svg id="theme-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg><span class="t" id="theme-t">Night</span></button><a class="l" href="#tools">Tools</a><a class="l" href="#who">Who it’s for</a><a class="btn" href="#tools" style="padding:9px 16px;font-size:16px">Try the tools</a></div>
+    </nav>
+    <div class="herogrid">
+      <div>
+        <h1>Building strong foundations for trades.</h1>
+        <p>Calculators that show their working, safety tools and quick references, built by an educator for apprentices, teachers and tradies.</p>
+        <div class="cta"><a class="btn" href="#tools">Try the tools</a><a class="btn ghost" href="#model">See the 3D floor model</a></div>
+      </div>
+      <svg viewBox="0 0 300 300" role="img" aria-label="Illustration of a plan triangle for a hip roof corner">
+        <polygon points="110,170 110,60 220,170" fill="var(--plan)" fill-opacity=".3"/>
+        <polygon points="50,60 110,60 110,170" fill="var(--g)" fill-opacity=".18"/>
+        <polygon points="110,60 152,18 220,170" fill="var(--b)" fill-opacity=".2"/>
+        <polygon points="110,170 220,170 110,280" fill="var(--r)" fill-opacity=".16"/>
+        <g stroke-width="4" stroke-linecap="round" fill="none">
+          <path d="M50,60 H110 V170 Z" stroke="var(--g)"/>
+          <path d="M110,60 L152,18 L220,170 Z" stroke="var(--b)"/>
+          <path d="M110,170 H220 L110,280 Z" stroke="var(--r)"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<main>
+<section id="who"><div class="wrap">
+  <h2>Built for the classroom and the site</h2>
+  <p class="lead">One toolkit with a role for everyone. Pick yours and see only what you need.</p>
+  <div class="cards">
+    <div class="card" style="--c:var(--g)"><h3>Students</h3><p>See the working behind every answer and build confidence before the job.</p></div>
+    <div class="card" style="--c:var(--b)"><h3>Educators</h3><p>Tools that show every step of the working, ready to use in class. Built by an educator.</p></div>
+    <div class="card" style="--c:var(--accent)"><h3>Tradies</h3><p>Fast calculators, quotes and safety paperwork on your phone.</p></div>
+  </div>
+</div></section>
+
+<section id="tools" class="band"><div class="wrap">
+  <h2>The toolkit</h2>
+  <p class="lead">Start with what’s ready now, and watch the rest take shape.</p>
+  <h3 class="sub">Ready to try</h3>
+  <div class="cards live">
+    <div class="card" style="--c:var(--b)"><span class="tag">Live</span><h3>Plan triangle</h3><p>Type a half span, pitch and eave width into boxes on the drawing to see every side and angle of the rafter and hip or valley triangles.</p><a class="go" href="calculations/plan-triangle/">Open the tool</a></div>
+    <div class="card" style="--c:var(--g)"><span class="tag">Live</span><h3>Trig solver</h3><p>Type any two values into the triangle, with at least one side, and the rest fills in, with the working shown if you want it.</p><a class="go" href="calculations/trig-solver/">Open the tool</a></div>
+  </div>
+
+  <h3 class="sub" id="model">In testing</h3>
+  <div class="card feature">
+    <div class="txt">
+      <span class="tag test">Preview</span>
+      <h3>3D floor model</h3>
+      <p>Build a floor one layer at a time and turn it around in 3D. Tap any member to see what it is, what it sits on and a typical size.</p>
+      <ul>
+        <li>Concrete slab, before and after the pour</li>
+        <li>Timber floor on timber, concrete, steel or brick supports</li>
+        <li>Dimensions in mm and an optional deck</li>
+      </ul>
+      <a class="go" href="learn/floor-model/">Open the 3D model</a>
+    </div>
+    <div class="stage" aria-label="Timber floor build-up demo">
+      <div class="steps" id="steps" role="group" aria-label="Build stage"></div>
+      <div class="view" id="view" role="img" aria-label="3D view of an L-shaped timber floor, built up from stumps to flooring. Drag to turn it."><p class="fallback" id="fb" hidden>The 3D preview needs a browser with 3D graphics turned on. Open the full model to try it.</p><span class="hint">Drag to turn</span></div>
+      <p class="cap" id="cap" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <h3 class="sub">Coming next</h3>
+  <div class="cards soon4">
+    <div class="card"><span class="tag soon">Planned</span><h3>Calculators and quotes</h3><p>Concrete, framing, flooring and rafters, plus a simple quote builder with GST.</p></div>
+    <div class="card"><span class="tag soon">Planned</span><h3>Formula cheat sheet</h3><p>The everyday construction calculations in one quick reference.</p></div>
+    <div class="card"><span class="tag soon">Planned</span><h3>JSA and SWMS builder</h3><p>Step-by-step hazard, risk and controls with a risk matrix.</p></div>
+    <div class="card"><span class="tag soon">Planned</span><h3>Standards guide</h3><p>Where to find which Australian standard, and what it covers.</p></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>Why crnrstone</h2>
+  <p class="story">A cornerstone is the first stone laid, and every other stone is set from it. We’re building the same way: solid, clear foundations in learning first, then the tools that carry you through your career.</p>
+</div></section>
+
+<section id="updates" class="band final"><div class="wrap">
+  <h2>More tools on the way</h2>
+  <p>New calculators, cheat sheets and safety tools are being built and tested with students now.</p>
+  <p class="note">Sign-up for updates opens soon.</p>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <div>© crnrstone-co. Calculators and guides are learning aids. Always check your plans, supplier information and local building codes before ordering or building.</div>
+</div></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function () {
+  var root = document.documentElement, btn = document.getElementById('theme');
+  var SUN = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>';
+  var MOON = '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>';
+  function isDark() {
+    var t = root.getAttribute('data-theme');
+    if (t) return t === 'dark';
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  function paint() {
+    var dark = isDark();
+    document.getElementById('theme-ic').innerHTML = dark ? SUN : MOON;
+    document.getElementById('theme-t').textContent = dark ? 'Day' : 'Night';
+    btn.setAttribute('aria-label', dark ? 'Switch to day mode' : 'Switch to night mode');
+  }
+  try { var saved = localStorage.getItem('crnrstone-theme'); if (saved === 'dark' || saved === 'light') root.setAttribute('data-theme', saved); } catch (e) {}
+  btn.addEventListener('click', function () {
+    var next = isDark() ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('crnrstone-theme', next); } catch (e) {}
+    paint();
+  });
+  paint();
+})();
+
+/* 3D floor model preview: a cut-down copy of the real model (same members, colours, sizes and lighting), built up in stages */
+(function () {
+  var view = document.getElementById('view'), stepsEl = document.getElementById('steps'), cap = document.getElementById('cap');
+  var STAGES = [
+    ['Stumps', 'Timber stumps on concrete pad footings, each with a galvanised ant cap on top.'],
+    ['Bearers', 'Bearers sit on the ant caps and run the length of each wing at about 1.35 m centres.'],
+    ['Joists', 'Joists sit across the bearers at 450 mm centres to carry the flooring.'],
+    ['Flooring', 'Sheet flooring is laid over the whole floor as a platform. Open the model to try strip flooring.']
+  ];
+  var cur = 3, timer = null;
+  STAGES.forEach(function (s, i) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.id = 'stage-' + i; b.textContent = (i + 1) + '. ' + s[0];
+    b.addEventListener('click', function () { stopAuto(); show(i); });
+    stepsEl.appendChild(b);
+  });
+  function stopAuto() { if (timer) { clearInterval(timer); timer = null; } }
+
+  var ok = false;
+  try { ok = !!window.THREE && !!document.createElement('canvas').getContext('webgl'); } catch (e) {}
+  if (!ok) { document.getElementById('fb').hidden = false; show = function (i) { mark(i); }; show(3); return; }
+
+  var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var XA = 5.8, ZA = 4.2, XB = 3.6, ZB = 6.9, BU = 0.5, BD = 0.1, BW = 0.075, JD = 0.09, JW = 0.045, AC = 0.006, JT = BU + BD + JD;
+  var COL = { pad: 0x6d6a64, stump: 0xa87e56, antcap: 0xc9ced4, bearer: 0xcf955a, joist: 0xe8c47f, sheet: 0xd1b88f };
+
+  var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  view.insertBefore(renderer.domElement, view.firstChild);
+  var scene = new THREE.Scene();
+  var cam = new THREE.PerspectiveCamera(40, 1.6, 0.1, 100);
+  scene.add(new THREE.HemisphereLight(0xdfe8f2, 0x3a3226, 0.75));
+  var sun = new THREE.DirectionalLight(0xffffff, 0.85); sun.position.set(8, 14, -6); scene.add(sun);
+  var fill = new THREE.DirectionalLight(0xffd6a8, 0.3); fill.position.set(-8, 6, 12); scene.add(fill);
+  var CX = XA / 2, CZ = ZB / 2;
+  var ground = new THREE.Mesh(new THREE.PlaneGeometry(14, 14), new THREE.MeshBasicMaterial({ color: 0x5a4a36, transparent: true, opacity: 0.28, depthWrite: false, side: THREE.DoubleSide }));
+  ground.rotation.x = -Math.PI / 2; ground.position.set(CX, 0, CZ); scene.add(ground);
+  var grid = new THREE.GridHelper(14, 14, 0x3b4350, 0x262c35); grid.position.set(CX, 0.002, CZ); scene.add(grid);
+
+  var mats = {};
+  for (var k in COL) mats[k] = new THREE.MeshStandardMaterial({ color: COL[k], roughness: k === 'antcap' ? 0.45 : 0.85, metalness: k === 'antcap' ? 0.35 : 0 });
+  var unit = new THREE.BoxGeometry(1, 1, 1);
+  var groups = [0, 1, 2, 3].map(function () { var g = new THREE.Group(); scene.add(g); return g; });
+  // plan is flipped left to right, as in the full model
+  function box(gi, k, x0, x1, y0, y1, z0, z1) {
+    var m = new THREE.Mesh(unit, mats[k]);
+    m.scale.set(x1 - x0, y1 - y0, z1 - z0);
+    m.position.set(XA - (x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
+    groups[gi].add(m);
+  }
+  function even(a, b, max) { var n = Math.ceil((b - a) / max), out = []; for (var i = 0; i <= n; i++) out.push(a + (b - a) * i / n); return out; }
+  function joistX(a, b) { var out = []; for (var x = a + JW / 2; x <= b - JW / 2 + 1e-6; x += 0.45) out.push(x); if (b - JW / 2 - out[out.length - 1] > 0.05) out.push(b - JW / 2); return out; }
+
+  var lines = [[0.0375, 0, XA], [1.4, 0, XA], [2.8, 0, XA], [ZA - 0.0375, 0, XA], [ZA + 1.35, 0, XB], [ZB - 0.0375, 0, XB]];
+  lines.forEach(function (l) {
+    var z = l[0];
+    box(1, 'bearer', l[1], l[2], BU, BU + BD, z - BW / 2, z + BW / 2);
+    even(l[1] + 0.1, l[2] - 0.1, 1.8).forEach(function (x) {
+      var top = BU - AC, e = 0.0625 + 0.04;
+      box(0, 'pad', x - 0.225, x + 0.225, -0.5, -0.3, z - 0.225, z + 0.225);
+      box(0, 'stump', x - 0.0625, x + 0.0625, -0.3, top, z - 0.0625, z + 0.0625);
+      box(0, 'antcap', x - e, x + e, top, top + AC, z - e, z + e);
+    });
+  });
+  joistX(0, XA).forEach(function (x) { box(2, 'joist', x - JW / 2, x + JW / 2, BU + BD, JT, 0, x < XB ? ZB : ZA); });
+  box(3, 'sheet', 0, XA, JT, JT + 0.019, 0, ZA);
+  box(3, 'sheet', 0, XB, JT, JT + 0.019, ZA, ZB);
+  // faint sheet joints so the platform reads as sheets, not one slab
+  var jm = new THREE.LineBasicMaterial({ color: 0x8c7650 }), jg = new THREE.BufferGeometry(), pts = [];
+  for (var z = 0.9; z < ZB; z += 0.9) { var xe = z < ZA ? XA : XB; pts.push(XA, JT + 0.0195, z, XA - xe, JT + 0.0195, z); }
+  jg.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3)); groups[3].add(new THREE.LineSegments(jg, jm));
+
+  var drop = [0, 0, 0, 0];
+  function mark(i) {
+    stepsEl.querySelectorAll('button').forEach(function (b, k) { b.setAttribute('aria-pressed', k === i ? 'true' : 'false'); });
+    cap.textContent = STAGES[i][1];
+  }
+  function show(i) {
+    var prev = cur; cur = i; mark(i);
+    groups.forEach(function (g, k) {
+      g.visible = k <= i;
+      if (k <= i && (k > prev || prev === 3 && i === 0)) drop[k] = still ? 0 : 0.8;
+    });
+    kick();
+  }
+
+  var ang = -0.75, dragging = false, lastX = 0, lastT = 0, running = false, onScreen = true;
+  function size() {
+    var w = view.clientWidth, h = view.clientHeight;
+    if (!w || !h) return;
+    renderer.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix();
+  }
+  function place() {
+    var r = cam.aspect < 1.3 ? 12.5 : 10.5;
+    cam.position.set(CX + Math.sin(ang) * r, 5.6, CZ + Math.cos(ang) * r);
+    cam.lookAt(CX, 0.2, CZ);
+  }
+  function frame(t) {
+    var dt = Math.min((t - lastT) / 1000, 0.05) || 0; lastT = t;
+    if (!dragging && !still) ang += dt * 0.18;
+    var moving = false;
+    groups.forEach(function (g, k) {
+      if (drop[k] > 0) { drop[k] = Math.max(0, drop[k] - dt * 1.6); moving = true; }
+      g.position.y = drop[k] * drop[k];
+    });
+    place(); renderer.render(scene, cam);
+    if (onScreen && (!still || dragging || moving)) requestAnimationFrame(frame); else running = false;
+  }
+  function kick() { if (!running) { running = true; lastT = performance.now(); requestAnimationFrame(frame); } }
+
+  view.addEventListener('pointerdown', function (e) { dragging = true; lastX = e.clientX; stopAuto(); kick(); });
+  window.addEventListener('pointermove', function (e) { if (!dragging) return; ang -= (e.clientX - lastX) * 0.008; lastX = e.clientX; });
+  window.addEventListener('pointerup', function () { dragging = false; });
+  window.addEventListener('pointercancel', function () { dragging = false; });
+  if (window.ResizeObserver) new ResizeObserver(function () { size(); kick(); }).observe(view);
+  if (window.IntersectionObserver) new IntersectionObserver(function (en) { onScreen = en[0].isIntersecting; if (onScreen) kick(); }).observe(view);
+
+  size(); cur = 3;
+  if (still) { show(3); }
+  else { show(0); timer = setInterval(function () { show((cur + 1) % STAGES.length); }, 2600); }
+})();
+</script>
+
+</body></html>

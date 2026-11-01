@@ -1,0 +1,897 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Crnrstone Floor Systems</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Archivo+Narrow:wght@500;600;700&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<style>
+/* Layout: full-screen 3D viewer; control bar floats top, member chips along the bottom, info card sits above the chips. Dark site-at-dusk look with hi-vis accent. */
+:root{
+  --bg:#121519; --panel:rgba(22,26,32,.93); --panel-solid:#1a1f26; --line:rgba(232,236,240,.14);
+  --ink:#e8ecf0; --muted:#9aa4b2; --accent:#ff8a1f; --accent-ink:#1d1206;
+  --f-display:"Archivo Narrow","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --logo-accent:var(--accent);
+  color-scheme:dark;
+}
+/* sample: brand colours and fonts from the home page (night palette) */
+:root[data-skin="amber"]{
+  --bg:#0A1220; --panel:rgba(17,28,48,.94); --panel-solid:#111C30; --line:rgba(230,236,245,.14);
+  --ink:#E6ECF5; --muted:#9AA9C0; --accent:#E3A857; --accent-ink:#0E1A2E;
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+.brand .logo .dash{color:var(--logo-accent);margin:0 .15em}
+.brand .logo .co{color:var(--muted)}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);overflow:hidden}
+canvas{display:block;position:fixed;inset:0;width:100%;height:100%;touch-action:none}
+
+.bar{position:fixed;top:0;left:0;right:0;z-index:5;display:flex;flex-direction:column;gap:8px;
+  padding-top:calc(10px + env(safe-area-inset-top,0px));padding-bottom:10px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  background:linear-gradient(var(--bg) 55%,transparent);pointer-events:none}
+.bar>*{pointer-events:auto}
+.brand{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-family:var(--f-display)}
+.brand b{font-size:18px;font-weight:700;letter-spacing:.02em}
+.brand .page{font-size:18px;font-weight:600;color:var(--ink)}
+.brand .sep{color:var(--muted)}
+.brand small{font-family:var(--f-body);font-size:12px;color:var(--muted);flex-basis:100%}
+.ctrls{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.seg{display:flex;align-items:center;width:max-content;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:3px;gap:0;max-width:100%;overflow-x:auto;scrollbar-width:none;cursor:pointer}
+.seg::-webkit-scrollbar{display:none}
+.seg .lbl{display:flex;align-items:center;font-family:var(--f-display);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:0 8px 0 6px;flex:none;min-width:76px}
+.seg .lbl::after{content:"›";font-size:15px;line-height:1;margin-left:auto;padding-left:8px;transition:transform .2s}
+/* collapsed: only the current choice shows; hover, focus or tap folds the other options out */
+/* opening is quick; folding back waits 1.5 s then fades over 0.5 s (2 s in all) */
+.seg button{margin:0 1px;white-space:nowrap;overflow:hidden;max-width:240px;transition:max-width .25s ease,padding .25s ease,margin .25s ease,opacity .2s ease}
+.seg button:not([aria-pressed="true"]){max-width:0;padding-left:0;padding-right:0;margin:0;opacity:0;
+  transition:max-width .5s ease 1.5s,padding .5s ease 1.5s,margin .5s ease 1.5s,opacity .5s ease 1.5s}
+.seg .lbl::after{transition:transform .3s ease 1.6s}
+.seg.open button:not([aria-pressed="true"]),.seg:focus-within button:not([aria-pressed="true"]){max-width:240px;padding-left:10px;padding-right:10px;margin:0 1px;opacity:1;
+  transition:max-width .25s ease,padding .25s ease,margin .25s ease,opacity .2s ease}
+.seg.open .lbl::after,.seg:focus-within .lbl::after{transform:rotate(90deg);transition:transform .2s}
+@media (hover:hover){
+  .seg:hover button:not([aria-pressed="true"]){max-width:240px;padding-left:10px;padding-right:10px;margin:0 1px;opacity:1;
+    transition:max-width .25s ease,padding .25s ease,margin .25s ease,opacity .2s ease}
+  .seg:hover .lbl::after{transform:rotate(90deg);transition:transform .2s}}
+@media (prefers-reduced-motion:reduce){.seg button,.seg button:not([aria-pressed="true"]),.seg .lbl::after{transition:opacity .3s ease 1.5s}}
+.seg button:disabled{color:var(--muted);cursor:not-allowed}
+.seg button:disabled:hover{background:none}
+.sheet{position:fixed;inset:0;z-index:4;background:var(--bg);display:flex;box-sizing:border-box;
+  padding-top:calc(128px + env(safe-area-inset-top,0px));padding-bottom:calc(104px + env(safe-area-inset-bottom,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+#paper{flex:1;min-width:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab;border-radius:4px}
+#paper [data-k]{cursor:pointer;transition:opacity .2s}
+#paper.sel [data-k]:not(.hi){opacity:.2}
+#paper .hi{filter:drop-shadow(0 0 .6px var(--accent)) drop-shadow(0 0 .6px var(--accent))}
+.zs{position:fixed;z-index:6;top:calc(12px + env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:5px 10px}
+.zs input{width:90px;accent-color:var(--accent)}
+@media (max-width:520px){.zs{font-size:0;gap:0;padding:4px 8px}.zs input{width:70px}}
+.dim{position:fixed;z-index:3;left:0;top:0;transform:translate(-50%,-50%);font:600 12px var(--f-display);letter-spacing:.02em;background:var(--panel);border:1px solid var(--accent);color:var(--ink);padding:2px 6px;border-radius:4px;pointer-events:none;white-space:nowrap;font-variant-numeric:tabular-nums}
+.zoom{display:flex;gap:6px;pointer-events:auto}
+.zoom button{font:600 14px var(--f-body);color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;min-width:32px;padding:5px 9px;cursor:pointer}
+.seg button{flex:none;font:500 13px var(--f-body);color:var(--ink);background:none;border:0;border-radius:6px;padding:6px 10px;cursor:pointer}
+.seg button:hover{background:rgba(232,236,240,.08)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);font-weight:600}
+.seg.main button{font-size:14px;padding:7px 12px}
+
+.chips{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;
+  padding-top:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  background:linear-gradient(transparent,var(--bg) 45%)}
+.chips::-webkit-scrollbar{display:none}
+.chips button{flex:none;display:flex;align-items:center;gap:7px;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:7px 12px;font:500 13px var(--f-body);cursor:pointer}
+.chips button:hover{border-color:rgba(232,236,240,.4)}
+.chips button[aria-pressed="true"]{border-color:var(--ink);background:var(--panel-solid)}
+.chips i{width:10px;height:10px;border-radius:50%;flex:none}
+
+.card{position:fixed;z-index:6;left:max(16px,env(safe-area-inset-left,0px));bottom:calc(64px + env(safe-area-inset-bottom,0px));
+  width:min(380px,calc(100% - 32px));background:var(--panel);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:10px;
+  padding:14px 44px 14px 16px;transform:translateY(16px);opacity:0;visibility:hidden;transition:transform .25s ease,opacity .25s ease,visibility .25s}
+.card.on{transform:none;opacity:1;visibility:visible}
+.card h2{margin:0 0 6px;font:700 19px/1.2 var(--f-display);letter-spacing:.01em;display:flex;align-items:center;gap:9px;text-wrap:balance}
+.card h2 i{width:12px;height:12px;border-radius:3px;flex:none}
+.card p{margin:0 0 10px;font-size:14px;line-height:1.5;color:var(--muted)}
+.card dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:13px;line-height:1.4}
+.card dt{color:var(--muted);font-family:var(--f-display);font-weight:600;letter-spacing:.04em;text-transform:uppercase;font-size:11px;padding-top:2px}
+.card dd{margin:0;font-variant-numeric:tabular-nums}
+#close{position:absolute;top:8px;right:8px;width:32px;height:32px;background:none;border:0;color:var(--ink);font-size:22px;line-height:1;cursor:pointer;border-radius:6px}
+#close:hover{background:rgba(232,236,240,.08)}
+
+.foot{position:fixed;z-index:4;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));bottom:calc(66px + env(safe-area-inset-bottom,0px));
+  display:flex;justify-content:space-between;align-items:flex-end;gap:12px;font-size:12px;color:var(--muted);pointer-events:none}
+.foot{justify-content:flex-end}
+.help{position:relative;display:flex}
+.help .helptext{position:absolute;right:0;bottom:calc(100% + 8px);width:min(300px,calc(100vw - 32px));background:var(--panel);backdrop-filter:blur(8px);
+  border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.5;color:var(--ink);
+  opacity:0;visibility:hidden;transform:translateY(6px);transition:opacity .5s ease 1.5s,transform .5s ease 1.5s,visibility 0s linear 2s}
+.help .helptext b{font-weight:600;color:var(--accent)}
+.help .helptext .fine{display:block;margin-top:6px;color:var(--muted);font-size:12px}
+.help.open .helptext,.help:focus-within .helptext{opacity:1;visibility:visible;transform:none;transition:opacity .2s,transform .2s,visibility 0s}
+@media (hover:hover){.help:hover .helptext{opacity:1;visibility:visible;transform:none;transition:opacity .2s,transform .2s,visibility 0s}}
+@media (prefers-reduced-motion:reduce){.help .helptext{transform:none}}
+#reset{font:500 12px var(--f-body)!important}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (max-width:520px){.brand small{display:none}.seg .lbl{min-width:0}}
+</style>
+
+<div class="sheet" id="sheet" hidden><svg id="paper" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 297" preserveAspectRatio="xMidYMid meet" role="img" aria-label="S-101 slab and footing plan. Tap an item to identify it."></svg></div>
+<canvas id="c" aria-label="3D floor model. Drag to orbit, pinch or scroll to zoom, tap a member to identify it."></canvas>
+
+<header class="bar">
+  <div class="brand">
+    <b class="logo">crnrstone<span class="dash">-</span><span class="co">co</span></b><span class="sep">/</span><span class="page">Floor systems</span>
+    <small>Template design #1</small>
+  </div>
+  <div class="ctrls">
+    <div class="seg main" id="show"><span class="lbl">Show</span><button data-v="3d">3D model</button><button data-v="plans">Drawings</button></div>
+    <div class="seg" id="sheetsel"><span class="lbl">Sheet</span></div>
+    <div class="seg main" id="mode"><span class="lbl">Floor</span><button data-v="slab">Concrete slab</button><button data-v="timber">Timber floor</button></div>
+    <div class="seg" id="pour"><span class="lbl">Stage</span><button data-v="pre">Before pour</button><button data-v="post">After pour</button></div>
+    <div class="seg" id="tstage"><span class="lbl">Stage</span><button data-v="sub">Subfloor</button><button data-v="frame">Bearers &amp; joists</button><button data-v="floor">Flooring</button></div>
+    <div class="seg" id="sup"><span class="lbl">Supports</span><button data-v="t">Timber</button><button data-v="c">Concrete</button><button data-v="s">Steel</button><button data-v="w">Brick</button></div>
+    <div class="seg" id="fin"><span class="lbl">Flooring</span><button data-v="sheet">Sheet (platform)</button><button data-v="strip">Strip</button></div>
+    <div class="seg" id="deck"><span class="lbl">Deck</span><button data-v="off">No deck</button><button data-v="on">Add deck</button></div>
+    <div class="seg" id="dims"><span class="lbl">View</span><button data-v="off">No dimensions</button><button data-v="on">Dimensions</button></div>
+  </div>
+</header>
+
+<label class="zs" for="zspeed">Zoom speed <input type="range" id="zspeed" min="0.2" max="3" step="0.1" value="1" aria-label="Zoom speed"></label>
+<div class="card" id="card" role="status" aria-live="polite">
+  <button id="close" aria-label="Close">×</button>
+  <h2><i id="dot"></i><span id="ct"></span></h2>
+  <p id="cd"></p>
+  <dl id="cl"></dl>
+</div>
+<div class="foot">
+  <span class="zoom"><span class="help" id="help"><button id="helpbtn" aria-expanded="false" aria-controls="helptext">How to use</button>
+    <span class="helptext" id="helptext" role="tooltip">
+      <b>Identify:</b> tap a member, or pick one from the row below.<br>
+      <b>3D model:</b> drag to orbit. Shift + drag, right-drag or the arrow keys move sideways.<br>
+      <b>Drawings:</b> drag to move the sheet.<br>
+      <b>Zoom:</b> scroll, pinch or use − and +.<br>
+      <span class="fine">Labelling guide only. Sizes are typical examples, not a design.</span></span></span><button id="zout" aria-label="Zoom out">−</button><button id="zin" aria-label="Zoom in">+</button><button id="reset">Reset view</button></span>
+</div>
+<nav class="chips" id="chips" aria-label="Members"></nav>
+
+<script id="model">
+/* ---------- Shared house plan: every layer reads from this ---------- */
+const PLAN={
+  wings:[{name:'Main wing',x0:0,x1:5.8,z0:0,z1:4.2},{name:'Side wing',x0:0,x1:3.6,z0:4.2,z1:6.9}],
+  wet:{x0:4.4,x1:5.8,z0:0,z1:4.2},          // wet area 1.4 m wide across the full 4.2 m of the main wing
+  deck:{x0:3.6,x1:5.8,z0:4.2,z1:6.9},       // optional deck that squares off the L
+  reentrant:[3.6,4.2],                      // inside corner of the L
+  mirror:true                               // plan is drawn as above, then flipped left-to-right
+};
+
+/* ---------- Member types: name, colour, description, sits on / fixed to, shown as ---------- */
+const TYPES={
+  // concrete slab
+  slab:['Slab','#76736d','The main concrete floor. It is poured in one go with the beams underneath, over a plastic moisture barrier laid on a compacted sand or fill bed.','Moisture barrier, sand bed and the footing beams','100 mm thick'],
+  rebate:['Edge rebate','#e08a4e','A step down around the outside edge of the slab where the brick veneer sits. Water running down the face of the brickwork can\'t get in under the wall frame.','Top of the edge beam','150 mm wide step, drawn 50 mm deep so it is easy to see'],
+  footing:['Footings (edge and internal beams)','#5f5c57','Deepened concrete beams cast with the slab. Edge beams run around the outside and carry the walls. Internal beams stiffen the slab against ground movement.','Natural ground at the bottom of the trench','Edge beams 300 wide × 600 deep. Internal beams 300 × 400'],
+  setdown:['Wet area set-down','#7fc4dc','A lowered section of slab under the wet areas. It leaves room for waterproofing and a screed laid to fall to the floor waste, so the tiles finish level with the rest of the floor.','Formed in the slab at the pour','50 mm lower than the main slab'],
+  bar:['Reinforcing bars','#d0703c','Steel bars (or trench mesh) running along the top and bottom of the beams. The steel takes the tension when the beam bends.','Ligatures, held up off the ground on bar chairs','3 bottom and 2 top bars in each beam'],
+  lig:['Ligatures','#f0b65a','Closed steel ties wrapped around the beam bars at regular spacings. They hold the bars in position during the pour and help the beam resist shear.','Tied to the reinforcing bars','At 600 mm centres'],
+  mesh:['Slab mesh','#a9b8c8','Welded steel fabric through the slab, held up on bar chairs so it sits near the top. It controls shrinkage cracking across the slab.','Bar chairs on the moisture barrier','200 mm square grid, about 40 mm below the top'],
+  crackbar:['Crack bars','#ff5c5c','Extra short bars laid diagonally across inside corners of the slab and the corners of set-downs. Cracks tend to start at these corners.','Tied on top of the slab mesh','2 bars, 1.2 m long'],
+  plumb:['Plumbing penetrations','#f4f6f8','Drainage pipes cast through the slab for the toilet, shower, basin and sink. Each one is lagged where it passes through the concrete and sealed against termite entry.','Drainage lines below the slab','100 mm toilet, 50 mm shower and sink, 40 mm basin'],
+  elec:['Electrical penetrations','#f2d14c','Conduits cast into the slab so cables can come up inside walls or into an island bench without running through the roof space.','Run under the slab to the wall or bench position','25 mm conduit'],
+  earth:['Earthing electrode and slab bond','#6fd37d','A copper-clad steel rod driven into the ground near the main switchboard. It connects the electrical installation\'s main earth to the ground. An earth cable also runs into the slab and is clamped to the mesh, so the steel in the floor is bonded to the same earth.','Driven into the ground; earth cables clamped to the rod and to the slab mesh','1.2 m rod, bond clamp on the wet area mesh'],
+  // timber floor
+  pad:['Pad footings','#6d6a64','Concrete pads below ground that spread each stump\'s load into the soil.','Natural ground at the bottom of the hole','450 square × 200 deep (600 square under brick piers)'],
+  stump_t:['Timber stumps','#a87e56','Treated hardwood or pine posts set on the pad footing. Simple and cheap, but timber in the ground is exposed to rot and termites.','Pad footing','125 × 125'],
+  stump_c:['Concrete stumps','#8f8b84','Precast concrete posts with a steel rod cast into the top for fixing the bearer. They won\'t rot and are common on older homes.','Pad footing; the top rod fixes into the bearer','100 × 100'],
+  stump_s:['Steel stumps','#93a9c0','Galvanised steel posts with a base plate and a threaded adjustable top, so bearer heights can be fine-tuned now and re-levelled later.','Pad footing; head plate bolted to the bearer','75 × 75 post with screw adjuster'],
+  perimbeam:['Perimeter beam (strip footing)','#66635e','A continuous concrete footing around the outside of the building. It carries the brick base wall and the engaged piers.','Natural ground at the bottom of the trench','450 wide × 300 deep'],
+  basewall:['Brick base wall','#a9533b','A brick wall around the outside of the subfloor. It closes in the underfloor space and carries the outside edge of the floor. Vents in the wall keep the subfloor dry (not shown).','Perimeter beam','110 mm single-skin brickwork'],
+  engpier:['Engaged piers','#d0714f','Piers built into the base wall, thickening it wherever a bearer lands. They take the bearer load straight down to the perimeter beam.','Perimeter beam, bonded into the base wall','350 × 350 including the wall'],
+  indpier:['Independent piers','#c4664a','Free-standing brick piers inside the building, each on its own pad footing. They carry the bearers away from the walls.','Pad footing','350 × 350 pier'],
+  antcap:['Ant caps','#dbe1e7','Galvanised steel caps on top of each stump or pier, with the edges turned down. They don\'t stop termites. They force them out into the open, where an inspection will find them.','Top of the stump or pier, under the bearer','Sheet steel, about 40 mm wider than the support each side'],
+  bearer:['Bearers','#cf955a','The main beams sitting on the stumps. They carry the joists and spread the floor load to the stumps.','Ant caps on the stumps or piers','100 × 75 at about 1.35 m centres'],
+  joist:['Floor joists','#e8c47f','Smaller beams laid across the bearers at close spacings. The flooring is fixed to them.','Bearers','90 × 45 at 450 mm centres'],
+  bracket:['Bearer brackets','#7ee0e8','Galvanised brackets that tie each bearer down to its stump or pier, so the floor can\'t lift or slide off its supports. Steel stumps use their bolted head plate instead.','Side of the bearer and side of the stump or pier','Galvanised steel, one each side of the bearer'],
+  multigrip:['Multigrips (framing anchors)','#e86fd6','Folded galvanised brackets nailed to the side of a joist and the top of the bearer wherever they cross. They hold the joist down and stop it twisting or sliding.','Joist side and bearer top','One at every joist-to-bearer crossing'],
+  sheet:['Sheet flooring (platform)','#d1b88f','Particleboard or plywood sheets laid over the whole floor before the walls go up, giving a platform to build on. End joints are staggered and land on a joist.','Joists','3600 × 900 × 19 sheets'],
+  strip:['Strip flooring','#b97842','Tongue-and-groove boards laid across the joists. Usually fitted after the walls and roof are on, then sanded and coated.','Joists','85 × 19 boards'],
+  wetfloor:['Wet area flooring','#9fb3bd','Compressed fibre-cement sheet in the bathroom instead of particleboard. It handles moisture and gives a solid base for waterproofing and tiles.','Joists','18 mm compressed fibre cement'],
+  decking:['Decking','#94603d','Spaced boards on the deck that squares off the L. The gaps let water drain through and the boards dry out between rain.','Deck joists','90 × 22 boards with 5 mm gaps']
+};
+const CONCRETE=['slab','rebate','footing','setdown'];
+const REINF=['bar','lig','mesh','crackbar'];
+
+/* ---------- Geometry builder (plain numbers, no 3D library) ---------- */
+function buildModel(){
+  const R=[],C={};
+  const add=(g,k,rec,n)=>{rec.g=g;rec.k=k;R.push(rec);const key=g+'|'+k;C[key]=(C[key]||0)+n};
+  const box=(g,k,x0,x1,y0,y1,z0,z1,n=1)=>add(g,k,{s:'box',x0,x1,y0,y1,z0,z1},n);
+  const bar=(g,k,a,b,w,d,n=1)=>add(g,k,{s:'bar',a,b,w,d},n);
+  const cyl=(g,k,a,b,r,n=1)=>add(g,k,{s:'cyl',a,b,r},n);
+  const even=(a,b,max)=>{const n=Math.max(1,Math.ceil((b-a)/max-1e-9));return Array.from({length:n+1},(_,i)=>a+(b-a)*i/n)};
+  const joistX=(x0,x1,sp=.45,e=.0225)=>{const o=[x0+e];for(let i=Math.ceil((x0+.2)/sp);i*sp<x1-.2;i++)o.push(+(i*sp).toFixed(4));o.push(x1-e);return o};
+  const sub=(r,h)=>{
+    if(h.x0>=r.x1||h.x1<=r.x0||h.z0>=r.z1||h.z1<=r.z0)return[r];
+    const o=[],ax0=Math.max(r.x0,h.x0),ax1=Math.min(r.x1,h.x1);
+    if(h.x0>r.x0)o.push({x0:r.x0,x1:h.x0,z0:r.z0,z1:r.z1});
+    if(h.x1<r.x1)o.push({x0:h.x1,x1:r.x1,z0:r.z0,z1:r.z1});
+    if(h.z0>r.z0)o.push({x0:ax0,x1:ax1,z0:r.z0,z1:h.z0});
+    if(h.z1<r.z1)o.push({x0:ax0,x1:ax1,z0:h.z1,z1:r.z1});
+    return o};
+  const [A,B]=PLAN.wings, W=PLAN.wet, D=PLAN.deck;
+  const XA=A.x1, ZA=A.z1, XB=B.x1, ZB=B.z1;
+
+  /* ===== CONCRETE SLAB ===== */
+  const g='slab', T=.2, U=.1, RB=.16, RD=.05, SD=.05;
+  const in1={x0:RB,x1:XA-RB,z0:RB,z1:ZA-RB}, in2={x0:RB,x1:XB-RB,z0:ZA-RB,z1:ZB-RB};
+  const wetS={x0:Math.max(W.x0,RB),x1:Math.min(W.x1,XA-RB),z0:Math.max(W.z0,RB),z1:Math.min(W.z1,ZA-RB)};
+  const slabRects=[...sub(in1,wetS),in2];
+  slabRects.forEach((r,i)=>box(g,'slab',r.x0,r.x1,U,T,r.z0,r.z1,i?0:1));
+  box(g,'setdown',wetS.x0,wetS.x1,U-SD,T-SD,wetS.z0,wetS.z1);
+  [[0,XA,0,RB],[XA-RB,XA,RB,ZA],[XB,XA-RB,ZA-RB,ZA],[XB-RB,XB,ZA-RB,ZB],[0,XB-RB,ZB-RB,ZB],[0,RB,RB,ZB-RB]]
+    .forEach((s,i)=>box(g,'rebate',s[0],s[1],U,T-RD,s[2],s[3],i?0:1));
+  const EB=.3, EBot=-.4, IBot=-.2, h=EB/2;
+  [[0,XA,0,EB],[XA-EB,XA,EB,ZA],[XB,XA-EB,ZA-EB,ZA],[XB-EB,XB,ZA-EB,ZB],[0,XB-EB,ZB-EB,ZB],[0,EB,EB,ZB-EB]]
+    .forEach((s,i)=>box(g,'footing',s[0],s[1],EBot,U,s[2],s[3],i?0:1));
+  box(g,'footing',XB-EB,XB,IBot,U,EB,ZA-EB,0);
+  box(g,'footing',EB,XB-EB,IBot,U,ZA-EB,ZA,0);
+  const beams=[
+    {a:[h,h],b:[XA-h,h],bot:EBot},{a:[XA-h,h],b:[XA-h,ZA-h],bot:EBot},{a:[XA-h,ZA-h],b:[XB-h,ZA-h],bot:EBot},
+    {a:[XB-h,ZA-h],b:[XB-h,ZB-h],bot:EBot},{a:[XB-h,ZB-h],b:[h,ZB-h],bot:EBot},{a:[h,ZB-h],b:[h,h],bot:EBot},
+    {a:[XB-h,EB],b:[XB-h,ZA-EB],bot:IBot},{a:[EB,ZA-h],b:[XB-EB,ZA-h],bot:IBot}];
+  for(const bm of beams){
+    const [ax,az]=bm.a,[bx,bz]=bm.b,L=Math.hypot(bx-ax,bz-az),dx=(bx-ax)/L,dz=(bz-az)/L,nx=-dz,nz=dx;
+    const yb=bm.bot+.06, yt=.11;
+    const runBar=(off,y)=>bar(g,'bar',[ax+dx*.05+nx*off,y,az+dz*.05+nz*off],[bx-dx*.05+nx*off,y,bz-dz*.05+nz*off],.018,.018);
+    [-.09,0,.09].forEach(o=>runBar(o,yb));[-.09,.09].forEach(o=>runBar(o,yt));
+    for(let s=.15;s<L-.1;s+=.6){
+      const px=ax+dx*s,pz=az+dz*s,w=.11,p1=[px-nx*w,pz-nz*w],p2=[px+nx*w,pz+nz*w];
+      const at=(p,y)=>[p[0],y,p[1]];
+      bar(g,'lig',at(p1,yb-.02),at(p2,yb-.02),.012,.012,1);
+      bar(g,'lig',at(p1,yt+.02),at(p2,yt+.02),.012,.012,0);
+      bar(g,'lig',at(p1,yb-.02),at(p1,yt+.02),.012,.012,0);
+      bar(g,'lig',at(p2,yb-.02),at(p2,yt+.02),.012,.012,0);
+    }
+  }
+  let area=0;
+  const meshIn=(r,y)=>{
+    area+=(r.x1-r.x0)*(r.z1-r.z0);
+    for(let i=Math.ceil((r.z0+.05)/.2);i*.2<=r.z1-.05;i++)bar(g,'mesh',[r.x0+.05,y,i*.2],[r.x1-.05,y,i*.2],.01,.01,0);
+    for(let i=Math.ceil((r.x0+.05)/.2);i*.2<=r.x1-.05;i++)bar(g,'mesh',[i*.2,y+.01,r.z0+.05],[i*.2,y+.01,r.z1-.05],.01,.01,0);
+  };
+  slabRects.forEach(r=>meshIn(r,T-.045));meshIn(wetS,T-SD-.045);
+  C[g+'|mesh']={area:Math.round(area)};
+  const [cx,cz]=PLAN.reentrant, r2=Math.SQRT1_2;
+  // crack bars across the inside corner of the L (the set-down edge runs wall to wall, so it has no inside corners)
+  for(const s of[.3,.55]){const px=cx-r2*s,pz=cz-r2*s,l=.6;bar(g,'crackbar',[px-r2*l,T-.03,pz+r2*l],[px+r2*l,T-.03,pz-r2*l],.018,.018)}
+  const pipe=(x,z,r,top)=>{cyl(g,'plumb',[x,-.35,z],[x,top,z],r);cyl(g,'plumb',[x,U-SD,z],[x,T,z],r+.012,0)};
+  pipe(5.25,3.55,.055,.35);pipe(5.0,.8,.03,.3);pipe(4.8,2.7,.025,.45);pipe(4.8,1.75,.03,.45);pipe(1.2,3.8,.03,.45);
+  cyl(g,'plumb',[5.25,-.35,3.55],[XA+1.0,-.45,3.55],.055,0);
+  cyl(g,'plumb',[1.2,-.35,3.8],[1.2,-.45,-1.0],.03,0);
+  for(const [x,z,ex] of[[2.0,1.8,-.6],[2.6,5.5,-.6]]){cyl(g,'elec',[x,.06,z],[x,.5,z],.014);cyl(g,'elec',[x,.06,z],[ex,.06,z],.014,0)}
+  // earthing electrode outside the wet area, with a bond cable into the slab mesh
+  const EX=5.0;
+  cyl(g,'earth',[EX,-1.15,-.45],[EX,.12,-.45],.009);
+  box(g,'earth',EX-.025,EX+.025,.06,.11,-.475,-.425,0);
+  cyl(g,'earth',[EX,.1,-.45],[EX,.1,-.06],.004,0);cyl(g,'earth',[EX,.1,-.06],[EX,.75,-.06],.004,0);
+  cyl(g,'earth',[EX,.085,-.45],[EX,.11,.6],.004,0);
+  box(g,'earth',EX-.03,EX+.03,.095,.13,.57,.63,0);
+
+  /* ===== TIMBER FLOOR =====
+     groups: sup-* supports, frame bearers+joists, floor wet sheet, fin-* flooring,
+             dsup-* / dframe / dfloor the same for the deck */
+  const BU=.5, BD=.1, BW=.075, JD=.09, JW=.045, AC=.006, JT=BU+BD+JD;
+  const DT=JT+.019-.1, DJT=DT-.022, DBT=DJT-JD, DBU=DBT-BD;  // deck one step down
+  const supports=[];
+  const lines=[[.0375,0,XA],[1.4,0,XA],[2.8,0,XA],[ZA-.0375,0,XA],[ZA+1.35,0,XB],[ZB-.0375,0,XB]];
+  for(const [z,x0,x1] of lines){box('frame','bearer',x0,x1,BU,BU+BD,z-BW/2,z+BW/2);even(x0+.1,x1-.1,1.8).forEach(x=>supports.push(['',x,z,BU-AC]))}
+  for(const x of joistX(0,XA))box('frame','joist',x-JW/2,x+JW/2,BU+BD,JT,0,x<XB?ZA-.0375:ZA);
+  for(const x of joistX(0,XB))box('frame','joist',x-JW/2,x+JW/2,BU+BD,JT,ZA-.0375,ZB);
+  box('floor','wetfloor',W.x0,W.x1,JT,JT+.018,W.z0,W.z1);
+  // deck
+  const deckZ=[D.z0+.65,D.z0+1.66,D.z1-.0375];
+  for(const z of deckZ){box('dframe','bearer',D.x0+.05,D.x1,DBU,DBT,z-BW/2,z+BW/2);even(D.x0+.55,D.x1-.15,1.8).forEach(x=>supports.push(['d',x,z,DBU-AC]))}
+  for(const x of joistX(D.x0,D.x1))box('dframe','joist',x-JW/2,x+JW/2,DBT,DJT,D.z0+.02,D.z1);
+  for(let z=D.z0;z+.09<=D.z1+1e-6;z+=.095)box('dfloor','decking',D.x0,D.x1,DJT,DT,z,z+.09);
+  // supports in four variants
+  const antcap=(gg,x,z,top,s)=>{
+    const e=s/2+.04;box(gg,'antcap',x-e,x+e,top,top+AC,z-e,z+e);
+    box(gg,'antcap',x-e,x+e,top-.03,top,z-e,z-e+.004,0);box(gg,'antcap',x-e,x+e,top-.03,top,z+e-.004,z+e,0);
+    box(gg,'antcap',x-e,x-e+.004,top-.03,top,z-e,z+e,0);box(gg,'antcap',x+e-.004,x+e,top-.03,top,z-e,z+e,0)};
+  const bricks=(gg,k,x0,x1,z0,z1,y0,y1,n1=1)=>{   // brick column or wall with coursing
+    const n=Math.round((y1-y0)/.086),ch=(y1-y0)/n;
+    box(gg,k,x0+.01,x1-.01,y0,y1,z0+.01,z1-.01,n1);
+    for(let i=0;i<n;i++)box(gg,k,x0,x1,y0+i*ch,y0+(i+1)*ch-.01,z0,z1,0)};
+  // outline bands around the L: o = distance outside the edge, i = distance inside
+  const band=(o,i)=>[[-o,XA+o,-o,i],[XA-i,XA+o,i,ZA+o],[XB+o,XA-i,ZA-i,ZA+o],[XB-i,XB+o,ZA-i,ZB+o],[-o,XB-i,ZB-i,ZB+o],[-o,i,i,ZB-i]];
+  const EDGES=[['x',0,1,0,ZB],['z',0,1,0,XA],['x',XA,-1,0,ZA],['z',ZA,-1,XB,XA],['x',XB,-1,ZA,ZB],['z',ZB,-1,0,XB]];
+  // brick perimeter option: strip footing, base wall, continuous ant capping
+  const WT=.11, STop=-.2, WTop=BU-AC;
+  band(.17,.28).forEach((s,i)=>box('sup-w','perimbeam',s[0],s[1],-.5,STop,s[2],s[3],i?0:1));
+  band(0,WT).forEach((s,i)=>bricks('sup-w','basewall',s[0],s[1],s[2],s[3],STop,WTop,i?0:1));
+  // bearer bracket: plates on both sides of the bearer and both sides of the support below the ant cap
+  const bracket=(gg,x,z,top,s,zc)=>{const bu=top+AC;
+    for(const sz of[-1,1]){
+      const zb=z+sz*(BW/2+.001),zs=zc+sz*(s/2+.001);
+      box(gg,'bracket',x-.03,x+.03,bu,bu+.07,Math.min(zb,zb+sz*.004),Math.max(zb,zb+sz*.004),sz<0?1:0);
+      box(gg,'bracket',x-.03,x+.03,bu-.14,bu-.04,Math.min(zs,zs+sz*.004),Math.max(zs,zs+sz*.004),0)}};
+  for(const [p,x,z,top] of supports){
+    const G=v=>p+'sup-'+v, F=v=>p+'fx-'+v;
+    box(G('t'),'pad',x-.225,x+.225,-.5,-.3,z-.225,z+.225);
+    box(G('t'),'stump_t',x-.0625,x+.0625,-.3,top,z-.0625,z+.0625);antcap(G('t'),x,z,top,.125);
+    bracket(F('t'),x,z,top,.125,z);
+    if(p==='d')continue;   // deck always sits on timber stumps
+    bracket(F('c'),x,z,top,.1,z);
+    box(G('c'),'pad',x-.225,x+.225,-.5,-.3,z-.225,z+.225);
+    box(G('c'),'stump_c',x-.05,x+.05,-.3,top,z-.05,z+.05);cyl(G('c'),'stump_c',[x,top,z],[x,top+.07,z],.008,0);antcap(G('c'),x,z,top,.1);
+    box(G('s'),'pad',x-.225,x+.225,-.5,-.3,z-.225,z+.225);
+    box(G('s'),'stump_s',x-.1,x+.1,-.3,-.294,z-.1,z+.1,0);
+    box(G('s'),'stump_s',x-.0375,x+.0375,-.294,top-.11,z-.0375,z+.0375);
+    cyl(G('s'),'stump_s',[x,top-.11,z],[x,top-.012,z],.012,0);
+    box(G('s'),'stump_s',x-.07,x+.07,top-.012,top,z-.05,z+.05,0);antcap(G('s'),x,z,top,.14);
+    // brick perimeter option: engaged pier if the support is on the outside wall, else independent pier
+    let px=x,pz=z,edge=false;const hp=.175;
+    for(const [ax,v,nrm,a,b] of EDGES){
+      const along=ax==='x'?z:x, across=ax==='x'?x:z;
+      if(Math.abs(across-v)<.2&&along>a-.2&&along<b+.2){edge=true;if(ax==='x')px=v+nrm*(hp+.003);else pz=v+nrm*(hp+.003)}
+    }
+    if(edge){bricks('sup-w','engpier',px-hp,px+hp,pz-hp,pz+hp,STop,top);antcap('sup-w',px,pz,top,.35);bracket('fx-w',x,z,top,.35,pz)}
+    else{box('sup-w','pad',x-.3,x+.3,-.35,-.15,z-.3,z+.3);bricks('sup-w','indpier',x-hp,x+hp,z-hp,z+hp,-.15,top);antcap('sup-w',x,z,top,.35);bracket('fx-w',x,z,top,.35,z)}
+  }
+  // multigrips at every joist-to-bearer crossing (on the joist side facing the middle of the floor)
+  const seen=new Set();
+  const grips=(gg,x,z,btop,mid)=>{const key=gg+x.toFixed(3)+z.toFixed(3);if(seen.has(key))return;seen.add(key);
+    const sx=x<mid?1:-1,f=x+sx*JW/2;
+    box(gg,'multigrip',Math.min(f,f+sx*.003),Math.max(f,f+sx*.003),btop,btop+.06,z-.025,z+.025);
+    box(gg,'multigrip',Math.min(f,f+sx*.04),Math.max(f,f+sx*.04),btop,btop+.003,z-.025,z+.025,0)};
+  for(const [z,x0,x1] of lines){
+    const xs=[...(z<=ZA?joistX(0,XA):[]),...(z>=ZA-.04?joistX(0,XB):[])];
+    for(const x of xs)if(x>=x0&&x<=x1)grips('frame',x,z,BU+BD,XA/2)}
+  for(const z of deckZ)for(const x of joistX(D.x0,D.x1))grips('dframe',x,z,DBT,(D.x0+D.x1)/2);
+  // sheet flooring: 3600 × 900, long edge across the joists, staggered half a sheet
+  let row=0;
+  for(const wg of PLAN.wings){
+    for(let z=wg.z0;z<wg.z1-1e-6;z+=.9,row++){
+      const z1=Math.min(z+.9,wg.z1),off=(row%2)*1.8;
+      for(let x=wg.x0-off;x<wg.x1-1e-6;x+=3.6){
+        const r={x0:Math.max(x,wg.x0),x1:Math.min(x+3.6,wg.x1),z0:z,z1};
+        sub(r,W).forEach(p=>box('fin-sheet','sheet',p.x0+.002,p.x1-.002,JT,JT+.019,p.z0+.002,p.z1-.002));
+      }
+    }
+  }
+  // strip flooring: 85 mm boards across the joists
+  for(const wg of PLAN.wings){
+    for(let z=wg.z0;z<wg.z1-1e-6;z+=.085){
+      const r={x0:wg.x0,x1:wg.x1,z0:z,z1:Math.min(z+.085,wg.z1)};
+      sub(r,W).forEach((p,i)=>box('fin-strip','strip',p.x0,p.x1,JT,JT+.019,p.z0+.0015,p.z1-.0015,i?0:1));
+    }
+  }
+  // flip the whole plan left-to-right so the L runs the other way
+  if(PLAN.mirror){const M=x=>XA-x;
+    for(const r of R){if(r.s==='box'){const a=M(r.x1),b=M(r.x0);r.x0=a;r.x1=b}else{r.a=[M(r.a[0]),r.a[1],r.a[2]];r.b=[M(r.b[0]),r.b[1],r.b[2]]}}}
+  return {R,C};
+}
+/* ---------- Drawing register: discipline letter + series number ---------- */
+const SHEETS=[
+  ['A-001','Cover and sheet index',0],['A-101','Site plan',0],['A-102','Floor plan',0],
+  ['S-101','Slab and footing plan',1],['S-102','Subfloor framing plan',1],['S-103','Floor framing plan',0],
+  ['A-201','Elevations',0],['A-301','Sections',0],['S-501','Footing details',0]];
+
+/* ---------- Shared sheet frame: A3 landscape in mm, every plan at the same scale ---------- */
+const SHEET={W:420,H:297,SCALE:50,DA:{x0:10,x1:322,y0:10,y1:287},COL:{x0:322,x1:410}};
+const SVGSTYLE=`<style>text{font-family:var(--f-display,"Archivo Narrow"),"Arial Narrow",Arial,sans-serif;fill:#1e2328}.dash{fill:var(--accent,#ff8a1f)}.t{font-size:2.6px}.ts{font-size:2.1px}.tm{font-size:1.9px;fill:#6b7480;letter-spacing:.12px}.th{font-size:3.2px;font-weight:700;letter-spacing:.2px}.tl{font-size:5.2px;font-weight:700;letter-spacing:.2px}.tb{font-size:3.4px;font-weight:600}
+.halo{paint-order:stroke;stroke:#fff;stroke-width:.9px;stroke-linejoin:round}.thk{stroke:#1e2328;stroke-width:.5;fill:none}.thn{stroke:#1e2328;stroke-width:.18;fill:none}.grid{stroke:#8a939c;stroke-width:.15;stroke-dasharray:4 1 .6 1;fill:none}.hit{stroke:transparent;stroke-width:2.4}</style>`;
+const f2=v=>+v.toFixed(2);
+const svgLn=(x1,y1,x2,y2,a)=>`<line x1="${f2(x1)}" y1="${f2(y1)}" x2="${f2(x2)}" y2="${f2(y2)}" ${a}/>`;
+const svgTx=(x,y,s,cls='t',a='')=>`<text x="${f2(x)}" y="${f2(y)}" class="${cls}" ${a}>${s}</text>`;
+// border, notes, legend and title block down the right-hand column
+function sheetFrame({num,title,disc,series,notes,legend,schedule}){
+  const C=SHEET.COL,x=C.x0+4;let o=`<rect x="0" y="0" width="${SHEET.W}" height="${SHEET.H}" fill="#fff"/><rect x="10" y="10" width="400" height="277" class="thk"/>`+svgLn(C.x0,10,C.x0,287,'class="thk"');
+  const wrap=(s,n)=>{const w=s.split(' '),L=[''];for(const t of w){if((L[L.length-1]+' '+t).trim().length>n)L.push(t);else L[L.length-1]=(L[L.length-1]+' '+t).trim()}return L};
+  let y=19;o+=svgTx(x,y,'NOTES','th');y+=6;
+  notes.forEach(([s,k],i)=>{const L=wrap(s.toUpperCase(),48);o+=`<g ${k?`data-k="${k}"`:''}><rect x="${C.x0+2}" y="${y-2.4}" width="84" height="${L.length*2.8+.8}" fill="transparent"/>`+svgTx(x,y,(i+1)+'.','ts');
+    L.forEach((l,j)=>o+=svgTx(x+4,y+j*2.8,l,'ts'));o+='</g>';y+=L.length*2.8+1.4});
+  if(schedule){y+=3;o+=svgLn(C.x0,y,C.x1,y,'class="thn"');y+=7;o+=svgTx(x,y,'MEMBER SCHEDULE','th');y+=5.5;
+    const cx=[0,9,36,58];['TAG','MEMBER','SIZE','SPACING'].forEach((h,i)=>o+=svgTx(x+cx[i],y,h,'tm'));y+=1.4;o+=svgLn(x,y,C.x1-3,y,'class="thn"');y+=3.4;
+    schedule.forEach(([cells,k])=>{o+=`<g ${k?`data-k="${k}"`:''}><rect x="${C.x0+2}" y="${y-2.6}" width="84" height="3.8" fill="transparent"/>`;cells.forEach((t,i)=>o+=svgTx(x+cx[i],y,t,i?'ts':'ts','style="'+(i?'':'font-weight:700')+'"'));o+='</g>';y+=3.8})}
+  y+=3;o+=svgLn(C.x0,y,C.x1,y,'class="thn"');y+=7;o+=svgTx(x,y,'LEGEND','th');y+=6;
+  legend.forEach(([sw,label,k])=>{o+=`<g ${k?`data-k="${k}"`:''}>${sw(x,y-.8)}<rect x="${C.x0+2}" y="${y-3}" width="84" height="4.6" fill="transparent"/>${svgTx(x+14,y,label,'ts')}</g>`;y+=4.8});
+  const TB=200;o+=svgLn(C.x0,TB,C.x1,TB,'class="thk"')+svgTx(x,TB+9,'CRNRSTONE<tspan class="dash"> - </tspan>CO','tl');
+  const cell=(cx,cy,label,val,cls='tb')=>{o+=svgTx(cx+2,cy+3.2,label,'tm')+svgTx(cx+2,cy+8.6,val,cls)};
+  o+=svgLn(C.x0,TB+14,C.x1,TB+14,'class="thn"');cell(C.x0,TB+14,'PROJECT','TEMPLATE DESIGN #1');
+  o+=svgLn(C.x0,TB+26,C.x1,TB+26,'class="thn"');cell(C.x0,TB+26,'DRAWING',title.toUpperCase());
+  o+=svgLn(C.x0,TB+38,C.x1,TB+38,'class="thn"')+svgLn(351,TB+38,351,TB+50,'class="thn"')+svgLn(380,TB+38,380,TB+50,'class="thn"');
+  cell(C.x0,TB+38,'SCALE','1:'+SHEET.SCALE+' @ A3','t');cell(351,TB+38,'DATE','OCT 2026','t');cell(380,TB+38,'DRAWN','CRNRSTONE','t');
+  o+=svgLn(C.x0,TB+50,C.x1,TB+50,'class="thn"')+svgTx(x,TB+54,'SHEET','tm')+svgTx(x,TB+68,num,'tl','style="font-size:12px"');
+  o+=svgLn(362,TB+50,362,TB+87,'class="thn"')+svgTx(365,TB+54,'STATUS','tm')+svgTx(365,TB+60,'TEACHING DRAWING','ts')+svgTx(365,TB+63.4,'NOT FOR CONSTRUCTION','ts','style="font-weight:700"');
+  o+=svgTx(365,TB+70,'DISCIPLINE','tm')+svgTx(365,TB+75.6,disc,'ts')+svgTx(365,TB+79,series,'ts');
+  // north point: same place on every plan sheet
+  o+=`<g transform="translate(304 30)"><circle r="6.5" class="thn"/><polygon points="0,-5.5 2.2,2.8 0,1.5 -2.2,2.8" fill="#1e2328"/>${svgTx(0,-8,'N','th','text-anchor="middle"')}</g>`;
+  return o;
+}
+// place a plan so the building sits dead centre of the drawing area, with equal room for grids and dimensions all round
+const PLAN_MARGIN=39.6, TITLE_GAP=10;
+function planOrigin(w,d){const S=1000/SHEET.SCALE,D=SHEET.DA;
+  return{S,OX:(D.x0+D.x1)/2-w*S/2,OY:(D.y0+D.y1)/2-d*S/2-6}}
+function planTitle(o,cx,yb,title){return svgTx(cx,yb+TITLE_GAP+6,title.toUpperCase(),'tl','text-anchor="middle"')+svgLn(cx-38,yb+TITLE_GAP+8,cx+38,yb+TITLE_GAP+8,'class="thk"')+svgTx(cx,yb+TITLE_GAP+12.5,'SCALE 1:'+SHEET.SCALE+' AT A3','ts','text-anchor="middle"')}
+
+/* ---------- Shared plan geometry, grids and dimensions: identical on every plan sheet ---------- */
+function planCtx(){
+  const [A,B]=PLAN.wings,XA=A.x1,ZA=A.z1,ZB=B.z1,F=x=>PLAN.mirror?XA-x:x;
+  const {S,OX,OY}=planOrigin(XA,ZB),X=x=>f2(OX+x*S),Y=z=>f2(OY+z*S);
+  const sx0=Math.min(F(B.x0),F(B.x1)),sx1=Math.max(F(B.x0),F(B.x1));
+  const wx0=Math.min(F(PLAN.wet.x0),F(PLAN.wet.x1)),wx1=Math.max(F(PLAN.wet.x0),F(PLAN.wet.x1));
+  const reX=sx0>0?sx0:sx1;
+  const outline=(sx0>0?[[0,0],[XA,0],[XA,ZB],[sx0,ZB],[sx0,ZA],[0,ZA]]:[[0,0],[XA,0],[XA,ZA],[sx1,ZA],[sx1,ZB],[0,ZB]]).map(p=>X(p[0])+','+Y(p[1])).join(' ');
+  return{XA,ZA,ZB,S,OX,OY,X,Y,sx0,sx1,wx0,wx1,reX,outline};
+}
+function gridsDims(c,title){
+  const {XA,ZA,ZB,OX,OY,X,Y,sx0,sx1,wx1,reX}=c, mm=v=>String(Math.round(v*1000)), ln=svgLn, tx=svgTx;let o='';
+  const gx=[...new Set([0,wx1,reX,XA].map(v=>+v.toFixed(3)))].sort((a,b)=>a-b), gz=[0,ZA,ZB];
+  const GB=36, D1=14, D2=22;
+  const bub=(x,y,s)=>`<circle cx="${f2(x)}" cy="${f2(y)}" r="3.6" fill="#fff" class="thn"/>`+tx(x,y+1.1,s,'t','text-anchor="middle" style="font-weight:700"');
+  gx.forEach((g,i)=>{o+=ln(X(g),OY-GB+3.6,X(g),Y(ZB)+GB-3.6,'class="grid"')+bub(X(g),OY-GB,i+1)+bub(X(g),Y(ZB)+GB,i+1)});
+  gz.forEach((g,i)=>{const L='ABCDEFG'[i];o+=ln(OX-GB+3.6,Y(g),X(XA)+GB-3.6,Y(g),'class="grid"')+bub(OX-GB,Y(g),L)+bub(X(XA)+GB,Y(g),L)});
+  const tick=(x,y)=>ln(x-.9,y+.9,x+.9,y-.9,'stroke="#1e2328" stroke-width=".3"');
+  const dimH=(a,b,y,edge,label)=>{const s=Math.sign(y-edge);o+=ln(X(a),y,X(b),y,'class="thn"')+tick(X(a),y)+tick(X(b),y);
+    for(const v of[a,b])o+=ln(X(v),edge+s*1.5,X(v),y+s*1.5,'class="thn"');o+=tx((X(a)+X(b))/2,y-.9,label,'ts','text-anchor="middle"')};
+  const dimV=(a,b,x,edge,label)=>{const s=Math.sign(x-edge);o+=ln(x,Y(a),x,Y(b),'class="thn"')+tick(x,Y(a))+tick(x,Y(b));
+    for(const v of[a,b])o+=ln(edge+s*1.5,Y(v),x+s*1.5,Y(v),'class="thn"');const my=(Y(a)+Y(b))/2;o+=tx(x-.9,my,label,'ts',`text-anchor="middle" transform="rotate(-90 ${f2(x-.9)} ${f2(my)})"`)};
+  for(let i=0;i<gx.length-1;i++)dimH(gx[i],gx[i+1],OY-D1,OY,mm(gx[i+1]-gx[i]));
+  dimH(0,XA,OY-D2,OY,mm(XA));
+  const sideP=sx0>0?X(XA):OX, so=sx0>0?1:-1, openP=sx0>0?OX:X(XA), oo=-so;
+  dimV(0,ZA,openP+oo*D1,openP,mm(ZA));
+  dimV(0,ZA,sideP+so*D1,sideP,mm(ZA));dimV(ZA,ZB,sideP+so*D1,sideP,mm(ZB-ZA));dimV(0,ZB,sideP+so*D2,sideP,mm(ZB));
+  const bx=sx0>0?[0,sx0,sx1]:[sx0,sx1,XA];
+  dimH(bx[0],bx[1],Y(ZB)+D1,sx0>0?Y(ZA):Y(ZB),mm(bx[1]-bx[0]));dimH(bx[1],bx[2],Y(ZB)+D1,sx0>0?Y(ZB):Y(ZA),mm(bx[2]-bx[1]));
+  o+=planTitle(o,X(XA/2),Y(ZB)+GB+3.6,title);
+  return o;
+}
+const HATCH=`<defs><pattern id="hatch" width="1.4" height="1.4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="1.4" stroke="#2f7f9a" stroke-width=".22"/></pattern></defs>`;
+
+/* ---------- S-101 Slab and footing plan, drawn from the model records ---------- */
+function sheetS101(R){
+  const c=planCtx(),{XA,ZA,ZB,S,OX,OY,X,Y,wx1,outline}=c;
+  const sl=R.filter(r=>r.g==='slab'), col=k=>TYPES[k][1];
+  const isV=r=>r.s==='cyl'&&Math.abs(r.a[0]-r.b[0])<1e-6&&Math.abs(r.a[2]-r.b[2])<1e-6;
+  const rect=(r,k,extra)=>`<rect data-k="${k}" x="${X(r.x0)}" y="${Y(r.z0)}" width="${f2((r.x1-r.x0)*S)}" height="${f2((r.z1-r.z0)*S)}" ${extra}/>`;
+  const ln=svgLn, tx=svgTx;
+  const gl=(k,x1,y1,x2,y2,stroke,w,dash='')=>`<g data-k="${k}">${ln(x1,y1,x2,y2,'class="hit"')}${ln(x1,y1,x2,y2,`stroke="${stroke}" stroke-width="${w}" ${dash?`stroke-dasharray="${dash}"`:''}`)}</g>`;
+  const swatch={
+    footing:(x,y)=>`<rect x="${x}" y="${y-1.6}" width="10" height="3.2" fill="${col('footing')}" fill-opacity=".3"/>`,
+    rebate:(x,y)=>`<rect x="${x}" y="${y-1.6}" width="10" height="3.2" fill="${col('rebate')}" fill-opacity=".45"/>`,
+    setdown:(x,y)=>`<rect x="${x}" y="${y-1.6}" width="10" height="3.2" fill="url(#hatch)" stroke="#2f7f9a" stroke-width=".25"/>`,
+    pen:(x,y)=>`<circle cx="${x+5}" cy="${y}" r="1.4" fill="#fff" stroke="#3b6ea8" stroke-width=".35"/><circle cx="${x+5}" cy="${y}" r=".5" fill="#3b6ea8"/>`,
+    drain:(x,y)=>ln(x,y,x+10,y,'stroke="#3b6ea8" stroke-width=".3" stroke-dasharray="1.4 .8"'),
+    ec:(x,y)=>`<circle cx="${x+3}" cy="${y}" r=".8" fill="#fff" stroke="#b08a00" stroke-width=".35"/>`+ln(x+4,y,x+10,y,'stroke="#b08a00" stroke-width=".3" stroke-dasharray=".8 .6"'),
+    crack:(x,y)=>ln(x,y+1.3,x+10,y-1.3,`stroke="${col('crackbar')}" stroke-width=".45"`),
+    earth:(x,y)=>`<circle cx="${x+5}" cy="${y}" r="1.4" fill="#fff" stroke="#2f9a4c" stroke-width=".35"/>`+ln(x+4.1,y,x+5.9,y,'stroke="#2f9a4c" stroke-width=".35"')+ln(x+5,y-.9,x+5,y+.9,'stroke="#2f9a4c" stroke-width=".35"'),
+    grid:(x,y)=>ln(x,y,x+10,y,'class="grid"')};
+  let o=HATCH+SVGSTYLE;
+  o+=sheetFrame({num:'S-101',title:'Slab and footing plan',disc:'S = STRUCTURAL',series:'SERIES 100 = PLANS',
+    notes:[
+      ['All dimensions in millimetres. Do not scale.',null],
+      ['Slab 100 thick on moisture barrier and compacted sand bed.','slab'],
+      ['Edge beams 300 × 600 and internal beams 300 × 400, shown shaded.','footing'],
+      ['Each beam: 3 bottom and 2 top reinforcing bars.','bar'],
+      ['Ligatures at 600 centres around the beam bars.','lig'],
+      ['Slab mesh 200 grid throughout, about 40 below the top.','mesh'],
+      ['Edge rebate 150 wide × 50 deep for brick veneer.','rebate'],
+      ['Wet area set-down 50 for waterproofing and screed.','setdown'],
+      ['Crack bars across the inside corner of the L.','crackbar'],
+      ['Penetrations lagged through the slab and sealed against termites.','plumb'],
+      ['Earth cable from the electrode bonded to the wet area mesh.','earth'],
+      ['Labelling guide only. Sizes are typical examples, not a design.',null]],
+    legend:[[swatch.footing,'FOOTING BEAMS BELOW SLAB','footing'],[swatch.rebate,'EDGE REBATE','rebate'],[swatch.setdown,'WET AREA SET-DOWN','setdown'],
+      [swatch.pen,'PLUMBING PENETRATION','plumb'],[swatch.drain,'DRAIN BELOW SLAB','plumb'],[swatch.ec,'ELECTRICAL CONDUIT (EC)','elec'],
+      [swatch.crack,'CRACK BAR','crackbar'],[swatch.earth,'EARTHING ELECTRODE','earth'],[swatch.grid,'GRID LINE',null],
+      [()=>'','WC TOILET · SHR SHOWER · BSN BASIN',null],[()=>'','LTR LAUNDRY TUB · KS KITCHEN SINK',null]]});
+  o+=`<polygon data-k="slab" points="${outline}" fill="#fff"/>`;
+  sl.filter(r=>r.k==='footing').forEach(r=>o+=rect(r,'footing',`fill="${col('footing')}" fill-opacity=".3"`));
+  sl.filter(r=>r.k==='rebate').forEach(r=>o+=rect(r,'rebate',`fill="${col('rebate')}" fill-opacity=".45"`));
+  sl.filter(r=>r.k==='setdown').forEach(r=>o+=rect(r,'setdown','fill="url(#hatch)" stroke="#2f7f9a" stroke-width=".25"'));
+  sl.filter(r=>r.k==='crackbar').forEach(r=>o+=gl('crackbar',X(r.a[0]),Y(r.a[2]),X(r.b[0]),Y(r.b[2]),col('crackbar'),.45));
+  const pipes=sl.filter(r=>r.k==='plumb'&&isV(r)&&r.a[1]===-.35), names=['WC','SHR','BSN','LTR','KS'];
+  sl.filter(r=>r.k==='plumb'&&!isV(r)).forEach(r=>{o+=gl('plumb',X(r.a[0]),Y(r.a[2]),X(r.b[0]),Y(r.b[2]),'#3b6ea8',.3,'1.4 .8');
+    if(Math.abs(r.a[0]-r.b[0])<1e-6){const lx=X(r.a[0])+1.6,ly=OY-2;o+=tx(lx,ly,'TO SEWER','ts halo',`data-k="plumb" transform="rotate(-90 ${lx} ${ly})"`)}
+    else o+=tx(X(r.b[0])+(r.b[0]<r.a[0]?-1:1.2),Y(r.b[2])-1.2,'TO SEWER','ts halo',`data-k="plumb" text-anchor="${r.b[0]<r.a[0]?'end':'start'}"`)});
+  pipes.forEach((r,i)=>{const cx=X(r.a[0]),cy=Y(r.a[2]),rr=Math.max(r.r*S,1);
+    o+=`<g data-k="plumb"><circle cx="${cx}" cy="${cy}" r="${f2(rr+1.2)}" fill="transparent"/><circle cx="${cx}" cy="${cy}" r="${f2(rr)}" fill="#fff" stroke="#3b6ea8" stroke-width=".35"/><circle cx="${cx}" cy="${cy}" r="${f2(rr*.35)}" fill="#3b6ea8"/></g>`+tx(cx+rr+1,cy+.9,names[i]||'P','t halo','data-k="plumb"')});
+  sl.filter(r=>r.k==='elec'&&!isV(r)).forEach(r=>o+=gl('elec',X(r.a[0]),Y(r.a[2]),X(r.b[0]),Y(r.b[2]),'#b08a00',.3,'.8 .6'));
+  sl.filter(r=>r.k==='elec'&&isV(r)).forEach(r=>{const cx=X(r.a[0]),cy=Y(r.a[2]);
+    o+=`<g data-k="elec"><circle cx="${cx}" cy="${cy}" r="2" fill="transparent"/><circle cx="${cx}" cy="${cy}" r=".8" fill="#fff" stroke="#b08a00" stroke-width=".35"/></g>`+tx(cx+1.4,cy-1,'EC','ts halo','data-k="elec"')});
+  const rod=sl.find(r=>r.k==='earth'&&r.s==='cyl'&&r.a[1]<-1);
+  sl.filter(r=>r.k==='earth'&&r.s==='cyl'&&!isV(r)).forEach(r=>o+=gl('earth',X(r.a[0]),Y(r.a[2]),X(r.b[0]),Y(r.b[2]),'#2f9a4c',.3,'1 .6'));
+  if(rod){const cx=X(rod.a[0]),cy=Y(rod.a[2]);
+    o+=`<g data-k="earth"><circle cx="${cx}" cy="${cy}" r="2.6" fill="transparent"/><circle cx="${cx}" cy="${cy}" r="1.5" fill="#fff" stroke="#2f9a4c" stroke-width=".35"/>${ln(cx-1,cy,cx+1,cy,'stroke="#2f9a4c" stroke-width=".35"')}${ln(cx,cy-1,cx,cy+1,'stroke="#2f9a4c" stroke-width=".35"')}</g>`;
+    o+=tx(cx+2.4,cy-.6,'EARTH ELECTRODE','ts halo','data-k="earth"')+tx(cx+2.4,cy+1.8,'BONDED TO WET AREA MESH','tm halo','data-k="earth"')}
+  o+=`<polygon points="${outline}" class="thk" style="pointer-events:none"/>`;
+  const sd=sl.find(r=>r.k==='setdown');
+  if(sd){const cx=X((sd.x0+sd.x1)/2),cy=Y((sd.z0+sd.z1)/2);o+=tx(cx,cy-1.4,'WET AREA','t halo','text-anchor="middle" data-k="setdown"')+tx(cx,cy+1.6,'SET-DOWN 50','ts halo','text-anchor="middle" data-k="setdown"')}
+  const mx=(wx1+XA)/2;
+  o+=tx(X(mx),Y(ZA*.24),'SLAB 100 THICK','th halo','text-anchor="middle" data-k="slab"')+tx(X(mx),Y(ZA*.24)+3.6,'MESH 200 GRID THROUGHOUT','ts halo','text-anchor="middle" data-k="mesh"');
+  o+=tx(X(mx),Y(0)+5.2,'EDGE REBATE 150 × 50','ts halo','text-anchor="middle" data-k="rebate"');
+  const ib=sl.filter(r=>r.k==='footing'&&r.y0>-.3).sort((a,b)=>(b.x1-b.x0)-(a.x1-a.x0))[0];
+  if(ib)o+=tx(X(ib.x0)+2,Y(ib.z0)-1.4,'INTERNAL BEAM 300 × 400','ts halo','data-k="footing"');
+  o+=tx(X(XA)-4.2,Y(ZA*.5),'EDGE BEAM 300 × 600','ts halo',`text-anchor="middle" data-k="footing" transform="rotate(90 ${X(XA)-4.2} ${Y(ZA*.5)})"`);
+  const cb=sl.filter(r=>r.k==='crackbar')[1];
+  if(cb){const cx=X((cb.a[0]+cb.b[0])/2),cy=Y((cb.a[2]+cb.b[2])/2);o+=tx(cx+2,cy+3.6,'CRACK BARS','ts halo','data-k="crackbar"')}
+  return o+gridsDims(c,'Slab and footing plan');
+}
+
+/* ---------- S-102 Subfloor framing plan: follows the chosen supports and the deck toggle ---------- */
+const SUP_INFO={t:['Timber stumps','stump_t','S','125 × 125'],c:['Concrete stumps','stump_c','S','100 × 100'],s:['Steel stumps','stump_s','S','75 × 75 + adjuster'],w:['Brick base wall and piers',null,null,null]};
+function sheetKeys(id,o){
+  if(id==='S-101')return['slab','rebate','footing','setdown','bar','lig','mesh','crackbar','plumb','elec','earth'];
+  const k=o.sup==='w'?['perimbeam','basewall','engpier','indpier','pad']:[SUP_INFO[o.sup][1],'pad'];
+  if(o.deck==='on'&&o.sup!=='t')k.push('stump_t');
+  return[...k,'antcap','bearer','joist','bracket','multigrip'];
+}
+function sheetS102(R,opt){
+  const c=planCtx(),{XA,ZA,ZB,S,X,Y,sx0,sx1,outline}=c, sup=opt.sup, deck=opt.deck==='on', ln=svgLn, tx=svgTx, col=k=>TYPES[k][1];
+  const inG=g=>g==='frame'||g==='sup-'+sup||(deck&&(g==='dframe'||g==='dsup-t'));
+  const rs=R.filter(r=>inG(r.g)&&r.s==='box');
+  const rect=(r,k,a)=>`<rect data-k="${k}" x="${X(r.x0)}" y="${Y(r.z0)}" width="${f2((r.x1-r.x0)*S)}" height="${f2((r.z1-r.z0)*S)}" ${a}/>`;
+  const cores=(k,g)=>{const m=new Map();rs.filter(r=>r.k===k&&(!g||g(r.g))).forEach(r=>{const key=((r.x0+r.x1)/2).toFixed(2)+','+((r.z0+r.z1)/2).toFixed(2);
+    if(!m.has(key)||r.y1-r.y0>m.get(key).y1-m.get(key).y0)m.set(key,r)});return[...m.values()].sort((a,b)=>(a.z0-b.z0)||(a.x0-b.x0))};
+  const tag=(x,y,s,k,a='')=>tx(x,y,s,'ts halo',`data-k="${k}" style="font-weight:700" ${a}`);
+  const isDeck=g=>g.startsWith('d');
+  const si=SUP_INFO[sup];
+  // frame: notes, member schedule, legend
+  const sched=[];
+  sched.push([['B','Bearer','100 × 75','≈1400 crs'],'bearer'],[['J','Floor joist','90 × 45','450 crs'],'joist']);
+  if(sup==='w')sched.push([['EP','Engaged pier','350 × 350','at bearer ends'],'engpier'],[['P','Independent pier','350 × 350','≤1800 crs'],'indpier'],[['—','Base wall','110 brick','perimeter'],'basewall'],[['—','Perimeter beam','450 × 300','perimeter'],'perimbeam']);
+  else sched.push([['S',si[0].replace(/s$/,''),si[3],'≤1800 crs'],si[1]]);
+  sched.push([['—','Pad footing',sup==='w'?'600 sq × 200':'450 sq × 200','under each'],'pad']);
+  if(deck)sched.push([['DB','Deck bearer','100 × 75','≈1000 crs'],'bearer'],[['DJ','Deck joist','90 × 45','450 crs'],'joist'],[['DS','Deck stump','125 × 125','≤1800 crs'],'stump_t']);
+  const notes=[
+    ['All dimensions in millimetres. Do not scale.',null],
+    ['Supports shown: '+si[0].toLowerCase()+'. Change them with the Supports row.',sup==='w'?'basewall':si[1]],
+    ['Ant caps on every stump and pier.','antcap'],
+    [sup==='s'?'Bearers bolted to each steel stump head plate.':'Bearers tied to every support with galvanised brackets.',sup==='s'?'stump_s':'bracket'],
+    ['Multigrips at every joist-to-bearer crossing.','multigrip'],
+    ['Pad footings shown dashed, below ground.','pad'],
+    ['Bearer and joist joins not shown. Joins land over a support.',null],
+    ['Labelling guide only. Sizes are typical examples, not a design.',null]];
+  if(deck)notes.splice(6,0,['Deck framed separately, one step down, on timber stumps.','decking']);
+  const sw={
+    sup:(x,y)=>`<rect x="${x+3.6}" y="${y-1.4}" width="2.8" height="2.8" fill="#1e2328"/>`,
+    pad:(x,y)=>`<rect x="${x+2.8}" y="${y-2.2}" width="4.4" height="4.4" fill="none" stroke="#1e2328" stroke-width=".2" stroke-dasharray=".8 .5"/>`,
+    bearer:(x,y)=>`<rect x="${x}" y="${y-.75}" width="10" height="1.5" fill="${col('bearer')}" stroke="#1e2328" stroke-width=".2"/>`,
+    joist:(x,y)=>`<rect x="${x}" y="${y-.45}" width="10" height=".9" fill="none" stroke="#1e2328" stroke-width=".15"/>`,
+    wall:(x,y)=>`<rect x="${x}" y="${y-1.1}" width="10" height="2.2" fill="${col('basewall')}" fill-opacity=".55" stroke="#1e2328" stroke-width=".2"/>`,
+    beam:(x,y)=>`<rect x="${x}" y="${y-1.6}" width="10" height="3.2" fill="${col('perimbeam')}" fill-opacity=".18" stroke="#1e2328" stroke-width=".2" stroke-dasharray=".8 .5"/>`,
+    grid:(x,y)=>ln(x,y,x+10,y,'class="grid"')};
+  const legend=[];
+  if(sup==='w')legend.push([sw.wall,'BRICK BASE WALL','basewall'],[sw.beam,'PERIMETER BEAM BELOW','perimbeam'],[sw.sup,'ENGAGED / INDEPENDENT PIER','indpier']);
+  else legend.push([sw.sup,si[0].toUpperCase()+' (CUT)',si[1]]);
+  legend.push([sw.pad,'PAD FOOTING BELOW','pad'],[sw.bearer,'BEARER','bearer'],[sw.joist,'FLOOR JOIST','joist'],[sw.grid,'GRID LINE',null]);
+  let o=SVGSTYLE+sheetFrame({num:'S-102',title:'Subfloor framing plan',disc:'S = STRUCTURAL',series:'SERIES 100 = PLANS',notes,legend,schedule:sched});
+  // building outline (light) and deck outline
+  o+=`<polygon points="${outline}" fill="#fff" stroke="#9aa3ad" stroke-width=".25"/>`;
+  if(deck){const D=PLAN.deck,F=x=>PLAN.mirror?XA-x:x,dx0=Math.min(F(D.x0),F(D.x1)),dx1=Math.max(F(D.x0),F(D.x1));
+    o+=`<rect x="${X(dx0)}" y="${Y(D.z0)}" width="${f2((dx1-dx0)*S)}" height="${f2((D.z1-D.z0)*S)}" fill="none" stroke="#9aa3ad" stroke-width=".25" stroke-dasharray="2 1"/>`+tx(X((dx0+dx1)/2),Y(D.z0+(D.z1-D.z0)*.79)+1.2,'DECK','th halo','text-anchor="middle" data-k="decking"')}
+  // brick option: perimeter beam (below) and base wall
+  rs.filter(r=>r.k==='perimbeam').forEach(r=>o+=rect(r,'perimbeam',`fill="${col('perimbeam')}" fill-opacity=".18" stroke="#1e2328" stroke-width=".18" stroke-dasharray=".8 .5"`));
+  // pads (dashed, below ground)
+  rs.filter(r=>r.k==='pad').forEach(r=>o+=rect(r,'pad','fill="none" stroke="#1e2328" stroke-width=".18" stroke-dasharray=".8 .5"'));
+  rs.filter(r=>r.k==='basewall'&&r.y1-r.y0>.3).forEach(r=>o+=rect(r,'basewall',`fill="${col('basewall')}" fill-opacity=".55" stroke="#1e2328" stroke-width=".2"`));
+  // bearers
+  const bear=rs.filter(r=>r.k==='bearer').sort((a,b)=>(isDeck(a.g)-isDeck(b.g))||(a.z0-b.z0)||(a.x0-b.x0));
+  bear.forEach(r=>o+=rect(r,'bearer',`fill="${col('bearer')}" stroke="#1e2328" stroke-width=".22"`));
+  // supports (cut, solid)
+  const supK=sup==='w'?['engpier','indpier']:[si[1]];
+  const sups=[];supK.forEach(k=>cores(k,g=>!isDeck(g)).forEach(r=>sups.push([k,r])));
+  if(deck)cores('stump_t',isDeck).forEach(r=>sups.push(['stump_t',r,1]));
+  sups.forEach(([k,r])=>o+=rect(r,k,'fill="#1e2328"'));
+  // joists over the top
+  const jo=rs.filter(r=>r.k==='joist').sort((a,b)=>(isDeck(a.g)-isDeck(b.g))||(a.z0-b.z0>.5?1:a.z0-b.z0<-.5?-1:0)||(a.x0-b.x0));
+  jo.forEach(r=>o+=`<g data-k="joist"><rect x="${X(r.x0)-.6}" y="${Y(r.z0)}" width="${f2((r.x1-r.x0)*S)+1.2}" height="${f2((r.z1-r.z0)*S)}" fill="transparent"/><rect x="${X(r.x0)}" y="${Y(r.z0)}" width="${f2((r.x1-r.x0)*S)}" height="${f2((r.z1-r.z0)*S)}" fill="none" stroke="#1e2328" stroke-width=".15"/></g>`);
+  o+=`<polygon points="${outline}" class="thk" style="pointer-events:none"/>`;
+  // tags: bearers, joists, supports
+  let nb=0,nd=0;
+  bear.forEach(r=>{const d=isDeck(r.g),t=d?'DB'+(++nd):'B'+(++nb),xm=d?(r.x0+r.x1)/2:r.x0+.7;o+=tag(X(xm),Y((r.z0+r.z1)/2)-1.6,t,'bearer','text-anchor="middle"')});
+  let nj=0,ndj=0;
+  jo.forEach(r=>{const d=isDeck(r.g),t=d?'DJ'+(++ndj):'J'+(++nj),xc=X((r.x0+r.x1)/2)+.75,yc=Y(r.z0+(d?.33:.75));o+=tag(xc,yc,t,'joist',`text-anchor="middle" transform="rotate(-90 ${xc} ${yc})"`)});
+  let ns=0,nep=0,np=0,nds=0;
+  sups.forEach(([k,r,d])=>{const t=d?'DS'+(++nds):k==='engpier'?'EP'+(++nep):k==='indpier'?'P'+(++np):'S'+(++ns);
+    o+=tag(X(r.x1)+.8,Y(r.z1)+2.4,t,k)});
+  return o+gridsDims(c,'Subfloor framing plan');
+}
+if(typeof module!=='undefined')module.exports={buildModel,PLAN,TYPES,sheetS101,sheetS102,sheetKeys,SHEETS};
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const {R,C}=buildModel();
+const state={skin:'hivis',show:'3d',sheetsel:'S-101',mode:'slab',pour:'pre',tstage:'sub',sup:'t',fin:'sheet',deck:'off',dims:'off',sel:null};
+// sheet register as a fold-out row: ready sheets can be picked, planned ones show the numbering
+for(const [id,name,ready] of SHEETS){const b=document.createElement('button');b.dataset.v=id;b.textContent=id+' '+name+(ready?'':' (planned)');b.disabled=!ready;document.getElementById('sheetsel').appendChild(b)}
+const STAGE={sub:0,frame:1,floor:2};
+
+/* ---------- Scene ---------- */
+const canvas=document.getElementById('c');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x121519);
+const cam=new THREE.PerspectiveCamera(45,1,.05,200);
+scene.add(new THREE.HemisphereLight(0xdfe8f2,0x3a3226,.75));
+const sun=new THREE.DirectionalLight(0xffffff,.85);sun.position.set(8,14,-6);scene.add(sun);
+const fill=new THREE.DirectionalLight(0xffd6a8,.3);fill.position.set(-8,6,12);scene.add(fill);
+const CX=2.9,CZ=3.45;
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(24,24),new THREE.MeshBasicMaterial({color:0x5a4a36,transparent:true,opacity:.28,depthWrite:false,side:THREE.DoubleSide}));
+ground.rotation.x=-Math.PI/2;ground.position.set(CX,0,CZ);ground.renderOrder=2;scene.add(ground);
+let grid=new THREE.GridHelper(24,24,0x3b4350,0x262c35);grid.position.set(CX,.002,CZ);scene.add(grid);
+
+/* ---------- Turn plain records into merged meshes, one per group and type ---------- */
+const tmp=new THREE.Object3D();
+function geo(r){
+  let g;
+  if(r.s==='box'){g=new THREE.BoxGeometry(r.x1-r.x0,r.y1-r.y0,r.z1-r.z0);g.translate((r.x0+r.x1)/2,(r.y0+r.y1)/2,(r.z0+r.z1)/2);return g}
+  const A=new THREE.Vector3(...r.a),B=new THREE.Vector3(...r.b),len=A.distanceTo(B);
+  if(r.s==='bar')g=new THREE.BoxGeometry(r.w,r.d,len);else{g=new THREE.CylinderGeometry(r.r,r.r,len,14);g.rotateX(Math.PI/2)}
+  tmp.position.copy(A).add(B).multiplyScalar(.5);tmp.up.set(0,1,0);
+  if(Math.abs(B.y-A.y)/len>.99)tmp.up.set(1,0,0);
+  tmp.lookAt(B);tmp.updateMatrix();g.applyMatrix4(tmp.matrix);return g;
+}
+function merge(list){
+  const parts=list.map(r=>geo(r).toNonIndexed());let n=0;parts.forEach(p=>n+=p.attributes.position.count);
+  const P=new Float32Array(n*3),N=new Float32Array(n*3);let o=0;
+  for(const p of parts){P.set(p.attributes.position.array,o*3);N.set(p.attributes.normal.array,o*3);o+=p.attributes.position.count;p.dispose()}
+  const m=new THREE.BufferGeometry();m.setAttribute('position',new THREE.BufferAttribute(P,3));m.setAttribute('normal',new THREE.BufferAttribute(N,3));m.computeBoundingSphere();return m;
+}
+const METAL=['bar','lig','mesh','crackbar','antcap','stump_s','earth','bracket','multigrip'];
+const mats={};
+for(const k in TYPES)mats[k]=new THREE.MeshStandardMaterial({color:TYPES[k][1],roughness:METAL.includes(k)?.45:.85,metalness:METAL.includes(k)?.35:0});
+const ghost=new THREE.MeshStandardMaterial({color:0x76736d,transparent:true,opacity:.1,depthWrite:false,roughness:1});
+const buckets={};R.forEach(r=>{(buckets[r.g+'|'+r.k]=buckets[r.g+'|'+r.k]||[]).push(r)});
+const meshes=[];
+for(const key in buckets){
+  const [g,k]=key.split('|');const m=new THREE.Mesh(merge(buckets[key]),mats[k]);
+  m.userData={g,k};scene.add(m);meshes.push(m);
+}
+
+/* ---------- Visibility by toggle state ---------- */
+function groupOn(g){
+  if(g==='slab')return state.mode==='slab';
+  if(state.mode!=='timber')return false;
+  const deck=g.startsWith('d');if(deck&&state.deck!=='on')return false;
+  const base=deck?g.slice(1):g, st=STAGE[state.tstage];
+  if(base.startsWith('sup-'))return deck?base==='sup-t':base==='sup-'+state.sup;
+  if(base.startsWith('fx-'))return st>=1&&(deck?base==='fx-t':base==='fx-'+state.sup);
+  if(base==='frame')return st>=1;
+  if(base==='floor')return st>=2;
+  if(base.startsWith('fin-'))return st>=2&&base==='fin-'+state.fin;
+  return false;
+}
+function isGhost(m){return m.userData.g==='slab'&&state.pour==='pre'&&CONCRETE.includes(m.userData.k)}
+function hiddenSteel(m){return m.userData.g==='slab'&&state.pour==='post'&&REINF.includes(m.userData.k)}
+function countText(k){
+  let n=0,area=null;
+  for(const key in C){const [g,kk]=key.split('|');if(kk!==k||!groupOn(g))continue;const v=C[key];if(typeof v==='object')area=v.area;else n+=v}
+  if(area!==null)return 'About '+area+' m² of slab';
+  if(k==='slab')return '1 slab, poured with the footings';
+  if(k==='footing')return 'Edge beams around the L, plus 2 internal beams';
+  if(k==='rebate')return 'Full perimeter of the L';
+  if(k==='setdown')return '1, 1.4 m wide across the full 4.2 m of the main wing';
+  if(k==='basewall')return 'Full perimeter of the L';
+  if(k==='perimbeam')return 'Full perimeter of the L';
+  return String(n);
+}
+
+/* ---------- UI ---------- */
+const $=id=>document.getElementById(id);
+const card=$('card'),chips=$('chips');
+function setSeg(id,val){for(const b of $(id).querySelectorAll('button'))b.setAttribute('aria-pressed',String(b.dataset.v===val))}
+const SEGS=['show','sheetsel','mode','pour','tstage','sup','fin','deck','dims'];
+const canHover=matchMedia('(hover:hover)').matches;
+function closeSegs(except){for(const id of SEGS)if($(id)!==except)$(id).classList.remove('open')}
+for(const id of SEGS)$(id).addEventListener('click',e=>{
+  const seg=$(id),b=e.target.closest('button');
+  // touch: first tap opens the row, second tap picks
+  if(!canHover&&!seg.classList.contains('open')){closeSegs(seg);seg.classList.add('open');return}
+  if(!b){seg.classList.toggle('open');return}
+  state[id]=b.dataset.v;seg.classList.remove('open');if(e.detail>0)b.blur();apply();
+});
+canvas.addEventListener('pointerdown',()=>closeSegs(null));
+// help pop-up: hover on a laptop; tap to open or close on a phone; tapping the model or sheet closes it
+function setHelp(on){$('help').classList.toggle('open',on);$('helpbtn').setAttribute('aria-expanded',String(on))}
+$('helpbtn').addEventListener('click',e=>{setHelp(!$('help').classList.contains('open'));if(e.detail>0&&canHover)e.currentTarget.blur()});
+for(const el of[canvas,document.getElementById('paper')])el.addEventListener('pointerdown',()=>setHelp(false));
+function apply(){
+  const plans=state.show==='plans', s102=plans&&state.sheetsel==='S-102';
+  // each sheet sets the 3D view it belongs to: S-101 slab, S-102 timber subfloor with bearers and joists
+  if(plans){state.mode=s102?'timber':'slab';if(s102&&state.tstage==='sub')state.tstage='frame'}
+  applySkin();
+  SEGS.forEach(id=>setSeg(id,state[id]));
+  const tim=state.mode==='timber';
+  $('pour').hidden=tim||plans;$('tstage').hidden=!tim||plans;$('sup').hidden=$('deck').hidden=!tim||(plans&&!s102);
+  $('fin').hidden=!tim||plans||state.tstage!=='floor';
+  $('mode').hidden=$('dims').hidden=plans;$('sheetsel').hidden=!plans;$('sheet').hidden=!plans;
+  if(plans)renderSheet();
+  const ks=new Set();
+  for(const m of meshes){
+    const on=groupOn(m.userData.g)&&!hiddenSteel(m);
+    m.visible=on;m.material=isGhost(m)?ghost:mats[m.userData.k];
+    if(on&&!isGhost(m))ks.add(m.userData.k);
+  }
+  const list=plans?sheetKeys(state.sheetsel,state):Object.keys(TYPES).filter(k=>ks.has(k));
+  chips.innerHTML='';
+  for(const k of list){
+    const b=document.createElement('button');b.type='button';b.dataset.k=k;
+    b.innerHTML='<i style="background:'+TYPES[k][1]+'"></i>';b.append(TYPES[k][0]);
+    b.onclick=()=>select(state.sel===k?null:k);chips.appendChild(b);
+  }
+  select(list.includes(state.sel)?state.sel:null);
+  buildDims();
+}
+
+/* ---------- Colour sample: brand amber vs original hi-vis ---------- */
+const SKINS={amber:{bg:0x0A1220,grid:[0x2a3a55,0x18243a],accent:0xE3A857},hivis:{bg:0x121519,grid:[0x3b4350,0x262c35],accent:0xff8a1f}};
+let skinNow=null;
+function applySkin(){
+  if(skinNow===state.skin)return;skinNow=state.skin;const k=SKINS[state.skin];
+  document.documentElement.dataset.skin=state.skin;
+  scene.background.setHex(k.bg);
+  scene.remove(grid);grid.geometry.dispose();grid.material.dispose();
+  grid=new THREE.GridHelper(24,24,k.grid[0],k.grid[1]);grid.position.set(CX,.002,CZ);scene.add(grid);
+  dimMat.color.setHex(k.accent);
+}
+
+/* ---------- Dimensions (mm), drawn from the plan after the flip ---------- */
+const dimGroup=new THREE.Group();scene.add(dimGroup);
+const dimMat=new THREE.LineBasicMaterial({color:0xff8a1f,depthTest:false,transparent:true});
+let dimLabels=[];
+function buildDims(){
+  while(dimGroup.children.length){const c=dimGroup.children.pop();c.geometry.dispose()}
+  dimLabels.forEach(l=>l.el.remove());dimLabels=[];
+  if(state.dims!=='on'||state.show==='plans')return;
+  const [A,B]=PLAN.wings, XA=A.x1, ZA=A.z1, ZB=B.z1, F=x=>PLAN.mirror?XA-x:x;
+  const sx0=Math.min(F(B.x0),F(B.x1)), sx1=Math.max(F(B.x0),F(B.x1));          // side wing after flip
+  const wx0=Math.min(F(PLAN.wet.x0),F(PLAN.wet.x1)), wx1=Math.max(F(PLAN.wet.x0),F(PLAN.wet.x1));
+  const st=STAGE[state.tstage], y=state.mode==='slab'?.205:st>=2?.715:st>=1?.695:.5;
+  const pos=[], seg=(a,b)=>pos.push(...a,...b);
+  const dim=(axis,p0,p1,at,edge,text)=>{
+    const P=(u,v)=>axis==='x'?[u,y,v]:[v,y,u], s=Math.sign(at-edge)||1;
+    seg(P(p0,at),P(p1,at));
+    for(const p of[p0,p1]){seg(P(p,edge+s*.1),P(p,at+s*.12));seg(P(p-.07,at-.07),P(p+.07,at+.07))}
+    const el=document.createElement('div');el.className='dim';el.textContent=text;document.body.appendChild(el);
+    dimLabels.push({el,v:new THREE.Vector3(...P((p0+p1)/2,at))});
+  };
+  const mm=v=>String(Math.round(v*1000));
+  // south: wet area + remainder, then overall
+  dim('x',wx0,wx1,-.6,0,mm(wx1-wx0)+' wet area');dim('x',wx1,XA,-.6,0,mm(XA-wx1));
+  dim('x',0,XA,-1.3,0,mm(XA));
+  // main wing depth on the open side
+  const openX=sx0>0?0:XA, out=openX===0?-1:1;
+  dim('z',0,ZA,openX+out*.6,openX,mm(ZA));
+  // side wing side: chain then overall
+  const sideX=sx0>0?XA:0, so=sideX===0?-1:1;
+  dim('z',0,ZA,sideX+so*.6,sideX,mm(ZA));dim('z',ZA,ZB,sideX+so*.6,sideX,mm(ZB-ZA));
+  dim('z',0,ZB,sideX+so*1.3,sideX,mm(ZB));
+  // north: side wing width, and the deck when shown
+  dim('x',sx0,sx1,ZB+.6,ZB,mm(sx1-sx0));
+  if(state.mode==='timber'&&state.deck==='on'){const d0=sx0>0?0:sx1,d1=sx0>0?sx0:XA;dim('x',d0,d1,ZB+.6,ZB,mm(d1-d0)+' deck')}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+  const ls=new THREE.LineSegments(g,dimMat);ls.renderOrder=10;dimGroup.add(ls);
+}
+/* ---------- Drawing sheet: render, highlight, pan and zoom ---------- */
+const paper=$('paper');let sheetDone=false,vb={x:0,y:0,w:420,h:297};
+let sheetSig='';
+function renderSheet(){   // redraw only when the sheet or the options it shows have changed
+  const sig=state.sheetsel+'|'+state.sup+'|'+state.deck;if(sig===sheetSig)return;sheetSig=sig;
+  const s102=state.sheetsel==='S-102';
+  paper.innerHTML=s102?sheetS102(R,state):sheetS101(R);sheetDone=true;
+  paper.setAttribute('aria-label',(s102?'S-102 subfloor framing plan':'S-101 slab and footing plan')+'. Tap an item to identify it.');
+  paintSheet(state.sel)}
+function paintSheet(k){if(!sheetDone)return;paper.classList.toggle('sel',!!k);
+  for(const el of paper.querySelectorAll('[data-k]'))el.classList.toggle('hi',el.dataset.k===k)}
+function setVB(){paper.setAttribute('viewBox',vb.x+' '+vb.y+' '+vb.w+' '+vb.h)}
+function paperScale(){const r=paper.getBoundingClientRect();return Math.min(r.width/vb.w,r.height/vb.h)}
+function toPaper(cx,cy){const r=paper.getBoundingClientRect(),s=paperScale();
+  return{x:vb.x+(cx-r.left-(r.width-vb.w*s)/2)/s,y:vb.y+(cy-r.top-(r.height-vb.h*s)/2)/s}}
+function zoomPaper(f,cx,cy){const r=paper.getBoundingClientRect();if(cx===undefined){cx=r.left+r.width/2;cy=r.top+r.height/2}
+  const p=toPaper(cx,cy),nw=Math.max(30,Math.min(840,vb.w*f)),sc=nw/vb.w;
+  vb.x=p.x-(p.x-vb.x)*sc;vb.y=p.y-(p.y-vb.y)*sc;vb.w*=sc;vb.h*=sc;setVB()}
+paper.addEventListener('wheel',e=>{e.preventDefault();let dy=e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?400:1);dy=Math.max(-100,Math.min(100,dy));
+  zoomPaper(Math.exp(dy*(e.ctrlKey?.008:.0012)*zoomSpeed),e.clientX,e.clientY)},{passive:false});
+const pts=new Map();let pdn=null,pinch0=0;
+paper.addEventListener('pointerdown',e=>{paper.setPointerCapture(e.pointerId);pts.set(e.pointerId,[e.clientX,e.clientY]);closeSegs(null);
+  if(pts.size===1)pdn={x:e.clientX,y:e.clientY,moved:false};pinch0=0});
+paper.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;const prev=pts.get(e.pointerId);pts.set(e.pointerId,[e.clientX,e.clientY]);
+  if(pts.size===2){const [a,b]=[...pts.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1]);if(pinch0)zoomPaper(Math.pow(pinch0/d,zoomSpeed),(a[0]+b[0])/2,(a[1]+b[1])/2);pinch0=d;if(pdn)pdn.moved=true;return}
+  const s=paperScale();vb.x-=(e.clientX-prev[0])/s;vb.y-=(e.clientY-prev[1])/s;setVB();
+  if(pdn&&Math.hypot(e.clientX-pdn.x,e.clientY-pdn.y)>5)pdn.moved=true});
+paper.addEventListener('pointerup',e=>{pts.delete(e.pointerId);pinch0=0;
+  if(pdn&&!pdn.moved&&!pts.size){const el=document.elementFromPoint(e.clientX,e.clientY),t=el&&el.closest('#paper [data-k]');
+    const k=t?t.dataset.k:null;select(k&&k!==state.sel?k:null)}
+  if(!pts.size)pdn=null});
+paper.addEventListener('pointercancel',e=>{pts.delete(e.pointerId);pdn=null});
+
+const pv=new THREE.Vector3();
+function placeDims(){
+  for(const l of dimLabels){pv.copy(l.v).project(cam);
+    const off=pv.z>1||Math.abs(pv.x)>1.2||Math.abs(pv.y)>1.2;l.el.style.visibility=off?'hidden':'visible';
+    l.el.style.transform='translate('+((pv.x+1)/2*innerWidth)+'px,'+((1-pv.y)/2*innerHeight)+'px) translate(-50%,-50%)'}
+}
+function select(k){
+  state.sel=k;
+  for(const t in mats){const on=!k||t===k,m=mats[t];
+    m.transparent=!on;m.opacity=on?1:.1;m.depthWrite=on;m.emissive.set(k===t?TYPES[t][1]:0);m.emissiveIntensity=k===t?.3:0;m.needsUpdate=true}
+  for(const b of chips.children)b.setAttribute('aria-pressed',String(b.dataset.k===k));
+  paintSheet(k);
+  if(!k){card.classList.remove('on');return}
+  const d=TYPES[k];
+  $('ct').textContent=d[0];$('dot').style.background=d[1];$('cd').textContent=d[2];
+  const dl=$('cl');dl.innerHTML='';
+  for(const [a,v] of[['In this model',countText(k)],['Sits on / fixed to',d[3]],['Shown as',d[4]]]){
+    const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=a;dd.textContent=v;dl.append(dt,dd);
+  }
+  card.classList.add('on');
+  const cb=chips.querySelector('[data-k="'+k+'"]');if(cb)cb.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'});
+}
+$('close').onclick=()=>select(null);
+
+/* ---------- Camera: orbit, zoom, tap to pick ---------- */
+const tgt=new THREE.Vector3(CX,.25,CZ),HOME={yaw:-.8,pitch:.55,dist:12};
+let {yaw,pitch,dist}=HOME,distT=dist,zoomSpeed=1,drag=false,panning=false,lx=0,ly=0,sx=0,sy=0,pd=0,pm=null,touched=false,multi=false;
+const ray=new THREE.Raycaster(),ptr=new THREE.Vector2();
+// move sideways: shifts the point the camera looks at, across the ground
+function pan(dx,dy){
+  const s=dist*.0016;
+  tgt.x+=(-Math.cos(yaw)*dx-Math.sin(yaw)*dy)*s;
+  tgt.z+=(Math.sin(yaw)*dx-Math.cos(yaw)*dy)*s;
+  tgt.x=Math.max(-4,Math.min(10,tgt.x));tgt.z=Math.max(-4,Math.min(11,tgt.z));
+}
+canvas.addEventListener('contextmenu',e=>e.preventDefault());
+canvas.addEventListener('pointerdown',e=>{drag=true;touched=true;panning=e.shiftKey||e.button===1||e.button===2;sx=lx=e.clientX;sy=ly=e.clientY;canvas.setPointerCapture(e.pointerId)});
+canvas.addEventListener('pointerup',e=>{
+  drag=false;if(multi){multi=false;return}
+  if(panning||Math.hypot(e.clientX-sx,e.clientY-sy)>6){panning=false;return}
+  const r=canvas.getBoundingClientRect();ptr.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);
+  ray.setFromCamera(ptr,cam);
+  const hit=ray.intersectObjects(meshes.filter(m=>m.visible&&m.material!==ghost))[0];
+  select(hit?hit.object.userData.k:null);
+});
+canvas.addEventListener('pointermove',e=>{if(!drag||multi)return;
+  if(panning){pan(e.clientX-lx,e.clientY-ly);lx=e.clientX;ly=e.clientY;return}
+  yaw-=(e.clientX-lx)*.006;pitch=Math.max(-.3,Math.min(1.45,pitch+(e.clientY-ly)*.006));lx=e.clientX;ly=e.clientY});
+// zoom: target distance eases in each frame; trackpad pinch (ctrl+wheel) and mouse wheel are normalised
+const clampD=d=>Math.max(2,Math.min(30,d));
+canvas.addEventListener('wheel',e=>{e.preventDefault();touched=true;
+  let dy=e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?400:1);dy=Math.max(-100,Math.min(100,dy));
+  distT=clampD(distT*Math.exp(dy*(e.ctrlKey?.008:.0012)*zoomSpeed))},{passive:false});
+// two fingers: pinch to zoom, drag together to move sideways
+canvas.addEventListener('touchmove',e=>{if(e.touches.length===2){multi=true;
+  const [a,b]=e.touches,d=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY),m=[(a.clientX+b.clientX)/2,(a.clientY+b.clientY)/2];
+  if(pd)distT=clampD(distT*Math.pow(pd/d,zoomSpeed));if(pm)pan(m[0]-pm[0],m[1]-pm[1]);pd=d;pm=m}},{passive:true});
+canvas.addEventListener('touchend',()=>{pd=0;pm=null});
+// keyboard: arrow keys move sideways, + and - zoom
+addEventListener('keydown',e=>{
+  if(e.target.closest&&e.target.closest('input,button'))return;
+  const k={ArrowLeft:[40,0],ArrowRight:[-40,0],ArrowUp:[0,40],ArrowDown:[0,-40]}[e.key];
+  if(onPlans()){if(k){e.preventDefault();vb.x-=k[0]*vb.w/420;vb.y-=k[1]*vb.w/420;setVB()}
+    else if(e.key==='+'||e.key==='=')zoomPaper(1/1.25);else if(e.key==='-')zoomPaper(1.25);return}
+  if(k){e.preventDefault();touched=true;pan(...k)}
+  else if(e.key==='+'||e.key==='='){touched=true;distT=clampD(distT/1.25)}
+  else if(e.key==='-'){touched=true;distT=clampD(distT*1.25)}
+});
+$('zspeed').addEventListener('input',e=>{zoomSpeed=+e.target.value});
+const onPlans=()=>state.show==='plans';
+$('zin').onclick=()=>{if(onPlans())return zoomPaper(1/1.25);touched=true;distT=clampD(distT/1.25)};
+$('zout').onclick=()=>{if(onPlans())return zoomPaper(1.25);touched=true;distT=clampD(distT*1.25)};
+$('reset').onclick=()=>{if(onPlans()){vb={x:0,y:0,w:420,h:297};return setVB()}({yaw,pitch,dist}=HOME);distT=dist;tgt.set(CX,.25,CZ)};
+function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
+addEventListener('resize',resize);resize();
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+(function tick(){
+  if(!touched&&!state.sel&&!reduce)yaw+=.0015;
+  dist+=(distT-dist)*(reduce?1:.2);
+  cam.position.set(tgt.x+Math.sin(yaw)*Math.cos(pitch)*dist,tgt.y+Math.sin(pitch)*dist,tgt.z+Math.cos(yaw)*Math.cos(pitch)*dist);
+  cam.lookAt(tgt);renderer.render(scene,cam);if(dimLabels.length)placeDims();requestAnimationFrame(tick);
+})();
+apply();
+</script>
+
+</body></html>

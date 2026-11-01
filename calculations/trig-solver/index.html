@@ -1,0 +1,393 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Trig Solver</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap">
+<style>
+/* Layout: one narrow column. The triangle is the interface: every side and angle has a live box on the drawing. Controls and working sit below it.
+   Colours follow the Design Brief (claude/design-brief.md). Washes are the brief's blue at low strength. */
+:root {
+  --bg: #EDF0F5; --surface: #FFFFFF; --ink: #0E1A2E; --mute: #56657A; --line: #D0D7E1;
+  --accent: #E3A857; --logo-accent: #E3A857; --accent-ink: #0E1A2E;
+  --b: #0F7FBF; --r: #D93636;
+  --fill: rgba(15,127,191,.10); --solved: rgba(15,127,191,.12); --solved-line: #0F7FBF;
+  --gridline: rgba(14,26,46,.055); --gridmajor: rgba(14,26,46,.09);
+  --font-display: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+  --font-body: 'Barlow', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0A1220; --surface: #111C30; --ink: #E6ECF5; --mute: #8FA0B8; --line: #22324A;
+    --accent: #E3A857; --logo-accent: #E3A857; --accent-ink: #0E1A2E;
+    --b: #4CC3F5; --r: #FF7070;
+    --fill: rgba(76,195,245,.10); --solved: rgba(76,195,245,.14); --solved-line: #4CC3F5;
+    --gridline: rgba(230,236,245,.035); --gridmajor: rgba(230,236,245,.07);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0A1220; --surface: #111C30; --ink: #E6ECF5; --mute: #8FA0B8; --line: #22324A;
+  --accent: #E3A857; --logo-accent: #E3A857; --accent-ink: #0E1A2E;
+  --b: #4CC3F5; --r: #FF7070;
+  --fill: rgba(76,195,245,.10); --solved: rgba(76,195,245,.14); --solved-line: #4CC3F5;
+    --gridline: rgba(230,236,245,.035); --gridmajor: rgba(230,236,245,.07);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+/* Page grid (Design Brief): one continuous drafting sheet, minor 24px / major 120px, shown in soft scattered patches plus one diagonal streak. Patches are larger than the Home page's because this page is about one screen tall. Cards sit above it. */
+body { position: relative; }
+body::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image: linear-gradient(var(--gridmajor) 1px, transparent 1px), linear-gradient(90deg, var(--gridmajor) 1px, transparent 1px), linear-gradient(var(--gridline) 1px, transparent 1px), linear-gradient(90deg, var(--gridline) 1px, transparent 1px);
+  background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px; background-position: center top;
+  --patches: radial-gradient(ellipse 55% 22% at 86% 10%, #000, transparent 70%), radial-gradient(ellipse 42% 18% at 12% 34%, #000, transparent 70%), linear-gradient(28deg, transparent 44%, rgba(0,0,0,.55) 50%, transparent 56%), radial-gradient(ellipse 60% 22% at 80% 68%, rgba(0,0,0,.85), transparent 70%), radial-gradient(ellipse 38% 14% at 22% 94%, rgba(0,0,0,.8), transparent 70%);
+  -webkit-mask-image: var(--patches); mask-image: var(--patches); }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.45;
+  padding-block: 20px 32px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { position: relative; z-index: 1; max-width: 460px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+.tape { height: 14px; border-radius: 2px; margin-bottom: 14px; background: var(--accent);
+  background-image: repeating-linear-gradient(90deg, var(--accent-ink) 0 1.5px, transparent 1.5px 10px), repeating-linear-gradient(90deg, var(--accent-ink) 0 1.5px, transparent 1.5px 50px);
+  background-size: 100% 6px, 100% 11px; background-repeat: no-repeat; }
+.toprow { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.brand { font: 700 24px var(--font-display); letter-spacing: .02em; color: var(--ink); }
+.brand span { color: var(--logo-accent); }
+.brand .dash { margin: 0 .15em; }
+.centre { display: flex; justify-content: center; }
+.tgl { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px; border-radius: 999px; background: transparent; color: var(--ink); border: 1.5px solid var(--line); font: 600 14px var(--font-body); cursor: pointer; }
+.tgl:hover { border-color: var(--mute); }
+.tgl svg { width: 16px; height: 16px; flex: none; }
+@media (max-width: 720px) { .tgl { width: 36px; padding: 0; justify-content: center; } .tgl .t { display: none; } }
+h1 { font: 700 40px/1 var(--font-display); letter-spacing: .01em; margin: 6px 0 8px; text-wrap: balance; }
+.lead { color: var(--mute); margin: 0; max-width: 46ch; }
+.status { min-height: 1.5em; font-weight: 500; margin: 0; }
+.status.err { color: var(--r); }
+.status.ok { color: var(--ink); }
+
+.diagram { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; aspect-ratio: 340 / 300; width: 100%; max-width: 100%; }
+.diagram svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.bx {
+  position: absolute; transform: translate(-50%, -50%); width: 92px;
+  background: var(--surface); border: 1.5px solid var(--line); border-radius: 8px; padding: 3px 6px 4px;
+  display: flex; flex-direction: column; gap: 0;
+}
+.bx .nm { font: 600 10.5px var(--font-body); letter-spacing: .06em; text-transform: uppercase; color: var(--mute); white-space: nowrap; }
+.bx .in { display: flex; align-items: baseline; gap: 3px; }
+.bx input { width: 100%; min-width: 0; border: 0; background: transparent; padding: 0; font: 600 14px var(--font-body); font-variant-numeric: tabular-nums; color: var(--ink); }
+.bx input:focus { outline: none; }
+.bx:focus-within { outline: 3px solid var(--accent); outline-offset: 1px; }
+.diagram.nonames .nm { display: none; }
+/* Full names by default. When boxes would clash (small phones), every box switches to its short name and gets a little narrower. */
+.bx .nm .sh { display: none; }
+.diagram.short .bx { width: 84px; }
+.diagram.short .bx .nm .fl { display: none; }
+.diagram.short .bx .nm .sh { display: inline; }
+.diagram.short .bx input { font-size: 13px; }
+.bx .u { font-size: 11px; color: var(--mute); flex: none; }
+.bx.entered { border-color: var(--accent); background: var(--surface); }
+.bx.entered .nm { color: var(--ink); }
+.bx.solved { background: var(--solved); border-color: var(--solved-line); }
+.legend { font-size: 13px; color: var(--mute); margin: 0; display: flex; flex-wrap: wrap; gap: 4px 16px; }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 6px; }
+
+.controls { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; }
+.chk { display: flex; align-items: center; gap: 8px; font-weight: 500; }
+.chk input { width: 18px; height: 18px; accent-color: var(--accent); }
+select { font: 500 15px var(--font-body); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 7px 8px; }
+button.reset { font: 600 16px var(--font-body); color: var(--accent-ink); background: var(--accent); border: 0; border-radius: 6px; padding: 11px 32px; cursor: pointer; }
+button.reset:hover { filter: brightness(1.08); }
+button:focus-visible, select:focus-visible, .chk input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.working { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
+.working h2 { font: 700 12px var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--mute); margin: 0 0 6px; }
+.working ul { margin: 0; padding-left: 18px; }
+.working li { margin: 2px 0; font-variant-numeric: tabular-nums; }
+.tip { border-top: 1px solid var(--line); padding-top: 14px; font-size: 15px; }
+.tip strong { font: 700 13px var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--ink); display: block; margin-bottom: 2px; }
+.foot { font-size: 12px; color: var(--mute); margin: 0; }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="tape" aria-hidden="true"></div>
+    <div class="toprow">
+      <div class="brand">crnrstone<span class="dash">-</span>co</div>
+      <button class="tgl" id="theme" type="button" aria-label="Switch to night mode"><svg id="theme-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg><span class="t" id="theme-t">Night</span></button>
+    </div>
+    <h1>Trig Solver</h1>
+    <p class="lead">Type any two values into the boxes on the triangle, with at least one side. The other boxes fill in. Change any box to try new numbers.</p>
+  </header>
+
+  <p class="status" id="status" role="status" aria-live="polite"></p>
+
+  <div class="diagram" id="diagram">
+    <svg id="svg" viewBox="0 0 340 300" role="img" aria-label="Right-angle triangle"></svg>
+  </div>
+  <div class="centre"><button class="reset" id="reset" type="button">Start again</button></div>
+  <p class="legend"><span><i style="background: var(--accent)"></i>You entered</span><span><i style="background: var(--solved); border: 1px solid var(--solved-line)"></i>Worked out for you</span><span>Drawing is not to scale.</span></p>
+
+  <div class="controls">
+    <label class="chk"><input type="checkbox" id="names" checked> Show names</label>
+    <label class="chk"><input type="checkbox" id="working"> Show working</label>
+    <label class="chk">Units
+      <select id="units"><option value="mm" selected>mm</option><option value="cm">cm</option><option value="m">m</option></select>
+    </label>
+  </div>
+
+  <div class="working" id="workbox" hidden><h2>Working</h2><ul id="worklist"></ul></div>
+
+  <div class="tip" id="tip"></div>
+  <p class="foot">Section 1 of 3 &middot; Prototype. Check answers against your own working while we test it.</p>
+</div>
+
+<script>
+const DEG = Math.PI / 180;
+
+// Pure solver. known = subset of {A, B, adj, opp, hyp}. A and B are degrees.
+function solve(known) {
+  const keys = Object.keys(known);
+  let { A, B, adj, opp, hyp } = known;
+  const how = {};
+  for (const k of ['A', 'B']) {
+    if (known[k] != null && !(known[k] > 0 && known[k] < 90)) return { error: 'Angles must be between 0° and 90°.' };
+  }
+  for (const k of ['adj', 'opp', 'hyp']) {
+    if (known[k] != null && !(known[k] > 0)) return { error: 'Side lengths must be greater than 0.' };
+  }
+  if (keys.length < 2) return { need: true };
+  if (!keys.some(k => k === 'adj' || k === 'opp' || k === 'hyp')) {
+    return { error: 'Two angles are not enough. Enter at least one side length.' };
+  }
+  if (A == null && B != null) { A = 90 - B; how.A = 'Angle A = 90° − Angle B'; }
+  if (B == null && A != null) { B = 90 - A; how.B = 'Angle B = 90° − Angle A'; }
+
+  if (A != null) {
+    const a = A * DEG;
+    if (adj != null) {
+      if (opp == null) { opp = adj * Math.tan(a); how.opp = 'Opposite = Adjacent × tan(A)'; }
+      if (hyp == null) { hyp = adj / Math.cos(a); how.hyp = 'Hypotenuse = Adjacent ÷ cos(A)'; }
+    } else if (opp != null) {
+      adj = opp / Math.tan(a); how.adj = 'Adjacent = Opposite ÷ tan(A)';
+      if (hyp == null) { hyp = opp / Math.sin(a); how.hyp = 'Hypotenuse = Opposite ÷ sin(A)'; }
+    } else {
+      adj = hyp * Math.cos(a); how.adj = 'Adjacent = Hypotenuse × cos(A)';
+      opp = hyp * Math.sin(a); how.opp = 'Opposite = Hypotenuse × sin(A)';
+    }
+  } else {
+    if (adj != null && opp != null) {
+      hyp = Math.hypot(adj, opp); how.hyp = 'Hypotenuse = √(Opposite² + Adjacent²)';
+    } else if (hyp != null && adj != null) {
+      if (hyp <= adj) return { error: 'The hypotenuse must be the longest side.' };
+      opp = Math.sqrt(hyp * hyp - adj * adj); how.opp = 'Opposite = √(Hypotenuse² − Adjacent²)';
+    } else {
+      if (hyp <= opp) return { error: 'The hypotenuse must be the longest side.' };
+      adj = Math.sqrt(hyp * hyp - opp * opp); how.adj = 'Adjacent = √(Hypotenuse² − Opposite²)';
+    }
+    A = Math.atan2(opp, adj) / DEG; how.A = 'Angle A = tan⁻¹(Opposite ÷ Adjacent)';
+    B = 90 - A; how.B = 'Angle B = 90° − Angle A';
+  }
+  return { A, B, adj, opp, hyp, how };
+}
+
+const FIELDS = [
+  { key: 'adj', nm: 'Adjacent', sh: 'Adj', kind: 'len' },
+  { key: 'opp', nm: 'Opposite', sh: 'Opp', kind: 'len' },
+  { key: 'hyp', nm: 'Hypotenuse', sh: 'Hyp', kind: 'len' },
+  { key: 'A', nm: 'Angle A', sh: '∠A', kind: 'ang' },
+  { key: 'B', nm: 'Angle B', sh: '∠B', kind: 'ang' },
+];
+const TIPS = [
+  'A 3-4-5 triangle is a quick square check. If two edges measure 3 and 4 units and the diagonal measures 5, the corner is a true 90°.',
+  'The roof pitch is Angle A, the angle at the seat. Rise over run gives you tan(A).',
+  'On a square-cornered roof with equal pitches, the hip runs at 45° to the rafters when seen from above.',
+  'Opposite and adjacent swap depending on which angle you stand at. The hypotenuse never changes.'
+];
+
+const VW = 340, VH = 300;
+let order = [], vals = {}, tipIdx = 0, showExample = true;
+const el = id => document.getElementById(id);
+const DP = { mm: 1, cm: 2, m: 3 };
+// Lengths drop decimals if the number would be too long for its box (max 6 characters).
+function fmt(v, kind) {
+  let dp = kind === 'ang' ? 2 : DP[el('units').value];
+  let t = String(Number(v.toFixed(dp)));
+  while (t.length > 6 && dp > 0) { dp--; t = String(Number(v.toFixed(dp))); }
+  return t;
+}
+const boxes = {};
+
+function buildBoxes() {
+  for (const f of FIELDS) {
+    const d = document.createElement('label');
+    d.className = 'bx';
+    d.innerHTML = '<span class="nm"><span class="fl">' + f.nm + '</span><span class="sh" aria-hidden="true">' + f.sh + '</span></span><span class="in"><input id="f-' + f.key + '" type="text" inputmode="decimal" autocomplete="off" placeholder="—" aria-label="' + f.nm + '"><span class="u" data-kind="' + f.kind + '"></span></span>';
+    el('diagram').appendChild(d);
+    boxes[f.key] = d;
+    const inp = d.querySelector('input');
+    inp.addEventListener('input', () => onType(f.key));
+    inp.addEventListener('focus', () => setTimeout(() => inp.select(), 0));
+  }
+}
+
+function onType(key) {
+  showExample = false;
+  const raw = el('f-' + key).value.replace(',', '.').trim();
+  const n = Number(raw);
+  order = order.filter(k => k !== key);
+  delete vals[key];
+  if (raw !== '' && !isNaN(n)) {
+    vals[key] = n;
+    order.push(key);
+    while (order.length > 2) { const old = order.shift(); delete vals[old]; }
+  }
+  render(raw !== '' && isNaN(n), key);
+}
+
+function render(badNumber, typingKey) {
+  const unit = el('units').value;
+  const res = solve(vals);
+  let msg = '', cls = 'status';
+  if (badNumber) { msg = 'Enter numbers only, for example 4500 or 22.5.'; cls += ' err'; }
+  else if (res.error) { msg = res.error; cls += ' err'; }
+  else if (res.need) { msg = order.length === 0 ? 'Type any two values. At least one must be a side.' : 'Type one more value.'; }
+  else { msg = showExample ? 'Example loaded: 22.5° pitch with a 4500 ' + unit + ' run. Change any box to try new numbers.' : 'Solved. Change any box to try new numbers.'; cls += ' ok'; }
+  el('status').textContent = msg; el('status').className = cls;
+
+  for (const f of FIELDS) {
+    const box = boxes[f.key], inp = el('f-' + f.key);
+    box.querySelector('.u').textContent = f.kind === 'ang' ? '°' : unit;
+    const entered = order.includes(f.key);
+    const solved = !entered && res && res[f.key] != null;
+    box.className = 'bx' + (entered ? ' entered' : solved ? ' solved' : '');
+    if (solved) inp.value = fmt(res[f.key], f.kind);
+    else if (!entered) inp.value = '';
+  }
+  const live = res && res.adj != null && res.opp != null;
+  draw(live ? res.adj : 1.7, live ? res.opp : 1, live);
+
+  const list = el('worklist'); list.innerHTML = '';
+  if (live) {
+    for (const f of FIELDS) {
+      if (!order.includes(f.key) && res.how[f.key]) {
+        const li = document.createElement('li');
+        li.textContent = res.how[f.key] + ' = ' + fmt(res[f.key], f.kind) + (f.kind === 'ang' ? '°' : ' ' + unit);
+        list.appendChild(li);
+      }
+    }
+  }
+  el('workbox').hidden = !(el('working').checked && list.children.length);
+}
+
+function place(key, x, y) {
+  // keep every box at least 6px inside the drawing on narrow phones
+  boxes[key].style.left = 'clamp(52px, ' + (x / VW * 100).toFixed(2) + '%, calc(100% - 52px))';
+  boxes[key].style.top = (y / VH * 100).toFixed(2) + '%';
+}
+
+function draw(adj, opp, live) {
+  const x0 = 96, maxW = 140, maxH = 150;
+  const s = Math.min(maxW / adj, maxH / opp);
+  const w = Math.max(adj * s, 72), h = Math.max(opp * s, 48);
+  const base = 149 + h / 2;
+  const Ax = x0, Ay = base, Cx = x0 + w, Cy = base, Bx = x0 + w, By = base - h;
+  const len = Math.hypot(w, h), th = Math.atan2(h, w);
+
+  geo = { x0, w, h, base, Ax, Ay, Bx, By, Cx, len };
+
+  const rA = 28, rB = 26, sq = 12;
+  const arcA = 'M' + (Ax + rA) + ',' + Ay + ' A' + rA + ' ' + rA + ' 0 0 0 ' + (Ax + rA * Math.cos(th)).toFixed(1) + ',' + (Ay - rA * Math.sin(th)).toFixed(1);
+  const arcB = 'M' + Bx + ',' + (By + rB) + ' A' + rB + ' ' + rB + ' 0 0 1 ' + (Bx - rB * w / len).toFixed(1) + ',' + (By + rB * h / len).toFixed(1);
+  el('svg').innerHTML =
+    '<g opacity="' + (live ? 1 : 0.45) + '">' +
+    '<polygon points="' + Ax + ',' + Ay + ' ' + Cx + ',' + Cy + ' ' + Bx + ',' + By + '" fill="var(--fill)" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round"' + (live ? '' : ' stroke-dasharray="6 5"') + '/>' +
+    '<path d="M' + (Cx - sq) + ',' + Cy + ' L' + (Cx - sq) + ',' + (Cy - sq) + ' L' + Cx + ',' + (Cy - sq) + '" fill="none" stroke="var(--ink)" stroke-width="1.5"/>' +
+    '<path d="' + arcA + '" fill="none" stroke="var(--accent)" stroke-width="2.5"/>' +
+    '<path d="' + arcB + '" fill="none" stroke="var(--accent)" stroke-width="2.5"/>' +
+    '</g>';
+  fitNames();
+  el('svg').setAttribute('aria-label', live ? 'Right-angle triangle drawn to your values' : 'Example right-angle triangle');
+}
+
+// Use short names only when two boxes would overlap at full size.
+function clash() {
+  const r = Object.values(boxes).map(b => b.getBoundingClientRect());
+  for (let i = 0; i < r.length; i++) for (let j = i + 1; j < r.length; j++) {
+    const a = r[i], b = r[j];
+    if (a.left < b.right + 2 && b.left < a.right + 2 && a.top < b.bottom + 2 && b.top < a.bottom + 2) return true;
+  }
+  return false;
+}
+// Box positions follow the triangle's edges and corners. With short names, Angle A lifts clear of Adjacent and Angle B moves right, clear of Hypotenuse.
+let geo = null;
+function layoutBoxes(short) {
+  const { x0, w, h, base, Ax, Ay, Bx, By, Cx, len } = geo;
+  place('adj', x0 + w / 2, base + 36);
+  place('opp', Cx + 52, base - h / 2);
+  place('B', short ? Bx + 28 : Bx, By - (short ? 30 : 34));
+  place('A', x0 - 46, base - (short ? 28 : 6));
+  const nx = -h / len, ny = -w / len;
+  const d = 14 + Math.abs(nx) * 46 + Math.abs(ny) * 24;
+  place('hyp', (Ax + Bx) / 2 + nx * d, (Ay + By) / 2 + ny * d);
+}
+function fitNames() {
+  if (!geo) return;
+  const d = el('diagram');
+  d.classList.remove('short');
+  layoutBoxes(false);
+  if (clash()) { d.classList.add('short'); layoutBoxes(true); }
+}
+
+function setTip() { el('tip').innerHTML = '<strong>Did you know</strong>' + TIPS[tipIdx % TIPS.length]; }
+
+function startAgain() {
+  order = []; vals = {}; showExample = false;
+  for (const f of FIELDS) el('f-' + f.key).value = '';
+  tipIdx++; setTip();
+  render(false);
+}
+
+function loadExample() {
+  order = ['A', 'adj']; vals = { A: 22.5, adj: 4500 };
+  el('f-A').value = '22.5'; el('f-adj').value = '4500';
+  render(false);
+}
+
+buildBoxes();
+setTip();
+el('working').addEventListener('change', () => render(false));
+el('names').addEventListener('change', () => { el('diagram').classList.toggle('nonames', !el('names').checked); fitNames(); });
+window.addEventListener('resize', fitNames);
+el('units').addEventListener('change', () => render(false));
+el('reset').addEventListener('click', startAgain);
+loadExample();
+
+(function () {
+  var root = document.documentElement, btn = el('theme');
+  var SUN = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>';
+  var MOON = '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>';
+  function isDark() {
+    var t = root.getAttribute('data-theme');
+    if (t) return t === 'dark';
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  function paint() {
+    var dark = isDark();
+    el('theme-ic').innerHTML = dark ? SUN : MOON;
+    el('theme-t').textContent = dark ? 'Day' : 'Night';
+    btn.setAttribute('aria-label', dark ? 'Switch to day mode' : 'Switch to night mode');
+  }
+  try { var saved = localStorage.getItem('crnrstone-theme'); if (saved === 'dark' || saved === 'light') root.setAttribute('data-theme', saved); } catch (e) {}
+  btn.addEventListener('click', function () {
+    var next = isDark() ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('crnrstone-theme', next); } catch (e) {}
+    paint();
+  });
+  paint();
+})();
+</script>
+
+</body></html>

@@ -1,0 +1,1793 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>JSA Builder</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: a working document (A4-landscape feel) sitting on the drafting grid, with a sticky action bar. Colours from the Crnrstone Design Brief. */
+:root{
+  --bg:#EDF0F5;--surface:#FFFFFF;--ink:#0E1A2E;--mute:#56657A;--line:#D0D7E1;
+  --accent:#E3A857;--logo-accent:#E3A857;--accent-ink:#0E1A2E;--hero:#0E1A2E;--hero-ink:#EAF0F8;
+  --g:#1E9E5A;--b:#0F7FBF;--r:#D93636;--plan:#C4821F;
+  --risk-l:#1E9E5A;--risk-m:#C4821F;--risk-h:#E0662C;--risk-e:#D93636;--risk-ink:#FFFFFF;
+  --gridline:rgba(14,26,46,.055);--gridmajor:rgba(14,26,46,.09);
+  --soft:#F5F7FA;--wash:rgba(227,168,87,.14);
+  --f-display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0A1220;--surface:#111C30;--ink:#E6ECF5;--mute:#8FA0B8;--line:#22324A;--hero:#0A1220;
+  --g:#3FCF85;--b:#4CC3F5;--r:#FF7070;--plan:#E3A857;
+  --risk-l:#2E9E62;--risk-m:#B97A1E;--risk-h:#D7612A;--risk-e:#C83A3A;
+  --gridline:rgba(230,236,245,.035);--gridmajor:rgba(230,236,245,.07);
+  --soft:#0D1728;--wash:rgba(227,168,87,.12);color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0A1220;--surface:#111C30;--ink:#E6ECF5;--mute:#8FA0B8;--line:#22324A;--hero:#0A1220;
+  --g:#3FCF85;--b:#4CC3F5;--r:#FF7070;--plan:#E3A857;
+  --risk-l:#2E9E62;--risk-m:#B97A1E;--risk-h:#D7612A;--risk-e:#C83A3A;
+  --gridline:rgba(230,236,245,.035);--gridmajor:rgba(230,236,245,.07);
+  --soft:#0D1728;--wash:rgba(227,168,87,.12);color-scheme:dark}
+
+*{box-sizing:border-box}
+html,body{background:var(--bg);color:var(--ink)}
+body{font-family:var(--f-body);font-size:15px;line-height:1.45;-webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.page{position:relative;min-height:100%;overflow-x:clip}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));position:relative;z-index:1}
+
+/* Drafting grid, one sheet shown through scattered patches */
+.gridbg{position:absolute;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(var(--gridmajor) 1px,transparent 1px),linear-gradient(90deg,var(--gridmajor) 1px,transparent 1px),linear-gradient(var(--gridline) 1px,transparent 1px),linear-gradient(90deg,var(--gridline) 1px,transparent 1px);
+  background-size:120px 120px,120px 120px,24px 24px,24px 24px;
+  -webkit-mask-image:radial-gradient(ellipse 380px 260px at 6% 180px,#000 25%,transparent 72%),radial-gradient(ellipse 300px 220px at 96% 520px,#000 25%,transparent 72%),radial-gradient(ellipse 340px 260px at 2% 1100px,#000 25%,transparent 72%),radial-gradient(ellipse 280px 240px at 98% 1500px,#000 25%,transparent 72%),radial-gradient(ellipse 360px 280px at 4% 2100px,#000 25%,transparent 72%),radial-gradient(ellipse 300px 220px at 97% 2600px,#000 25%,transparent 72%),radial-gradient(ellipse 340px 240px at 3% 3200px,#000 25%,transparent 72%),linear-gradient(118deg,transparent 38%,rgba(0,0,0,.55) 47%,transparent 56%);
+  mask-image:radial-gradient(ellipse 380px 260px at 6% 180px,#000 25%,transparent 72%),radial-gradient(ellipse 300px 220px at 96% 520px,#000 25%,transparent 72%),radial-gradient(ellipse 340px 260px at 2% 1100px,#000 25%,transparent 72%),radial-gradient(ellipse 280px 240px at 98% 1500px,#000 25%,transparent 72%),radial-gradient(ellipse 360px 280px at 4% 2100px,#000 25%,transparent 72%),radial-gradient(ellipse 300px 220px at 97% 2600px,#000 25%,transparent 72%),radial-gradient(ellipse 340px 240px at 3% 3200px,#000 25%,transparent 72%),linear-gradient(118deg,transparent 38%,rgba(0,0,0,.55) 47%,transparent 56%);}
+
+/* Nav */
+.nav{display:flex;align-items:center;gap:10px;padding-block:14px}
+.logo{font-family:var(--f-display);font-weight:700;font-size:24px;letter-spacing:.01em;text-decoration:none;color:var(--ink);white-space:nowrap}
+.logo .dash{color:var(--logo-accent);margin:0 .15em}
+.logo .co{color:var(--mute)}
+.nav .sp{flex:1}
+.nbtn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 11px;font-weight:600;font-size:14px}
+.nbtn:hover{border-color:var(--accent)}
+.nbtn svg{width:17px;height:17px;flex:none}
+.count{font-family:var(--f-display);font-size:13px;background:var(--accent);color:var(--accent-ink);border-radius:20px;padding:0 7px;font-weight:700}
+@media (max-width:640px){.nbtn .lbl{display:none}.nbtn{padding:8px}.logo{font-size:21px}}
+
+/* Intro */
+.intro{padding-block:8px 18px}
+.eyebrow{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.12em;font-size:13px;font-weight:600;color:var(--mute);margin:0 0 4px;display:flex;align-items:center;gap:8px}
+.eyebrow .tape{width:28px;height:6px;background:repeating-linear-gradient(135deg,var(--accent) 0 6px,var(--ink) 6px 12px);border-radius:1px}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(34px,6vw,52px);line-height:1;margin:0 0 8px;letter-spacing:-.005em;text-wrap:balance}
+.lede{margin:0;color:var(--mute);max-width:62ch}
+
+/* Sticky action bar */
+.actionbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.actionbar .wrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-block:9px}
+.docid{font-family:var(--f-display);font-weight:700;font-size:19px;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.pill{display:inline-flex;align-items:center;gap:5px;font-family:var(--f-display);font-weight:600;text-transform:uppercase;letter-spacing:.06em;font-size:12px;border-radius:20px;padding:2px 9px;border:1px solid var(--line);background:var(--surface);color:var(--mute);white-space:nowrap}
+.pill.ok{border-color:var(--g);color:var(--g)}
+.pill.ex{border-color:var(--accent);color:var(--ink);background:var(--wash)}
+.saved{font-size:13px;color:var(--mute)}
+.actionbar .sp{flex:1}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border-radius:8px;padding:9px 14px;font-weight:600;font-size:14.5px;border:1px solid var(--line);background:var(--surface);white-space:nowrap}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.05)}
+.btn.ghost{background:transparent}
+.btn.sm{padding:6px 10px;font-size:13.5px}
+.btn svg{width:16px;height:16px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+@media (max-width:560px){.saved{display:none}}
+
+/* The sheet */
+main{padding-block:18px 40px}
+.sheet{background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 1px 0 var(--line),0 18px 40px -28px rgba(14,26,46,.45);overflow:hidden}
+.lh{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;padding:20px 24px;border-bottom:3px solid var(--accent)}
+.biz{display:flex;align-items:center;gap:14px;min-width:0}
+.biz img{max-height:54px;max-width:140px;object-fit:contain}
+.biz .nm{font-family:var(--f-display);font-weight:700;font-size:22px;line-height:1.05}
+.biz .meta{font-size:13px;color:var(--mute)}
+.addbiz{border:1.5px dashed var(--line);border-radius:8px;padding:10px 14px;background:transparent;text-align:left;color:var(--mute);font-size:13.5px}
+.addbiz b{display:block;color:var(--ink);font-family:var(--f-display);font-size:17px}
+.addbiz:hover{border-color:var(--accent)}
+.doctitle{text-align:right}
+.doctitle .t{font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:22px;line-height:1}
+.doctitle .m{font-size:13px;color:var(--mute);font-variant-numeric:tabular-nums;margin-top:4px}
+@media (max-width:640px){.lh{grid-template-columns:1fr;padding:16px}.doctitle{text-align:left}}
+
+.banner{display:flex;gap:12px;align-items:flex-start;padding:12px 24px;font-size:14px;border-bottom:1px solid var(--line)}
+.banner svg{flex:none;width:20px;height:20px;margin-top:1px}
+.banner b{font-weight:700}
+.banner.caution{background:var(--wash)}
+.banner.caution svg{color:var(--plan)}
+.banner.hrcw{background:color-mix(in srgb,var(--r) 10%,var(--surface))}
+.banner.hrcw svg{color:var(--r)}
+.banner p{margin:0}
+@media (max-width:640px){.banner{padding:12px 16px}}
+
+/* Summary strip */
+.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-bottom:1px solid var(--line)}
+.summary>div{padding:12px 24px;border-right:1px solid var(--line);min-width:0}
+.summary>div:last-child{border-right:0}
+.summary .k{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.1em;font-size:12px;color:var(--mute);font-weight:600}
+.summary .v{font-family:var(--f-display);font-weight:700;font-size:24px;font-variant-numeric:tabular-nums;line-height:1.1}
+.dist{display:flex;height:9px;border-radius:2px;overflow:hidden;background:var(--soft);margin-top:7px}
+.dist span{display:block;height:100%}
+.distlab{font-size:12px;color:var(--mute);margin-top:4px;font-variant-numeric:tabular-nums}
+@media (max-width:760px){.summary{grid-template-columns:1fr 1fr}.summary>div:nth-child(2){border-right:0}.summary>div:nth-child(-n+2){border-bottom:1px solid var(--line)}.summary>div{padding:10px 16px}}
+
+/* Sections */
+.sec{padding:22px 24px;border-bottom:1px solid var(--line)}
+.sec:last-child{border-bottom:0}
+@media (max-width:640px){.sec{padding:18px 16px}}
+.sech{display:flex;align-items:center;gap:10px;width:100%;border:0;background:transparent;padding:0;text-align:left;color:inherit;margin:0 0 10px}
+.sech .n{font-family:var(--f-display);font-weight:700;font-size:14px;color:var(--accent-ink);background:var(--accent);border-radius:4px;padding:1px 7px;font-variant-numeric:tabular-nums}
+.sech h2{font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:19px;margin:0}
+.secsp{flex:1}
+.secchev{display:grid;place-items:center;color:var(--mute);transition:transform .2s}
+.secchev svg{width:18px;height:18px}
+.sec.folded .secchev{transform:rotate(-90deg)}
+.sec.folded .sech{margin-bottom:0}
+.sech:hover h2{color:var(--ink);text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:4px}
+.secbody>.hint{color:var(--mute);font-size:13.5px;margin:-4px 0 12px}
+.stat{font-family:var(--f-display);font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:12px;border-radius:20px;padding:2px 10px;border:1px solid var(--line);white-space:nowrap}
+.stat:empty{display:none}
+.stat.ok{color:var(--g);border-color:var(--g)}
+.stat.inc{color:var(--plan);border-color:var(--plan)}
+.stat.rev{color:#fff;background:var(--r);border-color:var(--r)}
+.req{color:var(--r);font-weight:700}
+.inp.need,.ta.need{border-left:3px solid var(--plan)}
+@media (max-width:520px){.sech{flex-wrap:wrap;row-gap:6px}.stat{order:5;margin-left:34px}.secsp{display:none}.secchev{margin-left:auto}}
+.sh{display:flex;align-items:baseline;gap:10px;margin:0 0 12px;flex-wrap:wrap}
+.sh .n{font-family:var(--f-display);font-weight:700;font-size:14px;color:var(--accent-ink);background:var(--accent);border-radius:4px;padding:1px 7px;font-variant-numeric:tabular-nums}
+.sh h2{font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:19px;margin:0}
+.sh .hint{color:var(--mute);font-size:13.5px;flex-basis:100%;margin:0}
+label.f{display:flex;flex-direction:column;gap:4px;min-width:0}
+label.f>span{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.08em;font-size:12px;font-weight:600;color:var(--mute)}
+.inp,.ta{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:8px 10px;min-width:0}
+.inp:focus,.ta:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--wash)}
+.ta{resize:vertical;min-height:40px;field-sizing:content;line-height:1.4}
+.task .ta{font-size:17px;min-height:56px}
+.fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px 16px}
+.fields .wide{grid-column:1/-1}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.mute{color:var(--mute)}
+.small{font-size:13px}
+
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:20px;padding:5px 12px;font-size:13.5px;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.chip:hover{border-color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.chip .ck{width:14px;height:14px;display:none}
+.chip[aria-pressed="true"] .ck{display:block}
+.chiplab{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.08em;font-size:12px;font-weight:600;color:var(--mute);margin:16px 0 7px}
+.flash{animation:flash 1.2s ease}
+@keyframes flash{0%{background:var(--wash)}100%{background:transparent}}
+
+/* Hazard table */
+.htable{border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.hrow{display:grid;grid-template-columns:34px minmax(0,1fr) minmax(0,1.1fr) 118px minmax(0,1.7fr) 118px minmax(0,.75fr) 40px;border-bottom:1px solid var(--line)}
+.hrow:last-child{border-bottom:0}
+.hrow>div{padding:8px;min-width:0;border-right:1px solid var(--line)}
+.hrow>div:last-child{border-right:0}
+.hhead{background:var(--hero);color:var(--hero-ink)}
+.hhead>div{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.07em;font-size:12.5px;font-weight:600;border-right-color:rgba(234,240,248,.12)!important;padding:9px 8px}
+.hrow .num{font-family:var(--f-display);font-weight:700;font-size:17px;text-align:center;font-variant-numeric:tabular-nums;color:var(--mute);display:flex;flex-direction:column;align-items:center;gap:2px}
+.foldbar{margin:0 0 10px}
+.hrow.folded{display:flex;align-items:center;gap:8px;padding:4px 6px 4px 4px}
+.hrow.folded>div{border:0!important;padding:0;background:transparent!important}
+.hrow.folded .tools{flex-direction:row;flex:none}
+.fold{flex:1;min-width:0;display:flex;align-items:center;gap:10px;border:0;background:transparent;text-align:left;padding:6px 4px;border-radius:6px}
+.fold:hover{background:var(--soft)}
+.fold .chev{display:grid;place-items:center;color:var(--mute)}
+.fold .chev svg{width:15px;height:15px}
+.fold .fnum{font-family:var(--f-display);font-weight:700;font-size:17px;color:var(--mute);font-variant-numeric:tabular-nums;min-width:18px}
+.fold .sum{flex:1;min-width:0;overflow:hidden;white-space:nowrap;-webkit-mask-image:linear-gradient(90deg,#000 78%,transparent);mask-image:linear-gradient(90deg,#000 78%,transparent)}
+@media (max-width:520px){.mini{width:60px;font-size:11px;letter-spacing:.02em}.risks{gap:3px}}
+.risks{display:flex;align-items:center;gap:5px;flex:none;color:var(--mute);font-size:13px}
+.mini{font-family:var(--f-display);font-weight:700;text-transform:uppercase;font-size:12px;letter-spacing:.05em;color:var(--risk-ink);border-radius:4px;padding:2px 4px;white-space:nowrap;display:inline-block;width:76px;text-align:center}
+.mini.L{background:var(--risk-l)}.mini.M{background:var(--risk-m)}.mini.H{background:var(--risk-h)}.mini.E{background:var(--risk-e)}
+.mini.none{background:var(--soft);color:var(--mute);border:1px dashed var(--line)}
+.hrow .ta{border-color:transparent;background:transparent;padding:4px 6px;min-height:34px;resize:none}
+.hrow .ta:hover{border-color:var(--line)}
+.hrow .ta:focus{border-color:var(--accent);background:var(--surface)}
+.hrow .cl{display:none}
+.hrow.hl{background:var(--wash)}
+.tools{display:flex;flex-direction:column;gap:2px;align-items:center}
+.ib{width:28px;height:26px;border:0;background:transparent;border-radius:5px;color:var(--mute);display:grid;place-items:center}
+.ib:hover{background:var(--soft);color:var(--ink)}
+.ib.del:hover{color:var(--r)}
+.ib svg{width:15px;height:15px}
+.risk{width:100%;border:0;border-radius:6px;padding:6px 6px 5px;text-align:left;color:var(--risk-ink);display:flex;flex-direction:column;gap:1px;line-height:1.15}
+.risk b{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.06em;font-size:15px}
+.risk small{font-size:11.5px;opacity:.92}
+.risk.L{background:var(--risk-l)}.risk.M{background:var(--risk-m)}.risk.H{background:var(--risk-h)}.risk.E{background:var(--risk-e)}
+.risk.none{background:var(--soft);color:var(--mute);border:1px dashed var(--line)}
+.risk:hover{filter:brightness(1.08)}
+.src{font-size:11px;color:var(--mute);font-family:var(--f-display);text-transform:uppercase;letter-spacing:.06em;padding:0 6px}
+@media (max-width:980px){
+  .hhead{display:none}
+  .htable{border:0;border-radius:0;display:flex;flex-direction:column;gap:12px}
+  .hrow{grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .hrow>div{border-right:0;border-bottom:1px solid var(--line)}
+  .hrow .num{grid-column:1/2;text-align:left;background:var(--soft);padding:4px 8px 4px 12px;flex-direction:row;justify-content:flex-start;gap:8px}
+  .hrow.folded{gap:4px}
+  .hrow.folded .fold{gap:6px;padding:6px 2px}
+  .hrow.folded .tools{gap:0}
+  .hrow.folded .ib{width:24px}
+  .hrow .tools{grid-column:2/3;grid-row:1;flex-direction:row;justify-content:flex-end;background:var(--soft)}
+  .hrow .c-step,.hrow .c-haz,.hrow .c-b,.hrow .c-ctl,.hrow .c-a,.hrow .c-who{grid-column:1/-1}
+  .hrow .cl{display:block;font-family:var(--f-display);text-transform:uppercase;letter-spacing:.08em;font-size:11.5px;font-weight:600;color:var(--mute);padding:0 6px 2px}
+  .hrow>div:last-child{border-bottom:1px solid var(--line)}
+  .hrow .c-who{border-bottom:0!important}
+}
+.tradebar{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.trade{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:6px 11px;font-family:var(--f-display);font-weight:600;font-size:14.5px;letter-spacing:.02em;display:inline-flex;align-items:center;gap:6px}
+.trade:hover{border-color:var(--ink)}
+.trade[aria-selected="true"]{background:var(--hero);color:var(--hero-ink);border-color:var(--hero)}
+.trade.other{border-style:dashed;color:var(--mute)}
+.tchev{display:grid;place-items:center}.tchev svg{width:14px;height:14px}
+.otherbar{padding:8px;border:1px dashed var(--line);border-radius:8px;background:var(--soft)}
+.chip.morechip{border-style:dashed;color:var(--mute);font-weight:500;white-space:nowrap}
+.chip.morechip svg{width:13px;height:13px;flex:none}
+.wtlab{display:flex;align-items:center;gap:6px}
+.tipwrap{position:relative;display:inline-flex}
+.tipbtn{width:22px;height:22px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--mute);display:grid;place-items:center;padding:0}
+.tipbtn svg{width:14px;height:14px}
+.tipbtn:hover,.tipbtn:focus-visible{color:var(--accent-ink);background:var(--accent);border-color:var(--accent)}
+.tip{position:absolute;left:28px;top:50%;transform:translateY(-50%);width:max-content;max-width:min(300px,70vw);background:var(--ink);color:var(--surface);font-family:var(--f-body);text-transform:none;letter-spacing:0;font-size:12.5px;font-weight:500;padding:6px 10px;border-radius:6px;opacity:0;pointer-events:none;transition:opacity .15s;z-index:5}
+.tipwrap:hover .tip,.tipbtn:focus-visible+.tip{opacity:1}
+.tpick .chips{gap:6px}
+.tcount{background:var(--accent);color:var(--accent-ink);border-radius:20px;font-size:12px;padding:0 6px;font-weight:700}
+#chips{padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.chip.sugg{font-weight:500;border-style:dashed}
+.chip.sugg svg{width:13px;height:13px}
+.chembox{margin-top:16px;border:1px solid var(--line);border-radius:8px;padding:10px 14px;background:var(--soft)}
+.chembox summary{cursor:pointer;font-family:var(--f-display);text-transform:uppercase;letter-spacing:.08em;font-size:13px;font-weight:700;list-style:none;display:flex;align-items:center;gap:8px}
+.chembox summary::-webkit-details-marker{display:none}
+.chembox summary::before{content:"";width:8px;height:8px;border-right:2px solid var(--mute);border-bottom:2px solid var(--mute);transform:rotate(-45deg);transition:transform .2s}
+.chembox[open] summary::before{transform:rotate(45deg)}
+.chemchip{display:inline-flex;align-items:center;gap:2px;border:1px solid var(--line);background:var(--surface);border-radius:20px;padding:2px 2px 2px 12px;font-size:13.5px;font-weight:600}
+.hempty{padding:18px 16px;color:var(--mute);font-size:14px;text-align:center}
+.hempty b{color:var(--ink)}
+.hoc{position:relative;display:flex;align-items:center;gap:12px;margin-top:14px;padding:10px 10px 10px 14px;border:1px solid var(--line);border-radius:8px;background:var(--soft)}
+.hoc>p{margin:0;flex:1;min-width:0;font-size:13.5px;color:var(--mute)}
+.hoc>p b{color:var(--ink);font-family:var(--f-display);text-transform:uppercase;letter-spacing:.06em;font-size:14px}
+.hocbtn{flex:none;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center}
+.hocbtn:hover,.hocbtn[aria-expanded="true"]{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+.hocbtn svg{width:20px;height:20px}
+.hocpop{position:absolute;right:0;bottom:calc(100% + 8px);width:min(440px,calc(100vw - 40px));z-index:25;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 24px 50px -20px rgba(0,0,0,.45);padding:16px;display:flex;flex-direction:column;gap:6px;opacity:1;transition:opacity .15s}
+.hocpop.fading{opacity:0;transition:opacity 1.6s ease .4s}
+.hoct{font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:18px}
+.hocsub{margin:0 0 6px;font-size:13px;color:var(--mute)}
+.lvlwrap{display:flex;flex-direction:column;align-items:center;gap:2px}
+.lvl{display:flex;justify-content:space-between;gap:10px;align-items:baseline;border-radius:4px;padding:5px 10px;color:var(--risk-ink);min-width:0}
+.lvl b{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.05em;font-size:14px;white-space:nowrap}
+.lvl span{font-size:12.5px;opacity:.95;text-align:right}
+.lvl.L{background:var(--risk-l)}.lvl.M{background:var(--risk-m)}.lvl.H{background:var(--risk-h)}.lvl.E{background:var(--risk-e)}
+.lvlex{font-size:12px;color:var(--mute);text-align:center;margin-bottom:3px}
+
+/* Review */
+.review{display:flex;gap:12px;align-items:flex-start;padding:14px;border:1.5px solid var(--accent);border-radius:8px;background:var(--wash)}
+.review.done{border-color:var(--g);background:color-mix(in srgb,var(--g) 9%,var(--surface))}
+.review input[type=checkbox]{width:22px;height:22px;accent-color:var(--g);flex:none;margin-top:1px}
+.review label{font-weight:600}
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.signbody{flex:1;min-width:0}
+.signline{margin:0;font-weight:600}
+.signtick{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--line);background:var(--surface);display:grid;place-items:center;color:#fff;margin-top:2px}
+.signtick svg{width:14px;height:14px}
+.review.done .signtick{background:var(--g);border-color:var(--g)}
+.sigpad{position:relative;margin-top:10px;border:1px solid var(--line);border-radius:6px;background:#fff;height:130px;touch-action:none;overflow:hidden}
+.sigpad canvas{display:block;width:100%;height:100%;cursor:crosshair;touch-action:none}
+.sigpad .ph{position:absolute;left:14px;right:14px;bottom:12px;border-top:1px dashed #B8C2D0;padding-top:4px;font-size:12px;color:#56657A;pointer-events:none}
+.sigpad.off{opacity:.45}
+.sigpad.off canvas{pointer-events:none;cursor:not-allowed}
+.sigacts{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.sighint{font-size:12.5px;color:var(--mute);margin-top:6px}
+.signed{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.signname{font-weight:700}
+.sigimg{background:#fff;border:1px solid var(--line);border-radius:6px;padding:4px;max-height:72px;max-width:220px;display:block}
+.hrcwpop{border-top:4px solid var(--r)}
+.hrcwic{color:var(--r);display:grid;place-items:center}
+.hrcwic svg{width:26px;height:26px}
+.hrcwlist{margin:0 0 10px;padding-left:20px;font-weight:600}
+.hrcwpop p{margin:0 0 6px;font-size:14.5px}
+.swmsbtn{flex:none;align-self:center;border-color:var(--r);color:var(--r);background:var(--surface)}
+.nabar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;padding-top:10px;border-top:1px dashed var(--line)}
+.nabar .sighint{margin:0}
+.review.na{border-style:dashed;border-color:var(--line);background:var(--soft)}
+.signs{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.stepl{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.08em;font-size:12.5px;font-weight:700;color:var(--mute);margin-bottom:2px}
+.review.locked{border-color:var(--line);border-style:dashed;background:var(--soft)}
+.review.locked label,.review.locked .fields{opacity:.6}
+.review.stale{border-color:var(--r);background:color-mix(in srgb,var(--r) 7%,var(--surface))}
+.revnote{margin:6px 0 0;font-size:13.5px;color:var(--mute)}
+.revnote:empty{display:none}
+.review.stale .revnote{color:var(--ink);font-weight:600}
+.crew{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.crow{display:grid;grid-template-columns:28px minmax(0,1fr) minmax(0,1fr) 150px 34px;gap:8px;align-items:center}
+.csign{min-width:0;display:flex}
+.crewsig{display:flex;align-items:center;gap:8px;border:1px solid var(--g);border-radius:6px;background:var(--surface);padding:2px 8px 2px 2px;min-width:0;max-width:100%}
+.crewsig img{height:30px;width:auto;max-width:70px;background:#fff;border-radius:4px}
+.crewsig span{font-size:11.5px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crewwho{margin-top:4px;font-size:16px}
+.crow .num{font-family:var(--f-display);font-weight:700;color:var(--mute);text-align:center}
+@media (max-width:620px){.crow{grid-template-columns:22px minmax(0,1fr) 34px}.crow .co2,.crow .csign{grid-column:2/3}.crow .del{grid-row:1;grid-column:3}}
+
+/* Matrix */
+.mx{display:grid;grid-template-columns:auto repeat(5,minmax(0,1fr));gap:3px;font-size:13px;max-width:760px}
+.mx .ch,.mx .rh{font-family:var(--f-display);font-weight:600;letter-spacing:.03em;color:var(--mute);display:flex;align-items:center;line-height:1.1}
+.mx .ch{justify-content:center;text-align:center;padding:4px 2px;font-size:12.5px}
+.mx .rh{padding:0 8px 0 0;font-size:13px;min-width:0}
+.mx .corner{font-size:11px;color:var(--mute);font-family:var(--f-display);text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:flex-end;line-height:1.1}
+.cell{border:0;border-radius:4px;min-height:46px;color:var(--risk-ink);font-family:var(--f-display);font-weight:700;font-size:14px;letter-spacing:.04em;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;padding:4px 2px}
+.cell.L{background:var(--risk-l)}.cell.M{background:var(--risk-m)}.cell.H{background:var(--risk-h)}.cell.E{background:var(--risk-e)}
+.cell .cnt{font-size:11px;font-weight:600;opacity:.95;font-variant-numeric:tabular-nums}
+.cell.sel{outline:3px solid var(--ink);outline-offset:1px;z-index:1}
+button.cell:hover{filter:brightness(1.1)}
+.legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:16px}
+.legend>div{display:flex;gap:10px;align-items:flex-start;font-size:13.5px}
+.legend i{flex:none;width:14px;height:14px;border-radius:3px;margin-top:3px}
+.legend b{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.06em}
+.axis{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.1em;font-size:12px;color:var(--mute);margin:0 0 6px}
+.mxwrap{overflow-x:auto}
+
+.sheetfoot{padding:14px 24px;font-size:12.5px;color:var(--mute);background:var(--soft)}
+
+/* Overlays */
+.scrim{position:fixed;inset:0;background:rgba(10,18,32,.45);z-index:40}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(460px,100%);background:var(--surface);z-index:41;display:flex;flex-direction:column;border-left:1px solid var(--line);box-shadow:-20px 0 50px -30px rgba(0,0,0,.5);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);padding-right:env(safe-area-inset-right,0px)}
+.dh{display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid var(--line)}
+.dh h3{font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:20px;margin:0;flex:1}
+.db{padding:16px 18px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:12px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);padding:0 18px}
+.tab{border:0;background:transparent;padding:10px 12px;font-family:var(--f-display);font-weight:600;text-transform:uppercase;letter-spacing:.06em;font-size:14px;color:var(--mute);border-bottom:3px solid transparent;margin-bottom:-1px}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.item{border:1px solid var(--line);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.item.cur{border-color:var(--accent);box-shadow:0 0 0 2px var(--wash)}
+.item .t{font-weight:700;line-height:1.25}
+.item .m{font-size:12.5px;color:var(--mute);font-variant-numeric:tabular-nums}
+.item .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.empty{color:var(--mute);font-size:14px;padding:20px 4px;text-align:center}
+.note{font-size:12.5px;color:var(--mute)}
+.logoprev{display:flex;align-items:center;gap:12px;border:1px dashed var(--line);border-radius:8px;padding:10px;min-height:70px}
+.logoprev img{max-height:56px;max-width:160px;object-fit:contain}
+
+.pop{position:fixed;z-index:51;left:50%;top:50%;transform:translate(-50%,-50%);width:min(620px,calc(100% - 24px));max-height:calc(100% - 24px);overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 30px 60px -20px rgba(0,0,0,.5);padding:18px;opacity:1;transition:opacity .15s}
+.pop.fading{opacity:0;transition:opacity 1.6s ease .4s}
+.popscrim{z-index:50;background:rgba(10,18,32,.3)}
+.pop h4{margin:0;font-family:var(--f-display);font-weight:700;font-size:20px;text-transform:uppercase;letter-spacing:.05em}
+.pop .sub{color:var(--mute);font-size:13.5px;margin:2px 0 12px}
+.pop .picked{margin-top:12px;font-size:14px;min-height:20px}
+
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;background:var(--ink);color:var(--surface);border-radius:8px;padding:10px 14px;display:flex;gap:14px;align-items:center;font-size:14px;max-width:calc(100% - 32px);box-shadow:0 12px 30px -12px rgba(0,0,0,.5);transition:opacity .3s}
+.toast button{background:transparent;border:0;color:var(--accent);font-weight:700;padding:0}
+.toast.out{opacity:0}
+
+.warnbox{border:1.5px solid var(--r);background:color-mix(in srgb,var(--r) 8%,var(--surface));border-radius:8px;padding:12px 14px;font-size:14px}
+.warnbox .row{margin-top:8px}
+
+footer.ft{padding-block:10px 40px;color:var(--mute);font-size:13px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="page">
+  <div class="gridbg" aria-hidden="true"></div>
+
+  <header class="nav wrap">
+    <a class="logo" href="#top" aria-label="crnrstone-co">crnrstone<span class="dash">-</span><span class="co">co</span></a>
+    <span class="sp"></span>
+    <button class="nbtn" id="openBank" type="button" aria-label="JSA bank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18M5 7v12h14V7M9 11h6"/><path d="M4 3h16v4H4z"/></svg><span class="lbl">JSA bank</span><span class="count" id="bankCount">0</span></button>
+    <button class="nbtn" id="openProfile" type="button" aria-label="Business profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-7h6v7"/></svg><span class="lbl">Business profile</span></button>
+    <button class="nbtn" id="theme" type="button" aria-label="Switch night or day"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><span class="lbl" id="themeLbl">Night</span></button>
+  </header>
+
+  <section class="intro wrap" id="top">
+    <p class="eyebrow">Site safety</p>
+    <h1>JSA Builder</h1>
+    <p class="lede">Type the job and the common hazards drop in. Tweak them for your site, get it approved and signed off, sign the crew on and download the PDF.</p>
+  </section>
+
+  <div class="actionbar">
+    <div class="wrap">
+      <span class="docid" id="abNo">JSA-0001</span>
+      <span class="pill" id="abRev">Rev 1</span>
+      <span class="pill" id="abStatus">Draft</span>
+      <span class="saved" id="abSaved"></span>
+      <span class="sp"></span>
+      <button class="btn sm ghost" type="button" id="newJsa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>New JSA</button>
+      <button class="btn sm primary" type="button" id="pdfBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Download PDF</button>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <div id="pdfWarn" hidden></div>
+    <article class="sheet" id="sheet" aria-label="Job safety analysis"></article>
+  </main>
+
+  <footer class="ft wrap">Prototype. A JSA from this tool is a starting point. Always check it against your site, your crew and your state's WHS laws.</footer>
+</div>
+
+<div id="overlays"></div>
+<div id="toastHost"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+
+<script id="core">
+/* ===== Core data and logic (no page code here, so it can be tested on its own) ===== */
+var LIKE = ["Rare","Unlikely","Possible","Likely","Almost certain"];      // index 0..4
+var CONS = ["Insignificant","Minor","Moderate","Major","Catastrophic"];   // index 0..4
+var RATING_NAME = {L:"Low",M:"Medium",H:"High",E:"Extreme"};
+/* MATRIX[likelihood][consequence] */
+var MATRIX = [
+  ["L","L","M","H","H"], // Rare
+  ["L","L","M","H","E"], // Unlikely
+  ["L","M","H","E","E"], // Possible
+  ["M","H","H","E","E"], // Likely
+  ["H","H","E","E","E"]  // Almost certain
+];
+var ACTIONS = {
+  E:"Don't start. Change the method or add controls until it comes down.",
+  H:"Supervisor signs off before work starts. Check controls often.",
+  M:"Go ahead with the controls in place. Keep an eye on it.",
+  L:"Manage with normal site rules."
+};
+function rate(r){ if(!r || r.l==null || r.c==null) return null; return MATRIX[r.l][r.c]; }
+
+var PPE = [
+  ["hat","Hard hat"],["boots","Safety boots"],["hivis","Hi-vis"],["eyes","Eye protection"],["ears","Hearing protection"],
+  ["gloves","Gloves"],["mask","P2 dust mask"],["sun","Sun protection"],["harness","Harness"],["sleeves","Long sleeves and pants"],["knee","Knee pads"],["face","Face shield"]
+];
+
+/* Generic site rows go on every new JSA */
+var GENERIC = [
+  {step:"Site set-up and access",hazard:"Slips and trips on uneven ground, offcuts and leads",b:[3,1],controls:"Keep walkways clear. Offcuts and rubbish to the skip daily. Run leads overhead or along edges.",a:[1,1],who:"All workers"},
+  {step:"Moving materials",hazard:"Strains and back injury lifting sheets, timber and gear",b:[2,2],controls:"Team lift long or heavy items. Use trolleys or lifting gear. Set materials down close to where they're used.",a:[1,1],who:"All workers"},
+  {step:"Working outdoors",hazard:"Heat stress and sunburn",b:[3,2],controls:"Check the forecast. Shade, cool water and rest breaks. Sunscreen, broad-brim hat. Start early on hot days.",a:[1,2],who:"Supervisor"}
+];
+
+/* Work types: keywords pick them from the job description */
+var GROUPS = [
+ {key:"site",label:"General site",kw:[],ppe:["hat","boots","hivis","sun"],rows:GENERIC},
+ {key:"heights",label:"Working at heights",kw:["roof","truss","height","ladder","gutter","fascia","eave","batten","second storey","upper floor","two storey","first floor","ceiling"],
+  hrcw:"risk of a person falling more than 2 m",ppe:["harness"],rows:[
+  {step:"Getting up to the work",hazard:"Fall from ladder",b:[2,3],controls:"Ladders for access and short, light work only. Industrial rated, on firm level ground, secured top and bottom. Three points of contact.",a:[1,3],who:"All workers"},
+  {step:"Working near open edges",hazard:"Fall from roof edge or open frame",b:[2,4],controls:"Edge protection or scaffold up and tagged before work starts. Harness only where edge protection isn't practical, with an anchor point and a rescue plan.",a:[0,4],who:"Supervisor"},
+  {step:"Working above others",hazard:"Tools or materials falling on people below",b:[2,3],controls:"Exclusion zone below the work. Toe boards on platforms. Nobody works under someone else.",a:[1,2],who:"All workers"}]},
+ {key:"roof",label:"Roof framing and trusses",kw:["truss","rafter","roof frame","roof framing","batten","purlin","pitch"],ppe:["harness"],rows:[
+  {step:"Lifting trusses onto walls",hazard:"Struck by load during crane lift",b:[2,3],controls:"Licensed crane operator and dogger. Lift plan agreed. Tag lines. Exclusion zone under the load. No lifts in strong wind.",a:[1,3],who:"Crane operator"},
+  {step:"Standing and fixing trusses",hazard:"Trusses topple before bracing is in",b:[2,3],controls:"Fit temporary bracing as you go, to the truss layout. Don't stack materials on unbraced trusses.",a:[1,2],who:"Lead carpenter"}]},
+ {key:"framing",label:"Wall framing",kw:["wall frame","frames","framing","stud","stand"],rows:[
+  {step:"Standing wall frames",hazard:"Frame falls on workers while lifting or before it's braced",b:[2,3],controls:"Enough hands for each lift. Brace straight away. Don't stand frames in strong wind.",a:[1,2],who:"Lead carpenter"},
+  {step:"Fixing top plates and bracing",hazard:"Fall from ladder or trestle while working at plate height",b:[2,2],controls:"Platform ladders or trestles with planks on firm, level ground. Don't over-reach. Move the ladder instead.",a:[1,2],who:"All workers"}]},
+ {key:"floor",label:"Floor framing",kw:["floor","joist","bearer","subfloor","stump"],rows:[
+  {step:"Setting bearers on stumps",hazard:"Crush and pinch injuries handling heavy bearers",b:[2,2],controls:"Team lift or lifting aid. Keep hands clear of the stump head when setting down. Fix as you go.",a:[1,1],who:"All workers"},
+  {step:"Working on open joists",hazard:"Foot through joists, trips and falls",b:[2,2],controls:"Lay sheet flooring as you go or use walk boards. Edge protection where the drop is over 2 m.",a:[1,1],who:"All workers"},
+  {step:"Working in the subfloor",hazard:"Head strikes and awkward postures in tight spaces",b:[3,1],controls:"Hard hat. Clear access in and out. Good lighting. Take breaks to change position.",a:[1,1],who:"All workers"}]},
+ {key:"stairs",label:"Stairs",kw:["stair","stringer","tread","balustrade","handrail","landing"],rows:[
+  {step:"Lifting and fixing stringers",hazard:"Strains and crush injuries from heavy stringers",b:[2,2],controls:"Team lift or lifting aid. Prop and fix before letting go.",a:[1,1],who:"All workers"},
+  {step:"Working on stairs and landings",hazard:"Falls from open stair edges and landings",b:[2,3],controls:"Temporary handrail or balustrade fitted as you go. Block off unfinished stairs. Keep treads clear of tools and offcuts.",a:[1,2],who:"All workers"}]},
+ {key:"decking",label:"Decking",kw:["deck","decking","pergola"],rows:[
+  {step:"Cutting and fixing decking boards",hazard:"Cuts, splinters and knee strain from long periods kneeling",b:[3,1],controls:"Gloves and knee pads. Sharp blades. Swap tasks to break up kneeling time.",a:[1,1],who:"All workers"},
+  {step:"Working near open deck edges",hazard:"Fall from the deck edge or through open joists",b:[2,3],controls:"Edge protection where the drop is over 2 m. Board or cover open joist bays. Keep the work area tidy.",a:[1,2],who:"All workers"}]},
+ {key:"linings",label:"Wall linings",kw:["lining","linings","plasterboard","gyprock","villaboard","sheeting","fibre cement","fc sheet"],ppe:["mask","eyes"],rows:[
+  {step:"Handling plasterboard and sheets",hazard:"Strains and back injury from large, heavy sheets",b:[3,2],controls:"Team lift or sheet trolley. Stack sheets close to where they'll be fixed.",a:[1,1],who:"All workers"},
+  {step:"Fixing overhead sheets",hazard:"Sheets falling, neck and shoulder strain",b:[2,2],controls:"Sheet lifter or props until fixed. Work from platform ladders or trestles, not boxes or buckets.",a:[1,1],who:"All workers"},
+  {step:"Cutting fibre cement sheets",hazard:"Breathing silica dust",b:[2,3],controls:"Score and snap or use sheet shears, not a saw or grinder. If power cutting can't be avoided, use dust extraction or water and a P2 mask.",a:[1,2],who:"Operator"}]},
+ {key:"tools",label:"Power tools and cutting",kw:["saw","cut","nail","drill","grinder","power tool","router","planer","nailer"],ppe:["eyes","ears","mask"],rows:[
+  {step:"Cutting with circular or drop saw",hazard:"Cuts and kickback",b:[2,3],controls:"Guards working. Sharp, correct blade. Work supported and clamped. Competent operators only.",a:[1,2],who:"Operator"},
+  {step:"Using nail guns",hazard:"Nail into hand, body or another worker",b:[2,3],controls:"Sequential trigger for framing. Disconnect to clear jams or move. Never point it at anyone.",a:[1,2],who:"Operator"},
+  {step:"Cutting and sanding",hazard:"Dust and noise",b:[3,2],controls:"Dust extraction or cut outside, downwind. P2 mask and hearing protection on.",a:[1,1],who:"Operator"},
+  {step:"Leads and plug-in tools",hazard:"Electric shock",b:[1,3],controls:"Tested and tagged. RCD protection. Leads off the ground. Damaged gear tagged out.",a:[0,3],who:"All workers"}]},
+ {key:"dig",label:"Digging and trenches",kw:["dig","trench","excavat","pier hole","footing","post hole","drainage","stormwater","sewer"],
+  hrcw:"trench or shaft deeper than 1.5 m",rows:[
+  {step:"Before digging",hazard:"Hitting underground power, gas, water or comms",b:[2,4],controls:"Before You Dig Australia enquiry. Locate and mark services. Hand dig near known services.",a:[0,4],who:"Supervisor"},
+  {step:"Working in trenches",hazard:"Trench wall collapse",b:[2,4],controls:"Bench, batter or shore deeper trenches. Keep spoil and plant back from the edge. Ladder access.",a:[0,4],who:"Supervisor"},
+  {step:"Open holes and trenches",hazard:"Falls into open excavations",b:[2,2],controls:"Barricade or cover holes. Check at the end of each day.",a:[1,1],who:"All workers"}]},
+ {key:"concrete",label:"Concreting",kw:["concrete","pour","slab","footing","pump","screed"],ppe:["gloves","sleeves"],rows:[
+  {step:"Placing concrete",hazard:"Cement burns to skin and eyes",b:[3,2],controls:"Gloves, long sleeves, gumboots, eye protection. Wash skin straight away. Eyewash on site.",a:[1,1],who:"Concreters"},
+  {step:"Concrete pump on site",hazard:"Boom contact, hose whip, struck by",b:[2,3],controls:"Competent operator. Outriggers on firm ground. Exclusion zone. Set up clear of powerlines.",a:[1,3],who:"Pump operator"},
+  {step:"Working around reo",hazard:"Impalement and cuts on starter bars",b:[2,2],controls:"Rebar caps on exposed bars. Clear walkways through mesh.",a:[1,1],who:"All workers"}]},
+ {key:"demo",label:"Demolition and strip-out",kw:["demo","demolish","strip out","strip-out","rip out","remove wall","removal","renovat"],
+  hrcw:"demolition of a load-bearing or structural element",ppe:["mask","gloves"],rows:[
+  {step:"Before starting",hazard:"Asbestos in older materials",b:[2,4],controls:"Check the asbestos register or test suspect material first. Stop work if found. Licensed removalist where needed.",a:[0,4],who:"Supervisor"},
+  {step:"Removing structure",hazard:"Unplanned collapse",b:[2,3],controls:"Engineer's advice for load-bearing work. Prop before removing. Work top down.",a:[1,3],who:"Supervisor"},
+  {step:"Handling debris",hazard:"Cuts and punctures from nails and broken material",b:[3,1],controls:"Gloves. Bend over or pull nails. Debris straight to the skip.",a:[1,1],who:"All workers"}]},
+ {key:"scaffold",label:"Scaffold",kw:["scaffold","mobile tower","work platform","trestle"],ppe:[],rows:[
+  {step:"Using scaffold",hazard:"Scaffold incomplete, altered or overloaded",b:[2,3],controls:"Scaffold over 4 m put up by a licensed scaffolder. Handover tag in place. Check daily. Don't alter it or overload decks.",a:[1,3],who:"Supervisor"},
+  {step:"Mobile scaffold",hazard:"Tower tips or rolls",b:[2,3],controls:"Castors locked. Firm level ground. Nobody on it while moving.",a:[1,2],who:"All workers"}]},
+ {key:"plant",label:"Plant and deliveries",kw:["excavator","bobcat","loader","crane","forklift","telehandler","delivery","machine","plant"],
+  hrcw:"movement of powered mobile plant",rows:[
+  {step:"Plant working on site",hazard:"Struck by moving plant",b:[2,4],controls:"Licensed or competent operators. Exclusion zones and a spotter. Reversing alarms. Eye contact with the operator before approaching.",a:[0,4],who:"Operator"},
+  {step:"Unloading deliveries",hazard:"Load shifts or falls when straps come off",b:[2,2],controls:"Plan the set-down area. Stand clear during crane truck unloading. Check the load before releasing straps.",a:[1,2],who:"Supervisor"}]},
+ {key:"power",label:"Near powerlines",kw:["powerline","power line","overhead line","service line"],
+  hrcw:"work near energised electrical installations or powerlines",rows:[
+  {step:"Work near overhead lines",hazard:"Contact with live overhead powerlines",b:[1,4],controls:"Find the lines before starting. Keep people, plant and long materials outside your state's approach distances. Spotter. Call the network operator if you need to work closer.",a:[0,4],who:"Supervisor"}]},
+ {key:"chem",label:"Chemicals and treated timber",kw:["glue","adhesive","sealant","paint","solvent","chemical","treated","h3","h4","cca","deck","decking","cladding","silicone"],ppe:["gloves","mask"],rows:[
+  {step:"Using glues, sealants and treatments",hazard:"Skin irritation and breathing fumes",b:[2,1],controls:"Read the current SDS and technical data sheet before use. Good airflow. Gloves and mask as the SDS says. Store away from ignition.",a:[1,1],who:"All workers"},
+  {step:"Cutting treated timber",hazard:"Breathing treated timber dust",b:[3,1],controls:"Cut outside, P2 mask, gloves. Wash hands before eating. Don't burn offcuts.",a:[1,1],who:"Operator"}]},
+ {key:"hot",label:"Hot work",kw:["weld","grind","hot work","oxy","torch","braze"],ppe:["eyes","gloves"],rows:[
+  {step:"Welding or grinding",hazard:"Fire from sparks",b:[2,3],controls:"Clear combustibles. Extinguisher at the work. Fire watch for 30 minutes after.",a:[1,2],who:"Operator"}]},
+ /* ---- Shared across trades ---- */
+ {key:"silica",label:"Cutting masonry and stone (silica)",kw:["core drill","chase","chasing","saw cut","masonry cut","stone","engineered stone","cut brick","cut concrete"],ppe:["mask","eyes","ears"],rows:[
+  {step:"Cutting, drilling or grinding concrete, brick, tile or stone",hazard:"Breathing silica dust (lung disease)",b:[3,3],controls:"Water suppression or on-tool dust extraction on every cut. P2 mask or better. No dry sweeping; vacuum with an H-class vac. Keep others out of the dust area.",a:[1,2],who:"Operator"}]},
+ {key:"elec",label:"Electrical isolation",kw:["electrical","wiring","rewire","switchboard","circuit","power point","gpo","downlight","lighting","light fitting","electrician"],
+  hrcw:"work on or near energised electrical installations or services",rows:[
+  {step:"Isolating before work",hazard:"Electric shock from circuits thought to be dead",b:[2,4],controls:"Isolate, lock out and tag at the switchboard. Test before you touch with a proven tester. Never work live. Licensed electrician only for electrical work.",a:[0,4],who:"Licensed electrician"},
+  {step:"Working near other live services",hazard:"Contact with live parts nearby or back-fed circuits",b:[1,4],controls:"Identify all supplies (including solar and batteries). Cover or shield nearby live parts. Keep others away from open switchboards.",a:[0,4],who:"Licensed electrician"}]},
+ {key:"ceiling",label:"Roof and ceiling spaces",kw:["roof space","ceiling space","roof cavity","insulation","manhole"],ppe:["mask","sleeves"],rows:[
+  {step:"Working in the roof space",hazard:"Falling through the ceiling between joists",b:[2,3],controls:"Walk boards across joists. Only step on framing. Good lighting.",a:[1,2],who:"All workers"},
+  {step:"Working in the roof space",hazard:"Heat stress, insulation fibres, old cabling and pests",b:[3,2],controls:"Work early on hot days, limit time up there, take water. Long sleeves, gloves, P2 mask. Check for damaged cabling and isolate first. Watch for loose-fill asbestos insulation in older homes; stop and get it tested.",a:[1,2],who:"All workers"}]},
+ /* ---- Plumbing ---- */
+ {key:"sewer",label:"Sewer, drains and pits",kw:["sewer","drain","pit","septic","wastewater","toilet","grease trap"],
+  hrcw:"work in or near a confined space",ppe:["gloves","face"],rows:[
+  {step:"Working on sewer and wastewater lines",hazard:"Infection from sewage (hepatitis A, gastro)",b:[3,2],controls:"Gloves and face protection. Wash hands before eating or smoking. Cover cuts. Vaccinations up to date.",a:[1,1],who:"All workers"},
+  {step:"Entering pits or deep chambers",hazard:"Toxic or low-oxygen air in a confined space",b:[1,4],controls:"Don't enter unless it's essential. If it is: confined space permit, gas test before and during, ventilation, standby person and rescue plan. Trained workers only.",a:[0,4],who:"Supervisor"}]},
+ {key:"gasfit",label:"Gas and hot water",kw:["gas","hot water","water heater","cooktop","gas line","gas fitting","tempering valve"],rows:[
+  {step:"Working on gas lines and appliances",hazard:"Gas leak, fire or explosion",b:[1,4],controls:"Licensed gasfitter only. Isolate supply. Leak test with an approved method before and after. No ignition sources nearby. Good airflow.",a:[0,4],who:"Licensed gasfitter"},
+  {step:"Draining and replacing hot water units",hazard:"Scalds and lifting heavy units",b:[2,2],controls:"Isolate and let water cool before draining. Trolley or team lift for units.",a:[1,1],who:"Plumber"}]},
+ {key:"roofplumb",label:"Roof plumbing",kw:["gutter","downpipe","flashing","roof sheet","roofing","valley","colorbond","box gutter"],rows:[
+  {step:"Working on the roof",hazard:"Falls from roof edges, through skylights or brittle sheets",b:[2,4],controls:"Edge protection or scaffold before work starts. Mesh or covers on skylights and brittle sheets. Harness and anchor only where edge protection isn't practical.",a:[0,4],who:"Supervisor"},
+  {step:"Handling roof sheets",hazard:"Cuts from sheet edges and sheets catching the wind",b:[3,2],controls:"Cut-resistant gloves. Two people per long sheet. Stop lifting sheets in strong wind; tie down stacks.",a:[1,1],who:"All workers"}]},
+ /* ---- Electrical ---- */
+ {key:"cablepull",label:"Cable pulling and chasing",kw:["cable","chase","pull cable","conduit","data cable"],ppe:["gloves","mask"],rows:[
+  {step:"Pulling cable through walls and conduit",hazard:"Strains and hand injuries",b:[2,2],controls:"Use a draw wire and lubricant. Gloves. Two people on long pulls.",a:[1,1],who:"All workers"},
+  {step:"Drilling and cutting into walls",hazard:"Hitting hidden services (water, gas, live cables)",b:[2,3],controls:"Check plans and scan walls before drilling. Isolate circuits in the area. Drill depth stops.",a:[1,2],who:"Operator"}]},
+ /* ---- Air conditioning / HVAC ---- */
+ {key:"refrig",label:"Refrigerant handling",kw:["air con","aircon","air conditioning","split system","ducted","hvac","refrigerant","condenser","heat pump","recover gas"],ppe:["gloves","eyes","face"],rows:[
+  {step:"Recovering and charging refrigerant",hazard:"Frostbite and eye injury from escaping refrigerant",b:[2,3],controls:"Licensed refrigerant handler. Gloves and face or eye protection. Check hoses and fittings. Never vent to air.",a:[1,2],who:"Licensed technician"},
+  {step:"Working with flammable refrigerants (R32, R290)",hazard:"Fire or explosion from a leak",b:[1,4],controls:"Leak detector on. No ignition sources. Good airflow. Follow the manufacturer's procedure.",a:[0,4],who:"Licensed technician"}]},
+ {key:"unitlift",label:"Lifting and mounting units",kw:["outdoor unit","condenser","rooftop unit","package unit","wall bracket","indoor unit","fan coil"],rows:[
+  {step:"Lifting and placing outdoor or rooftop units",hazard:"Strains, crush injuries and dropped loads",b:[2,3],controls:"Team lift, trolley or lifting gear for heavy units. Check bracket and wall fixings. Exclusion zone under any lift.",a:[1,2],who:"All workers"},
+  {step:"Mounting indoor units at height",hazard:"Falls from ladders while holding units",b:[2,2],controls:"Platform ladder. Two people to hold and fix. Don't over-reach.",a:[1,1],who:"All workers"}]},
+ /* ---- Mechanics ---- */
+ {key:"vlift",label:"Hoists, jacks and stands",kw:["hoist","jack","axle stand","under the car","under the vehicle","vehicle lift","pit"],rows:[
+  {step:"Raising the vehicle",hazard:"Vehicle falls from hoist, jack or stands",b:[2,4],controls:"Use rated hoists, jacks and stands only. Correct lift points. Stands under before going under. Hoist inspected and locks engaged. Never rely on a jack alone.",a:[0,4],who:"Mechanic"},
+  {step:"Working under the vehicle",hazard:"Head strikes and falling parts",b:[3,2],controls:"Bump cap or hard hat. Eye protection. Support components before removing fasteners.",a:[1,1],who:"Mechanic"}]},
+ {key:"vfluids",label:"Fuels, oils and fluids",kw:["fuel","oil change","coolant","brake fluid","drain oil","fuel tank","diesel","petrol"],ppe:["gloves","eyes"],rows:[
+  {step:"Draining and handling fuels and oils",hazard:"Fire from fuel vapour and skin irritation",b:[2,3],controls:"No ignition sources. Drain into approved containers. Nitrile gloves. Clean up spills straight away. Check the SDS.",a:[1,2],who:"Mechanic"},
+  {step:"Working on a hot engine",hazard:"Burns from hot coolant, oil and exhaust parts",b:[3,2],controls:"Let it cool. Open the radiator cap only when cold. Gloves.",a:[1,1],who:"Mechanic"}]},
+ {key:"vexhaust",label:"Running engines and exhaust",kw:["exhaust","running engine","engine running","idle","diagnos","tune"],rows:[
+  {step:"Running engines in the workshop",hazard:"Carbon monoxide and diesel exhaust",b:[2,3],controls:"Exhaust extraction hose on. Doors open. Don't run engines longer than needed.",a:[1,2],who:"Mechanic"},
+  {step:"Working near moving parts",hazard:"Entanglement in belts and fans",b:[2,3],controls:"No loose clothing, jewellery or long hair out. Keep hands clear while running. Handbrake on and wheels chocked.",a:[1,2],who:"Mechanic"}]},
+ {key:"tyres",label:"Tyres and wheels",kw:["tyre","tire","wheel change","wheel alignment","rim","split rim"],ppe:["eyes"],rows:[
+  {step:"Inflating tyres",hazard:"Tyre or rim explodes",b:[1,4],controls:"Inflation cage and clip-on chuck with remote gauge. Stand to the side. Never re-inflate a tyre that's run flat without checking the rim. Split rims by trained workers only.",a:[0,4],who:"Mechanic"},
+  {step:"Handling wheels and tyres",hazard:"Strains from heavy wheels",b:[3,2],controls:"Wheel dolly or lifting aid for large wheels. Roll, don't carry.",a:[1,1],who:"Mechanic"}]},
+ {key:"battery",label:"Batteries and EV high voltage",kw:["battery","jump start","hybrid","electric vehicle","ev "],ppe:["eyes","gloves"],rows:[
+  {step:"Handling 12 V and 24 V batteries",hazard:"Acid burns, explosion from sparks and heavy lifting",b:[2,2],controls:"Eye protection and gloves. Disconnect negative first. No sparks near batteries. Battery carrier.",a:[1,1],who:"Mechanic"},
+  {step:"Working on hybrid or EV high voltage systems",hazard:"Electric shock from the high voltage battery",b:[1,4],controls:"Trained and authorised workers only. Follow the maker's isolation procedure. Insulated gloves and tools. Wait the set time after isolation and test.",a:[0,4],who:"Authorised technician"}]},
+ {key:"brakes",label:"Brakes and clutches",kw:["brake","clutch","pads","rotor","disc"],ppe:["mask","gloves"],rows:[
+  {step:"Removing brake and clutch parts",hazard:"Breathing brake dust (older parts may contain asbestos)",b:[2,3],controls:"No compressed air. Wet wipe or brake wash with a catch tray. P2 mask. Treat old or unknown parts as possible asbestos.",a:[1,2],who:"Mechanic"}]},
+ {key:"hvcomp",label:"Heavy components",kw:["gearbox","transmission","diff","differential","engine removal","driveshaft","heavy vehicle","truck","prime mover"],rows:[
+  {step:"Removing and fitting heavy components",hazard:"Crush injuries from falling gearboxes, diffs and drive shafts",b:[2,4],controls:"Transmission jack or crane rated for the load. Support before removing the last fasteners. Keep hands and feet clear of the drop zone.",a:[1,3],who:"Mechanic"}]},
+ {key:"airbrakes",label:"Air systems and stored energy",kw:["air brake","spring brake","air tank","suspension","air bag","maxi brake"],rows:[
+  {step:"Working on air brakes and suspension",hazard:"Sudden release of springs or air pressure",b:[2,4],controls:"Drain air tanks. Cage spring brakes before working on them. Block or prop the chassis before working on air suspension.",a:[1,3],who:"Mechanic"}]},
+ /* ---- Joinery ---- */
+ {key:"jmach",label:"Workshop machinery",kw:["joinery","panel saw","edgebander","cnc","bench saw","table saw","spindle","thicknesser","workshop"],ppe:["eyes","ears"],rows:[
+  {step:"Using fixed saws and machines",hazard:"Cuts, kickback and entanglement",b:[2,4],controls:"Guards and push sticks in use. Trained operators only. No gloves, loose clothing or jewellery near spinning blades. Isolate before clearing jams or changing blades.",a:[1,3],who:"Operator"},
+  {step:"Machine noise",hazard:"Hearing damage",b:[3,2],controls:"Hearing protection near running machines. Keep blades sharp.",a:[1,1],who:"All workers"}]},
+ {key:"wooddust",label:"Wood and MDF dust",kw:["mdf","particleboard","sanding","sander","hardwood"],ppe:["mask"],rows:[
+  {step:"Cutting and sanding timber and boards",hazard:"Breathing wood dust (cancer risk, asthma)",b:[3,3],controls:"Dust extraction on every machine. P2 mask. Vacuum, don't sweep or blow down. Clean up at the end of each day.",a:[1,2],who:"All workers"}]},
+ {key:"jinstall",label:"Installing cabinets and joinery",kw:["kitchen cabinet","kitchen install","vanity","wardrobe","benchtop","cabinet","install joinery"],rows:[
+  {step:"Carrying and lifting cabinets and benchtops",hazard:"Strains and crush injuries",b:[3,2],controls:"Team lift. Trolleys. Plan the access path before carrying. Stone benchtops with lifting gear or enough hands.",a:[1,1],who:"All workers"},
+  {step:"Fixing to walls",hazard:"Drilling into hidden pipes and cables",b:[2,3],controls:"Scan walls before drilling. Check with the builder for service locations.",a:[1,2],who:"All workers"}]},
+ /* ---- Tiling ---- */
+ {key:"tilecut",label:"Cutting tiles",kw:["tile","tiling","porcelain","tiler","wet saw"],ppe:["eyes","ears","mask"],rows:[
+  {step:"Cutting tiles with a wet saw or grinder",hazard:"Silica dust, cuts and flying chips",b:[3,3],controls:"Wet cutting or dust extraction. P2 mask and eye protection. Guards on. Tile saw on an RCD.",a:[1,2],who:"Tiler"}]},
+ {key:"tilelay",label:"Laying tiles",kw:["tile","tiling","grout","floor tile","wall tile"],ppe:["knee","gloves"],rows:[
+  {step:"Mixing adhesive and grout",hazard:"Cement burns and breathing dust",b:[3,2],controls:"Mix outside or with airflow. Gloves and eye protection. Wash skin straight away.",a:[1,1],who:"Tiler"},
+  {step:"Laying floor tiles and carrying boxes",hazard:"Knee damage and back strain",b:[3,2],controls:"Knee pads. Change position often. Split heavy boxes or use a trolley.",a:[1,1],who:"Tiler"}]},
+ {key:"waterproof",label:"Waterproofing",kw:["waterproof","membrane","shower","wet area","bathroom","balcony"],ppe:["gloves","mask"],rows:[
+  {step:"Applying waterproof membranes",hazard:"Breathing fumes and skin contact",b:[2,2],controls:"Good airflow; fan in small bathrooms. Gloves. Read the SDS and technical data sheet. Organic vapour mask if the SDS says.",a:[1,1],who:"Tiler"}]},
+ /* ---- Concreting ---- */
+ {key:"formwork",label:"Formwork and reo",kw:["formwork","boxing","rebar","reo ","mesh","edge form"],ppe:["gloves"],rows:[
+  {step:"Setting up formwork and boxing",hazard:"Cuts, strains and formwork collapse during the pour",b:[2,3],controls:"Formwork built and braced to suit the pour. Check before pouring. Gloves.",a:[1,2],who:"Concreter"},
+  {step:"Laying and tying reo",hazard:"Back strain from bending, trips and impalement",b:[3,2],controls:"Reo ties with a tying tool. Rebar caps. Clear walkways across mesh.",a:[1,1],who:"Concreter"}]},
+ /* ---- Brick and block laying ---- */
+ {key:"brick",label:"Brick and block laying",kw:["brick","block wall","blockwork","besser","mortar","retaining wall","paver","bricklay","masonry"],ppe:["gloves","eyes"],rows:[
+  {step:"Handling bricks and blocks",hazard:"Back strain and hand injuries from repetitive lifting",b:[3,2],controls:"Keep stacks at waist height. Rotate tasks. Lighter blocks or lifting aids for heavy blocks. Gloves.",a:[1,1],who:"Bricklayer"},
+  {step:"Mixing and using mortar",hazard:"Cement burns to skin and eyes",b:[3,2],controls:"Gloves and eye protection. Wash skin straight away. Eyewash on site.",a:[1,1],who:"Bricklayer"},
+  {step:"Laying near a new wall",hazard:"Wall collapse while mortar is green, especially in wind",b:[1,3],controls:"Limit lift height per day. Brace tall or long walls. Stop in strong wind.",a:[0,3],who:"Bricklayer"}]}
+];
+/* Trades: headers with their own chip lists. Shared chips appear under several trades. */
+var TRADES = [
+ {key:"carpentry",label:"Carpentry",chips:["site","heights","roof","framing","floor","stairs","decking","linings","tools","scaffold","demo","chem","plant","power"]},
+ {key:"plumbing",label:"Plumbing",chips:["site","sewer","dig","gasfit","roofplumb","heights","ceiling","hot","tools","chem","silica"]},
+ {key:"electrical",label:"Electrical",chips:["site","elec","cablepull","ceiling","heights","tools","dig","power","scaffold"]},
+ {key:"hvac",label:"Air conditioning / HVAC",chips:["site","refrig","unitlift","elec","ceiling","heights","hot","tools","silica"]},
+ {key:"mechlv",label:"Mechanics (light vehicle)",chips:["site","vlift","vfluids","vexhaust","tyres","battery","brakes","hot","chem","tools"]},
+ {key:"mechhv",label:"Mechanics (heavy vehicle)",chips:["site","vlift","hvcomp","airbrakes","vfluids","vexhaust","tyres","battery","brakes","heights","hot","chem","tools"]},
+ {key:"tiling",label:"Tiling",chips:["site","tilecut","tilelay","waterproof","silica","demo","chem","tools"]},
+ {key:"joinery",label:"Joinery",chips:["site","jmach","wooddust","jinstall","chem","tools"]},
+ {key:"concreting",label:"Concreting",chips:["site","concrete","formwork","silica","dig","plant","power","tools"]},
+ {key:"brick",label:"Brick and block laying",chips:["site","brick","silica","scaffold","heights","plant","tools"]}
+];
+var MATERIALS = {
+ carpentry:["Construction adhesive","Silicone sealant","Treated pine (H3/H4)","Timber stain or oil","Expanding foam","Two-pack epoxy"],
+ plumbing:["PVC primer and solvent cement","LPG / natural gas","Pipe thread sealant","Drain cleaner","Silicone sealant","Copper brazing flux"],
+ electrical:["Cable lubricant","Contact cleaner","Fire-rated sealant","Battery (lithium)"],
+ hvac:["Refrigerant R32","Refrigerant R410A","Nitrogen (purge gas)","Brazing flux","Duct sealant"],
+ mechlv:["Engine oil","Brake cleaner","Brake fluid","Coolant","Petrol","Battery acid","Degreaser"],
+ mechhv:["Diesel","Engine oil","Brake cleaner","AdBlue","Coolant","Hydraulic oil","Degreaser"],
+ tiling:["Tile adhesive (cement based)","Grout","Waterproofing membrane","Primer","Epoxy grout","Tile and stone sealer"],
+ joinery:["Contact adhesive","PVA glue","Lacquer or 2-pac finish","MDF","Timber stain or oil"],
+ concreting:["Ready-mix concrete","Concrete sealer","Form release oil","Curing compound","Acid etch"],
+ brick:["Mortar and cement","Brick cleaner (acid)","Lime","Masonry sealer"]
+};
+var TRADE_BY_KEY = {}; TRADES.forEach(function(t){ TRADE_BY_KEY[t.key]=t; });
+var GROUP_BY_KEY = {}; GROUPS.forEach(function(g){ GROUP_BY_KEY[g.key]=g; });
+
+function matchGroups(text){
+  var t=(" "+String(text||"").toLowerCase()+" ");
+  /* keyword must start a word, so "roof" doesn't match "waterproofing" */
+  return GROUPS.filter(function(g){ return g.kw.some(function(k){ var i=t.indexOf(k); while(i>-1){ if(!/[a-z0-9]/.test(t.charAt(i-1))) return true; i=t.indexOf(k,i+1); } return false; }); }).map(function(g){return g.key;});
+}
+function uid(p){ return (p||"x")+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function rowFrom(src,tmpl){
+  return {id:uid("h"),src:src,step:tmpl.step,hazard:tmpl.hazard,b:{l:tmpl.b[0],c:tmpl.b[1]},controls:tmpl.controls,a:{l:tmpl.a[0],c:tmpl.a[1]},who:tmpl.who||""};
+}
+function hrcwFor(groups){
+  var out=[]; (groups||[]).forEach(function(k){ var g=GROUP_BY_KEY[k]; if(g&&g.hrcw&&out.indexOf(g.hrcw)<0) out.push(g.hrcw); }); return out;
+}
+function counts(hazards,which){
+  var c={L:0,M:0,H:0,E:0,none:0};
+  (hazards||[]).forEach(function(h){ var r=rate(h[which]); if(r) c[r]++; else c.none++; });
+  return c;
+}
+function todayISO(){ var d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function fmtDate(iso){ if(!iso) return ""; var p=String(iso).split("-"); return p.length===3? p[2]+"/"+p[1]+"/"+p[0] : iso; }
+function nowLocal(){ var d=new Date(); return todayISO()+"T"+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"); }
+function fmtDT(v){ if(!v) return ""; var p=String(v).split("T"); return fmtDate(p[0])+(p[1]?(" at "+p[1].slice(0,5)):""); }
+function reviewedAt(rv){ rv=rv||{}; return fmtDT(rv.at)||fmtDate(rv.date)||""; }
+/* Two-step sign-off: office approval, then site supervisor sign-off */
+function signState(j){
+  var ap=j.approval||{}, rv=j.review||{};
+  if(rv.ok&&(ap.ok||ap.na)) return "signed";
+  if(ap.ok) return "approved";
+  if(ap.prev||rv.prev) return "again";
+  return "draft";
+}
+function padNo(n){ return "JSA-"+String(n).padStart(4,"0"); }
+
+function blankJsa(no){
+  return {id:uid("j"),kind:"jsa",no:no||padNo(1),rev:1,archived:false,example:false,created:Date.now(),updated:Date.now(),
+    task:"",groups:[],job:"",site:"",client:"",date:todayISO(),prepared:"",supervisor:"",supPhone:"",firstAid:"",assembly:"",hospital:"",
+    ppe:[],hazards:[],
+    crew:[{name:"",company:""}],chemicals:[],approval:{ok:false,by:"",at:""},review:{ok:false,by:"",at:""}};
+}
+function exampleJsa(){
+  var j=blankJsa(padNo(1)); j.example=true; j.trade="carpentry";
+  applyGroups(j,["site"]); j.groups.push("site");
+  j.task="Stand wall frames and install roof trusses, single storey house";
+  j.job="Lot 12 new home, frame stage"; j.site="12 Example Street, Sampletown"; j.client="Sample Homes";
+  j.prepared="Lead carpenter"; j.supervisor="Site supervisor"; j.supPhone="0400 000 000"; j.firstAid="Lead carpenter";
+  j.assembly="Front footpath by the site sign"; j.hospital="Nearest hospital ED (check address)";
+  applyGroups(j, matchGroups(j.task)); j.groups=j.groups.concat(matchGroups(j.task));
+  j.crew=[{name:"",company:""},{name:"",company:""}];
+  return j;
+}
+function chemRow(name){
+  return {id:uid("h"),src:"chem:"+name,step:"Using "+name,hazard:"Exposure to skin, eyes or lungs, and fire or reaction risk. Check SDS section 2 for this product.",
+    b:{l:2,c:2},controls:"Read the current SDS and technical data sheet for "+name+" before use. Follow SDS section 8 for PPE, section 7 for storage and handling, and section 4 for first aid. Keep the SDS on site.",a:{l:1,c:1},who:"All workers"};
+}
+function applyGroups(j,keys){
+  keys.forEach(function(k){
+    if(j.hazards.some(function(h){return h.src===k;})) return;
+    var g=GROUP_BY_KEY[k]; if(!g) return;
+    g.rows.forEach(function(t){ j.hazards.push(rowFrom(k,t)); });
+    (g.ppe||[]).forEach(function(p){ if(j.ppe.indexOf(p)<0) j.ppe.push(p); });
+  });
+}
+
+/* ===== PDF ===== */
+var RISK_RGB={L:[30,158,90],M:[196,130,31],H:[224,102,44],E:[217,54,54]};
+var NAVY=[14,26,46], AMBER=[227,168,87], MUTE=[86,101,122], LINE=[208,215,225];
+function riskText(r){ var k=rate(r); return k ? (RATING_NAME[k]+"\n"+LIKE[r.l]+" / "+CONS[r.c]) : "Not rated"; }
+
+function buildPdf(jsPDFCtor, j, profile){
+  var doc=new jsPDFCtor({orientation:"landscape",unit:"mm",format:"a4"});
+  var W=doc.internal.pageSize.getWidth(), H=doc.internal.pageSize.getHeight(), M=12;
+  var p=profile||{};
+  var y=10, x=M;
+  if(p.logo){ try{ var ip=doc.getImageProperties(p.logo); var h=16, w=Math.min(42, ip.width*h/ip.height); doc.addImage(p.logo, "PNG", M, y, w, h); x=M+w+5; }catch(e){} }
+  doc.setTextColor.apply(doc,NAVY); doc.setFont("helvetica","bold"); doc.setFontSize(14);
+  doc.text(p.name||"Business name not set", x, y+6);
+  doc.setFont("helvetica","normal"); doc.setFontSize(8.5); doc.setTextColor.apply(doc,MUTE);
+  var line2=[p.abn?("ABN "+p.abn):"",p.phone||"",p.email||""].filter(Boolean).join("   ");
+  if(line2) doc.text(line2, x, y+11);
+  if(p.address) doc.text(p.address, x, y+15);
+  doc.setTextColor.apply(doc,NAVY); doc.setFont("helvetica","bold"); doc.setFontSize(17);
+  doc.text("JOB SAFETY ANALYSIS", W-M, y+6, {align:"right"});
+  doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor.apply(doc,MUTE);
+  doc.text(j.no+"   Rev "+j.rev+"   "+fmtDate(j.date)+"   "+({signed:"Signed off on site "+reviewedAt(j.review),onsite:"Approved. Site supervisor to sign on site",approved:"Approved, not yet signed off on site",again:"Changed, needs sign-off again",draft:"Draft, not yet approved"})[signState(j)], W-M, y+11.5, {align:"right"});
+  y=29; doc.setDrawColor.apply(doc,AMBER); doc.setLineWidth(1.1); doc.line(M,y,W-M,y);
+
+  // caution box
+  y+=3;
+  var caution="CHECK BEFORE USE: This JSA is a starting point. The person in charge must review it for this site, this task and this crew before work starts, and update it if anything changes. It does not replace a SWMS for high risk construction work.";
+  doc.setFillColor(252,243,229); doc.setDrawColor.apply(doc,AMBER); doc.setLineWidth(0.3);
+  doc.setFontSize(8.5); doc.setTextColor.apply(doc,NAVY);
+  var cl=doc.splitTextToSize(caution, W-2*M-6); var ch=cl.length*3.8+4;
+  doc.rect(M,y,W-2*M,ch,"FD"); doc.text(cl, M+3, y+4.6); y+=ch+2;
+  var hr=hrcwFor(j.groups);
+  if(hr.length){
+    var ht="HIGH RISK CONSTRUCTION WORK: this job may involve "+hr.join("; ")+". A Safe Work Method Statement (SWMS) is required for this work."+(j.hrcwDeclined?(" The user was prompted to move this job to a SWMS and chose to continue with a JSA on "+fmtDT(j.hrcwDeclined)+"."):"");
+    var hl=doc.splitTextToSize(ht, W-2*M-6); var hh=hl.length*3.8+4;
+    doc.setFillColor(251,232,232); doc.setDrawColor(217,54,54); doc.rect(M,y,W-2*M,hh,"FD");
+    doc.setTextColor(150,30,30); doc.text(hl, M+3, y+4.6); y+=hh+2;
+  }
+
+  var base={theme:"grid",styles:{font:"helvetica",fontSize:8.5,cellPadding:1.8,textColor:NAVY,lineColor:LINE,lineWidth:0.2,valign:"top"},margin:{left:M,right:M,top:14,bottom:16}};
+  function lab(t){ return {content:t,styles:{fontStyle:"bold",fillColor:[240,242,246],textColor:MUTE,fontSize:7.5}}; }
+  doc.autoTable(Object.assign({},base,{startY:y+1,
+    body:[
+      [lab("TASK"),{content:j.task||"",colSpan:5}],
+      [lab("JOB / PROJECT"),j.job||"",lab("SITE ADDRESS"),j.site||"",lab("CLIENT / BUILDER"),j.client||""],
+      [lab("PREPARED BY"),j.prepared||"",lab("SITE SUPERVISOR"),(j.supervisor||"")+(j.supPhone?("  "+j.supPhone):""),lab("FIRST AIDER"),j.firstAid||""],
+      [lab("ASSEMBLY POINT"),j.assembly||"",lab("NEAREST HOSPITAL"),j.hospital||"",lab("EMERGENCY"),"000"],
+      [lab("PPE REQUIRED"),{content:PPE.filter(function(q){return j.ppe.indexOf(q[0])>-1;}).map(function(q){return q[1];}).join(", "),colSpan:5}],
+      [lab("MATERIALS / SDS"),{content:(j.chemicals&&j.chemicals.length)?(j.chemicals.join(", ")+". Current safety data sheets, technical data sheets and install guides for these must be on site."):"None listed",colSpan:5}]
+    ],
+    columnStyles:{0:{cellWidth:28},1:{cellWidth:62},2:{cellWidth:30},3:{cellWidth:62},4:{cellWidth:30}}
+  }));
+  y=doc.lastAutoTable.finalY+4;
+
+  var body=(j.hazards||[]).map(function(h,i){ return [String(i+1),h.step||"",h.hazard||"",riskText(h.b),h.controls||"",riskText(h.a),h.who||""]; });
+  doc.autoTable(Object.assign({},base,{startY:y,
+    head:[["#","Job step","Hazard","Risk before","Controls","Risk after","Who"]],
+    body:body.length?body:[["","No hazards listed","","","","",""]],
+    headStyles:{fillColor:NAVY,textColor:[234,240,248],fontStyle:"bold",fontSize:8},
+    columnStyles:{0:{cellWidth:7,halign:"center"},1:{cellWidth:38},2:{cellWidth:48},3:{cellWidth:27},4:{cellWidth:"auto"},5:{cellWidth:27},6:{cellWidth:28}},
+    didParseCell:function(d){
+      if(d.section!=="body") return;
+      if(d.column.index===3||d.column.index===5){
+        var h=j.hazards[d.row.index]; if(!h) return; var r=rate(d.column.index===3?h.b:h.a);
+        if(r){ d.cell.styles.fillColor=RISK_RGB[r]; d.cell.styles.textColor=[255,255,255]; d.cell.styles.fontStyle="bold"; d.cell.styles.fontSize=7.5; }
+      }
+    }
+  }));
+  y=doc.lastAutoTable.finalY+5;
+
+  // Review and sign-on
+  if(y>H-70){ doc.addPage(); y=16; }
+  var rv=j.review||{}, ap=j.approval||{};
+  doc.autoTable(Object.assign({},base,{startY:y,
+    head:[[{content:"APPROVAL AND SIGN-OFF",colSpan:6}]],
+    headStyles:{fillColor:NAVY,textColor:[234,240,248],fontStyle:"bold",fontSize:8},
+    body:[
+      [lab("1  APPROVED BY (MANAGER)"),ap.na?"Not required. Site supervisor responsible":(ap.ok?(ap.by||""):""),lab("DATE AND TIME"),ap.ok?reviewedAt(ap):"",lab("SIGNATURE"),""],
+      [lab("2  SITE SUPERVISOR SIGN-OFF"),((ap.ok||ap.na)&&rv.ok)?(rv.by||""):"",lab("DATE AND TIME"),((ap.ok||ap.na)&&rv.ok)?reviewedAt(rv):"",lab("SIGNATURE"),""]
+    ],
+    columnStyles:{0:{cellWidth:44},2:{cellWidth:28},4:{cellWidth:24},5:{cellWidth:60}},
+    bodyStyles:{minCellHeight:13},
+    didDrawCell:function(d){
+      if(d.section!=="body"||d.column.index!==5) return;
+      var x=d.row.index===0?ap:rv; if(!(x.ok&&x.sig&&(ap.ok||ap.na))) return;
+      try{ var ip=doc.getImageProperties(x.sig); var hh=d.cell.height-2, ww=Math.min(d.cell.width-4, ip.width*hh/ip.height); doc.addImage(x.sig,"PNG",d.cell.x+2,d.cell.y+1,ww,hh); }catch(e){}
+    }
+  }));
+  y=doc.lastAutoTable.finalY+3;
+  var crew=(j.crew||[]).filter(function(c){return c.name||c.company;});
+  var cbody=crew.map(function(c,i){return [String(i+1),c.name||"",c.company||"",c.sig?fmtDT(c.at):"",""];});
+  var target=Math.max(6,cbody.length+2);
+  for(var k=cbody.length;k<target;k++) cbody.push([String(k+1),"","","",""]);
+  doc.autoTable(Object.assign({},base,{startY:y,
+    head:[["#","Worker name","Company","Date","Signature: I have read and understood this JSA"]],
+    headStyles:{fillColor:NAVY,textColor:[234,240,248],fontStyle:"bold",fontSize:8},
+    body:cbody,bodyStyles:{minCellHeight:9},
+    columnStyles:{0:{cellWidth:7,halign:"center"},1:{cellWidth:66},2:{cellWidth:56},3:{cellWidth:36}},
+    didDrawCell:function(d){
+      if(d.section!=="body"||d.column.index!==4) return; var c=crew[d.row.index]; if(!c||!c.sig) return;
+      try{ var ip=doc.getImageProperties(c.sig); var hh=d.cell.height-1.5, ww=Math.min(d.cell.width-4, ip.width*hh/ip.height); doc.addImage(c.sig,"PNG",d.cell.x+2,d.cell.y+0.75,ww,hh); }catch(e){}
+    }
+  }));
+  y=doc.lastAutoTable.finalY+5;
+
+  // Risk matrix
+  if(y>H-70){ doc.addPage(); y=16; }
+  var mh=[[{content:"Likelihood \\ Consequence",styles:{halign:"left"}}].concat(CONS)];
+  var mb=[];
+  function cnt(l,c){ var k=0; (j.hazards||[]).forEach(function(x){ if(x.a&&x.a.l===l&&x.a.c===c) k++; }); return k; }
+  for(var l=4;l>=0;l--){ mb.push([LIKE[l]].concat(MATRIX[l].map(function(r,c){ var k=cnt(l,c); return RATING_NAME[r]+(k?("\n"+k+(k===1?" hazard":" hazards")):""); }))); }
+  doc.setFont("helvetica","bold"); doc.setFontSize(8.5); doc.setTextColor.apply(doc,NAVY); doc.text("RISK MATRIX", M, y+3);
+  doc.setFont("helvetica","normal"); doc.setFontSize(7.5); doc.setTextColor.apply(doc,MUTE); doc.text("Numbers show how many hazards sit in each square after controls.", M+24, y+3);
+  y+=5;
+  doc.autoTable(Object.assign({},base,{startY:y,tableWidth:150,
+    head:mh,body:mb,
+    headStyles:{fillColor:NAVY,textColor:[234,240,248],fontStyle:"bold",fontSize:7.5,halign:"center"},
+    styles:Object.assign({},base.styles,{fontSize:7.5,halign:"center",cellPadding:1.6}),
+    columnStyles:{0:{halign:"left",fontStyle:"bold",cellWidth:30}},
+    didParseCell:function(d){
+      if(d.section==="body"&&d.column.index>0){ var lk=4-d.row.index; var r=MATRIX[lk][d.column.index-1]; d.cell.styles.fillColor=RISK_RGB[r]; d.cell.styles.textColor=[255,255,255]; d.cell.styles.fontStyle="bold"; }
+    }
+  }));
+  var ly=y+2; var lx=M+156;
+  doc.setFontSize(8);
+  ["E","H","M","L"].forEach(function(r){
+    doc.setFillColor.apply(doc,RISK_RGB[r]); doc.rect(lx,ly,3.5,3.5,"F");
+    doc.setFont("helvetica","bold"); doc.setTextColor.apply(doc,NAVY); doc.text(RATING_NAME[r].toUpperCase(), lx+5.5, ly+2.9);
+    doc.setFont("helvetica","normal"); doc.setTextColor.apply(doc,MUTE);
+    var t=doc.splitTextToSize(ACTIONS[r], W-M-(lx+26)); doc.text(t, lx+26, ly+2.9); ly+=Math.max(7,t.length*3.6+3);
+  });
+
+  // Footer on every page
+  var n=doc.getNumberOfPages();
+  for(var i=1;i<=n;i++){
+    doc.setPage(i); doc.setFontSize(7.5); doc.setTextColor.apply(doc,MUTE); doc.setFont("helvetica","normal");
+    doc.setDrawColor.apply(doc,LINE); doc.setLineWidth(0.2); doc.line(M,H-11,W-M,H-11);
+    doc.text(j.no+" Rev "+j.rev+"  |  Review for each site before use. Not a SWMS.", M, H-7);
+    doc.text("Made with crnrstone-co JSA Builder   Page "+i+" of "+n, W-M, H-7, {align:"right"});
+  }
+  return doc;
+}
+if(typeof module!=="undefined") module.exports={MATRIX:MATRIX,rate:rate,matchGroups:matchGroups,exampleJsa:exampleJsa,blankJsa:blankJsa,buildPdf:buildPdf,hrcwFor:hrcwFor,counts:counts,GROUPS:GROUPS};
+</script>
+
+<script>
+/* ===== Page ===== */
+(function(){
+"use strict";
+var S={jsa:null,list:[],profile:{},mode:"device",uid:null,dbRef:null,downloads:null,bankTab:"active",bankQuery:"",folded:new Set(),foldFor:null,secFold:new Set(),showOther:false,showHidden:false};
+var LS_LIST="crnrstone-jsa-list", LS_PROF="crnrstone-jsa-profile", LS_LAST="crnrstone-jsa-last";
+function lsGet(k,d){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); return true; }catch(e){ return false; } }
+function $(s,r){ return (r||document).querySelector(s); }
+function h(tag,attrs){
+  var el=document.createElement(tag); attrs=attrs||{};
+  for(var k in attrs){ var v=attrs[k]; if(v==null||v===false) continue;
+    if(k==="class") el.className=v; else if(k==="text") el.textContent=v; else if(k==="html") el.innerHTML=v;
+    else if(k.slice(0,2)==="on") el.addEventListener(k.slice(2),v); else if(k==="value") el.value=v; else el.setAttribute(k,v===true?"":v); }
+  for(var i=2;i<arguments.length;i++){ var c=arguments[i]; if(c==null||c===false) continue; if(Array.isArray(c)) c.forEach(function(x){ if(x) el.appendChild(typeof x==="string"?document.createTextNode(x):x); }); else el.appendChild(typeof c==="string"?document.createTextNode(c):c); }
+  return el;
+}
+var ICON={
+  up:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>',
+  down:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
+  x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  warn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.5" stroke-linecap="round"/></svg>',
+  stop:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M8 2h8l6 6v8l-6 6H8l-6-6V8z"/><path d="M12 7v6M12 16.5v.5" stroke-linecap="round"/></svg>',
+  check:'<svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>',
+  info:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6M12 7.5v.5"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>'
+};
+function ic(n){ var s=h("span"); s.innerHTML=ICON[n]; return s.firstChild; }
+
+/* ---------- Theme ---------- */
+function applyTheme(t){ if(t) document.documentElement.setAttribute("data-theme",t); else document.documentElement.removeAttribute("data-theme"); updThemeLbl(); }
+function isDark(){ var t=document.documentElement.getAttribute("data-theme"); if(t) return t==="dark"; return window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches; }
+function updThemeLbl(){ $("#themeLbl").textContent=isDark()?"Day":"Night"; }
+try{ var st=localStorage.getItem("crnrstone-theme"); if(st) applyTheme(st); }catch(e){}
+updThemeLbl();
+$("#theme").addEventListener("click",function(){ var t=isDark()?"light":"dark"; applyTheme(t); try{ localStorage.setItem("crnrstone-theme",t); }catch(e){} });
+
+/* ---------- Toast ---------- */
+var toastTimer;
+function toast(msg,actionLabel,action){
+  var host=$("#toastHost"); host.innerHTML="";
+  var t=h("div",{class:"toast",role:"status"},h("span",{text:msg}), actionLabel?h("button",{type:"button",text:actionLabel,onclick:function(){ action(); host.innerHTML=""; }}):null);
+  host.appendChild(t); clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){ t.classList.add("out"); setTimeout(function(){ if(t.parentNode) t.remove(); },350); }, actionLabel?6000:2600);
+}
+
+/* ---------- Storage (account when signed in, else this device) ---------- */
+var Store={
+  async list(){
+    if(S.mode==="account"){ var snap=await S.dbRef.collection("jsas").get(); return snap.docs.map(function(d){return d.data();}); }
+    return lsGet(LS_LIST,[]);
+  },
+  async put(j){
+    var copy=JSON.parse(JSON.stringify(j));
+    if(S.mode==="account"){ await S.dbRef.collection("jsas").doc(j.id).set(copy); }
+    else { var l=lsGet(LS_LIST,[]); var i=l.findIndex(function(x){return x.id===j.id;}); if(i>-1) l[i]=copy; else l.push(copy); if(!lsSet(LS_LIST,l)) throw new Error("device storage full"); }
+    var k=S.list.findIndex(function(x){return x.id===j.id;}); if(k>-1) S.list[k]=copy; else S.list.push(copy);
+  },
+  async del(id){
+    if(S.mode==="account"){ await S.dbRef.collection("jsas").doc(id).delete(); }
+    else { lsSet(LS_LIST,lsGet(LS_LIST,[]).filter(function(x){return x.id!==id;})); }
+    S.list=S.list.filter(function(x){return x.id!==id;});
+  },
+  async getProfile(){
+    if(S.mode==="account"){ var d=await S.dbRef.get(); return d.exists?(d.data()||{}):{}; }
+    return lsGet(LS_PROF,{});
+  },
+  async putProfile(p){
+    if(S.mode==="account") await S.dbRef.set(JSON.parse(JSON.stringify(p)));
+    else lsSet(LS_PROF,p);
+  }
+};
+
+var saveTimer=null, savingNow=false, savePending=false;
+function setSaved(t){ $("#abSaved").textContent=t; }
+/* kind: "review" or "crew" changes don't undo approval or sign-off. Anything else undoes both. */
+function touch(kind){
+  if(!S.jsa) return;
+  if(kind!=="review"&&kind!=="crew"){
+    var undone=false;
+    [S.jsa.approval,S.jsa.review].forEach(function(x){
+      if(x&&x.ok){ x.prev={by:x.by||"",at:x.at||x.date||""}; x.ok=false; x.at=""; delete x.date; delete x.sig; undone=true; }
+    });
+    var crewUndone=false;
+    (S.jsa.crew||[]).forEach(function(c){ if(c.sig){ delete c.sig; delete c.at; crewUndone=true; } });
+    if(crewUndone) renderCrew();
+    if(undone||crewUndone){ syncReview(); renderLive(); toast("Changed after signing. This JSA needs approving and signing again, and the crew need to sign on again."); }
+  }
+  if(S.jsa.example){ S.jsa.example=false; S.jsa.no=nextNo(); renderBar(); }
+  S.jsa.updated=Date.now();
+  requestAnimationFrame(updateStatuses);
+  setSaved("Saving…");
+  clearTimeout(saveTimer); saveTimer=setTimeout(saveNow,900);
+}
+async function saveNow(){
+  if(!S.jsa||S.jsa.example) return;
+  if(savingNow){ savePending=true; return; }
+  savingNow=true;
+  try{ await Store.put(S.jsa); lsSet(LS_LAST,S.jsa.id); setSaved(S.mode==="account"?"Saved to your account":"Saved on this device"); updBankCount(); }
+  catch(e){ setSaved("Not saved"); toast(e&&e.code==="quota_exceeded"?"Storage is full. Delete some archived JSAs to make room.":"Couldn't save just now. Your changes are still on screen."); }
+  savingNow=false; if(savePending){ savePending=false; saveNow(); }
+}
+function nextNo(){
+  var max=0; S.list.forEach(function(x){ var n=parseInt(String(x.no||"").replace(/\D/g,""),10); if(n>max) max=n; });
+  return padNo(max+1);
+}
+
+/* ---------- Action bar ---------- */
+function renderBar(){
+  var j=S.jsa; $("#abNo").textContent=j.no;
+  $("#abRev").textContent="Rev "+j.rev;
+  var st=$("#abStatus");
+  if(j.example){ st.textContent="Example"; st.className="pill ex"; }
+  else if(j.archived){ st.textContent="Archived"; st.className="pill"; }
+  else if(signState(j)==="signed"){ st.textContent="Signed off"; st.className="pill ok"; }
+  else if(signState(j)==="approved"||signState(j)==="onsite"){ st.textContent="Approved"; st.className="pill ok"; }
+  else if(signState(j)==="again"){ st.textContent="Review again"; st.className="pill ex"; }
+  else { st.textContent="Draft"; st.className="pill"; }
+  if(j.example) setSaved("Change anything to make it yours");
+}
+function updBankCount(){ $("#bankCount").textContent=S.list.filter(function(x){return !x.archived;}).length; }
+
+/* ---------- Sheet ---------- */
+var REQ2=["site","date","prepared","supervisor","supPhone","firstAid","assembly","hospital"];
+function field(key,label,type,cls){
+  return h("label",{class:"f "+(cls||"")},h("span",{},label,REQ2.indexOf(key)>-1?h("b",{class:"req",text:" *"}):null),
+    h("input",{class:"inp",id:"f-"+key,type:type||"text",value:S.jsa[key]||"","data-k":key,autocomplete:"off"}));
+}
+function riskBtn(row,which,idx){
+  var r=row[which], k=rate(r);
+  var b=h("button",{type:"button",class:"risk "+(k||"none"),"data-row":row.id,"data-which":which,"aria-label":(which==="b"?"Risk before controls":"Risk after controls")+", row "+(idx+1)+": "+(k?RATING_NAME[k]:"not rated")+". Change"},
+    h("b",{text:k?RATING_NAME[k]:"Set risk"}), h("small",{text:k?(LIKE[r.l]+" · "+CONS[r.c]):"Tap to rate"}));
+  b.addEventListener("click",function(){ openRisk(row.id,which); });
+  return b;
+}
+function rowTools(row,i,n){
+  return h("div",{class:"tools"},
+    h("button",{type:"button",class:"ib",title:"Move up","aria-label":"Move row "+(i+1)+" up",disabled:i===0?true:null,onclick:function(){ moveRow(row.id,-1); }},ic("up")),
+    h("button",{type:"button",class:"ib",title:"Move down","aria-label":"Move row "+(i+1)+" down",disabled:i===n-1?true:null,onclick:function(){ moveRow(row.id,1); }},ic("down")),
+    h("button",{type:"button",class:"ib del",title:"Remove","aria-label":"Remove row "+(i+1),onclick:function(){ removeRow(row.id); }},ic("x")));
+}
+function miniRisk(r){ var k=rate(r); return h("span",{class:"mini "+(k||"none"),text:k?RATING_NAME[k]:"Not rated"}); }
+function hazardRow(row,i,n){
+  if(S.folded.has(row.id)){
+    return h("div",{class:"hrow folded","data-id":row.id},
+      h("button",{type:"button",class:"fold","aria-expanded":"false","aria-label":"Open hazard "+(i+1),onclick:function(){ toggleFold(row.id); }},
+        h("span",{class:"chev"},ic("down")),
+        h("span",{class:"fnum",text:String(i+1)}),
+        h("span",{class:"sum"},h("b",{text:row.step||"New step"}),row.hazard?h("span",{class:"mute",text:"  ·  "+row.hazard}):null)),
+      h("span",{class:"risks","aria-label":"Risk before and after"},miniRisk(row.b),h("span",{"aria-hidden":"true",text:"→"}),miniRisk(row.a)),
+      rowTools(row,i,n));
+  }
+  function ta(fld,ph){ return h("textarea",{class:"ta",rows:"2","data-row":row.id,"data-f":fld,placeholder:ph,"aria-label":ph+", row "+(i+1),value:row[fld]||""}); }
+  return h("div",{class:"hrow","data-id":row.id},
+    h("div",{class:"num"},h("span",{text:String(i+1)}),
+      h("button",{type:"button",class:"ib",title:"Fold","aria-expanded":"true","aria-label":"Fold hazard "+(i+1),onclick:function(){ toggleFold(row.id); }},ic("up"))),
+    h("div",{class:"c-step"},h("span",{class:"cl",text:"Job step"}),ta("step","Job step")),
+    h("div",{class:"c-haz"},h("span",{class:"cl",text:"Hazard"}),ta("hazard","Hazard")),
+    h("div",{class:"c-b"},h("span",{class:"cl",text:"Risk before"}),riskBtn(row,"b",i)),
+    h("div",{class:"c-ctl"},h("span",{class:"cl",text:"Controls"}),ta("controls","Controls")),
+    h("div",{class:"c-a"},h("span",{class:"cl",text:"Risk after"}),riskBtn(row,"a",i)),
+    h("div",{class:"c-who"},h("span",{class:"cl",text:"Who"}),ta("who","Who")),
+    rowTools(row,i,n)
+  );
+}
+function toggleFold(id){
+  if(S.folded.has(id)) S.folded.delete(id); else S.folded.add(id);
+  refreshRow(id);
+  var el=document.querySelector('.hrow[data-id="'+id+'"]');
+  if(el){ var f=el.querySelector(S.folded.has(id)?".fold":"textarea"); if(f) f.focus({preventScroll:true}); }
+}
+function foldAll(on){
+  S.folded=new Set(on?S.jsa.hazards.map(function(r){return r.id;}):[]);
+  renderSheet(); var t=$("#htable"); if(t) t.scrollIntoView({block:"start",behavior:"smooth"});
+}
+
+function renderSheet(){
+  var j=S.jsa, p=S.profile||{}, sheet=$("#sheet"); sheet.innerHTML="";
+  // Fold state: every step starts folded for a quick snapshot. New rows always open.
+  if(S.foldFor!==j.id){ S.foldFor=j.id; S.folded=new Set(j.hazards.map(function(r){return r.id;})); }
+  // Letterhead
+  var biz = (p.name||p.logo) ?
+    h("div",{class:"biz"}, p.logo?h("img",{src:p.logo,alt:(p.name||"Business")+" logo"}):null,
+      h("div",{}, h("div",{class:"nm",text:p.name||""}), h("div",{class:"meta",text:[p.abn?("ABN "+p.abn):"",p.phone||""].filter(Boolean).join("  ·  ")})))
+    : h("button",{type:"button",class:"addbiz",onclick:openProfile}, h("b",{text:"Add your business details"}),"Set it once and every JSA carries your name, ABN and logo.");
+  sheet.appendChild(h("div",{class:"lh"}, biz,
+    h("div",{class:"doctitle"}, h("div",{class:"t",text:"Job Safety Analysis"}), h("div",{class:"m",id:"lhMeta",text:j.no+"  ·  Rev "+j.rev+"  ·  "+fmtDate(j.date)}))));
+
+  sheet.appendChild(h("div",{class:"banner caution",role:"note"}, ic("warn"),
+    h("p",{}, h("b",{text:"Check before use. "}),"This JSA is a starting point built from common hazards. The person in charge must review it for this site, this task and this crew before work starts, and update it if anything changes.")));
+  sheet.appendChild(h("div",{id:"hrcwHost"}));
+  sheet.appendChild(h("div",{class:"summary",id:"summary"}));
+
+  // 1 The job
+  var chips=tradePanel();
+  sheet.appendChild(secWrap("1","The job","",
+    h("label",{class:"f task"},h("span",{},"What's the job?",h("b",{class:"req",text:" *"})),h("textarea",{class:"ta",id:"f-task","data-k":"task",rows:"2",placeholder:"e.g. Stand wall frames and install roof trusses, single storey",value:j.task||""})),
+    h("div",{class:"row",style:"margin-top:10px"},h("button",{type:"button",class:"btn primary",id:"suggest",onclick:suggest},"Add hazards for this job"),h("span",{class:"small mute",id:"matchMsg"})),
+    workTypesLabel(), chips,
+    chemPanel()));
+
+  // 2 Site and contacts
+  sheet.appendChild(secWrap("2","Site and contacts","Fields marked * are needed before the JSA is complete.",
+    h("div",{class:"fields"},
+      field("job","Job / project"), field("site","Site address"), field("client","Client / builder"), field("date","Date","date"),
+      field("prepared","Prepared by"), field("supervisor","Site supervisor"), field("supPhone","Supervisor phone","tel"), field("firstAid","First aider"),
+      field("assembly","Emergency assembly point"), field("hospital","Nearest hospital or medical centre"))));
+
+  // 3 PPE
+  var ppe=h("div",{class:"chips"});
+  PPE.forEach(function(q){ ppe.appendChild(h("button",{type:"button",class:"chip","aria-pressed":j.ppe.indexOf(q[0])>-1?"true":"false",onclick:function(e){ togglePpe(q[0],e.currentTarget); }},ic("check"),q[1])); });
+  sheet.appendChild(secWrap("3","PPE required","",ppe));
+
+  // 4 Hazards
+  var tbl=h("div",{class:"htable",id:"htable"});
+  tbl.appendChild(h("div",{class:"hrow hhead","aria-hidden":"true"},
+    ["#","Job step","Hazard","Risk before","Controls","Risk after","Who",""].map(function(t){return h("div",{text:t});})));
+  j.hazards.forEach(function(r,i){ tbl.appendChild(hazardRow(r,i,j.hazards.length)); });
+  if(!j.hazards.length) tbl.appendChild(h("div",{class:"hempty"},h("b",{text:"No hazards yet."})," Describe the job in section 1 and tap “Add hazards for this job”, pick a work type, or add your own below."));
+  sheet.appendChild(secWrap("4","Hazards and controls","Work down each step: hazard, risk before, controls, risk after. Each step needs a hazard, controls and both risk ratings.",
+    h("div",{class:"row foldbar"},h("button",{type:"button",class:"btn sm",onclick:function(){ foldAll(true); }},ic("up"),"Fold all"),h("button",{type:"button",class:"btn sm",onclick:function(){ foldAll(false); }},ic("down"),"Open all")),
+    tbl,
+    h("div",{class:"row",style:"margin-top:12px"},h("button",{type:"button",class:"btn",onclick:addRow},ic("plus"),"Add a hazard")),
+    hocBlock()));
+
+  // 5 Review and sign-on
+  var rv=j.review||(j.review={ok:false,by:"",at:""});
+  var ap=j.approval||(j.approval={ok:false,by:"",at:""});
+  var crew=h("div",{class:"crew",id:"crew"});
+  sheet.appendChild(secWrap("5","Approval and sign-on","Approved by a manager, signed off by the site supervisor, then signed on by the crew. Any change needs signing again.",
+    h("div",{class:"signs"},
+      h("div",{class:"review",id:"approvalBox"}),
+      h("div",{class:"review",id:"reviewBox"})),
+    h("div",{class:"chiplab",text:"Crew signing on"}), crew,
+    h("div",{class:"row",style:"margin-top:10px"},h("button",{type:"button",class:"btn sm",onclick:function(){ j.crew.push({name:"",company:""}); touch("crew"); renderCrew(); var ins=document.querySelectorAll('#crew input[data-cf="name"]'); if(ins.length) ins[ins.length-1].focus(); }},ic("plus"),"Add worker"))));
+
+  // 6 Risk matrix
+  sheet.appendChild(secWrap("6","Risk matrix","Numbers show how many hazards sit in each square after controls.",
+    h("div",{class:"mxwrap",id:"mxStatic"}),
+    h("div",{class:"legend"}, ["E","H","M","L"].map(function(r){ return h("div",{},h("i",{style:"background:var(--risk-"+r.toLowerCase()+")"}),h("span",{},h("b",{text:RATING_NAME[r]})," "+ACTIONS[r])); }))));
+
+  sheet.appendChild(h("div",{class:"sheetfoot",text:"Made with crnrstone-co JSA Builder. A guide only. Check your state's WHS laws and codes of practice. High risk construction work needs a SWMS."}));
+
+  renderBar(); renderLive(); syncReview(); renderCrew(); updateStatuses();
+}
+
+/* ---------- Hierarchy of control (hover or tap the icon) ---------- */
+var HOC=[
+  {n:"Eliminate",s:"Get rid of it",e:"Build frames and trusses on the ground, then lift them into place.",c:"L"},
+  {n:"Substitute",s:"Swap it for something safer",e:"Cordless tools instead of leads. Lighter sheet products.",c:"L"},
+  {n:"Isolate",s:"Separate people from it",e:"Exclusion zones and barricades around crane lifts and open trenches.",c:"M"},
+  {n:"Engineering",s:"Engineer it out",e:"Edge protection, saw guards, dust extraction.",c:"M"},
+  {n:"Administrative",s:"Set work rules",e:"Toolbox talks, signage, safe work procedures, permits.",c:"H"},
+  {n:"PPE",s:"Protect the person",e:"Harness, P2 mask, glasses, hearing protection. The last line of defence.",c:"E"}
+];
+function hocBlock(){
+  var timer=null;
+  var pop=h("div",{class:"hocpop",id:"hocPop",role:"dialog","aria-label":"Hierarchy of control",hidden:true},
+    h("div",{class:"hoct",text:"Hierarchy of control"}),
+    h("p",{class:"hocsub",text:"Most effective at the top. Only move down when the level above isn't practical, and use more than one control where you can."}),
+    HOC.map(function(l,i){ return h("div",{class:"lvlwrap"},
+      h("div",{class:"lvl "+l.c,style:"width:"+(100-i*8)+"%"},h("b",{text:(i+1)+"  "+l.n}),h("span",{text:l.s})),
+      h("div",{class:"lvlex",text:l.e})); }));
+  var btn=h("button",{type:"button",class:"hocbtn","aria-label":"Show the hierarchy of control","aria-expanded":"false","aria-controls":"hocPop"},ic("info"));
+  function show(){ clearTimeout(timer); pop.hidden=false; pop.classList.remove("fading"); btn.setAttribute("aria-expanded","true"); }
+  function hide(now){
+    clearTimeout(timer); btn.setAttribute("aria-expanded","false");
+    if(now||pop.hidden){ pop.hidden=true; pop.classList.remove("fading"); return; }
+    pop.classList.add("fading"); timer=setTimeout(function(){ pop.hidden=true; pop.classList.remove("fading"); },2050);
+  }
+  var canHover=window.matchMedia&&matchMedia("(hover:hover)").matches;
+  var wrap=h("div",{class:"hoc",id:"hoc"},
+    h("p",{html:"<b>Hierarchy of control.</b> Pick controls from the top down: get rid of it, swap it, separate people from it, engineer it, set work rules, then PPE last."}),
+    btn, pop);
+  if(canHover){ btn.addEventListener("mouseenter",show); pop.addEventListener("mouseenter",show); wrap.addEventListener("mouseleave",function(){ if(!pop.hidden) hide(false); }); }
+  btn.addEventListener("click",function(e){ e.stopPropagation(); if(pop.hidden||pop.classList.contains("fading")) show(); else hide(true); });
+  pop.addEventListener("click",function(e){ e.stopPropagation(); });
+  wrap._hide=hide;
+  return wrap;
+}
+document.addEventListener("click",function(){ var w=$("#hoc"); if(w&&w._hide) w._hide(true); });
+document.addEventListener("keydown",function(e){ if(e.key==="Escape"){ var w=$("#hoc"); if(w&&w._hide) w._hide(true); } });
+
+/* ---------- Trades and work types ---------- */
+/* Your trades (business profile). First one is your main trade. Empty = show every trade. */
+function myTrades(){ var p=S.profile||{}; var t=(p.trades||[]).filter(function(k){ return TRADE_BY_KEY[k]; }); if(!t.length&&TRADE_BY_KEY[p.trade]) t=[p.trade]; return t; }
+function mainTrade(){ return myTrades()[0]||"carpentry"; }
+function hiddenChips(){ return (S.profile||{}).hidden||[]; }
+function openTrade(){
+  var j=S.jsa; return TRADE_BY_KEY[j.trade]?j.trade:mainTrade();
+}
+/* Which trade a ticked work type is counted under: where it was ticked; otherwise your main trade if it lists it, else the first trade that does.
+   (Never the tab that happens to be open, so counts don't jump around when switching tabs.) */
+function homeTrade(k,prefer){
+  var j=S.jsa, g=j.groupTrade||{};
+  if(g[k]&&TRADE_BY_KEY[g[k]]&&TRADE_BY_KEY[g[k]].chips.indexOf(k)>-1) return g[k];
+  var main=prefer||mainTrade(); if(TRADE_BY_KEY[main]&&TRADE_BY_KEY[main].chips.indexOf(k)>-1) return main;
+  for(var i=0;i<TRADES.length;i++) if(TRADES[i].chips.indexOf(k)>-1) return TRADES[i].key;
+  return null;
+}
+function redrawTrades(){ var w=$("#tradeWrap"); if(w) w.replaceWith(tradePanel()); var c=$("#chemBox"); if(c&&c._sugg) c._sugg(); }
+function tradePanel(){
+  var j=S.jsa, cur=openTrade(), mine=myTrades(), hid=hiddenChips();
+  /* your trades, the open one, and any other trade with work types ticked on this job stay out as tabs */
+  function used(t){ return j.groups.some(function(k){ return homeTrade(k)===t.key; }); }
+  var shown=mine.length?TRADES.filter(function(t){ return mine.indexOf(t.key)>-1||t.key===cur||used(t); }):TRADES;
+  var rest=mine.length?TRADES.filter(function(t){ return shown.indexOf(t)<0; }):[];
+  var tabs=h("div",{class:"tradebar",role:"tablist","aria-label":"Trades"});
+  function tab(t){
+    /* each ticked work type counts once, under the trade it was ticked in (Eric) */
+    var n=j.groups.filter(function(k){ return homeTrade(k)===t.key; }).length;
+    return h("button",{type:"button",class:"trade",role:"tab","aria-selected":t.key===cur?"true":"false",onclick:function(){ j.trade=t.key; S.showOther=false; redrawTrades(); }},
+      t.label, n?h("span",{class:"tcount",text:String(n)}):null);
+  }
+  shown.forEach(function(t){ tabs.appendChild(tab(t)); });
+  if(rest.length){
+    var restN=j.groups.filter(function(k){ return rest.some(function(t){ return homeTrade(k)===t.key; }); }).length;
+    tabs.appendChild(h("button",{type:"button",class:"trade other","aria-expanded":S.showOther?"true":"false",onclick:function(){ S.showOther=!S.showOther; redrawTrades(); }},
+      S.showOther?"Hide other trades":"Other trades", restN?h("span",{class:"tcount",text:String(restN)}):null, h("span",{class:"tchev"},ic(S.showOther?"up":"down"))));
+  }
+  var otherBar=(rest.length&&S.showOther)?h("div",{class:"tradebar otherbar"},rest.map(tab)):null;
+  var list=h("div",{class:"chips",id:"chips",role:"tabpanel"});
+  var hiddenHere=0;
+  TRADE_BY_KEY[cur].chips.forEach(function(k){ var g=GROUP_BY_KEY[k], on=j.groups.indexOf(k)>-1;
+    if(!on&&hid.indexOf(k)>-1&&!S.showHidden){ hiddenHere++; return; }
+    list.appendChild(h("button",{type:"button",class:"chip","aria-pressed":on?"true":"false",onclick:function(){ toggleGroup(k); }},ic("check"),g.label));
+  });
+  if(hiddenHere) list.appendChild(h("button",{type:"button",class:"chip morechip",onclick:function(){ S.showHidden=true; redrawTrades(); }},"+"+hiddenHere+" hidden"));
+  else if(S.showHidden&&TRADE_BY_KEY[cur].chips.some(function(k){ return hid.indexOf(k)>-1&&j.groups.indexOf(k)<0; }))
+    list.appendChild(h("button",{type:"button",class:"chip morechip",onclick:function(){ S.showHidden=false; redrawTrades(); }},ic("up"),"Hide again"));
+  var others=j.groups.filter(function(k){ return TRADE_BY_KEY[cur].chips.indexOf(k)<0&&GROUP_BY_KEY[k]; });
+  return h("div",{id:"tradeWrap"},tabs,otherBar,list,
+    others.length?h("p",{class:"small mute",style:"margin:8px 0 0",text:"Also on this job from other trades: "+others.map(function(k){ return GROUP_BY_KEY[k].label; }).join(", ")+"."}):null);
+}
+function workTypesLabel(){
+  var tip=h("span",{class:"tip",role:"tooltip",id:"wtTip",text:"Only seeing the trades and work types you use. Change them in your business profile."});
+  var btn=h("button",{type:"button",class:"tipbtn","aria-label":"Choose which trades and work types show","aria-describedby":"wtTip",onclick:openProfile},ic("info"));
+  return h("div",{class:"chiplab wtlab"},"Work types",h("span",{class:"tipwrap"},btn,tip));
+}
+
+/* Business profile: pick your trades, then untick work types you never use */
+function tradePicker(p){
+  if(!p.trades) p.trades=TRADE_BY_KEY[p.trade]?[p.trade]:[];
+  if(!p.hidden) p.hidden=[];
+  var box=h("div",{class:"tpick"});
+  function draw(){
+    box.innerHTML="";
+    var tchips=h("div",{class:"chips"});
+    TRADES.forEach(function(t){ var on=p.trades.indexOf(t.key)>-1;
+      tchips.appendChild(h("button",{type:"button",class:"chip","aria-pressed":on?"true":"false",onclick:function(){
+        if(on) p.trades=p.trades.filter(function(k){ return k!==t.key; }); else p.trades.push(t.key);
+        p.trade=p.trades[0]||""; draw(); }},ic("check"),t.label+(p.trades[0]===t.key?" (main)":"")));
+    });
+    box.appendChild(h("label",{class:"f"},h("span",{text:"Your trades"})));
+    box.appendChild(h("p",{class:"note",style:"margin:0 0 6px",text:"Only these show on your JSAs. Other trades stay one tap away. The first one you pick is your main trade."}));
+    box.appendChild(tchips);
+    if(!p.trades.length) return;
+    var keys=[]; p.trades.forEach(function(tk){ TRADE_BY_KEY[tk].chips.forEach(function(k){ if(keys.indexOf(k)<0) keys.push(k); }); });
+    var wchips=h("div",{class:"chips"});
+    keys.forEach(function(k){ var on=p.hidden.indexOf(k)<0;
+      wchips.appendChild(h("button",{type:"button",class:"chip","aria-pressed":on?"true":"false",onclick:function(){
+        if(on) p.hidden.push(k); else p.hidden=p.hidden.filter(function(x){ return x!==k; }); draw(); }},ic("check"),GROUP_BY_KEY[k].label));
+    });
+    box.appendChild(h("label",{class:"f",style:"margin-top:12px"},h("span",{text:"Work types you use"})));
+    box.appendChild(h("p",{class:"note",style:"margin:0 0 6px",text:"All on to start. Untick any you never need and they'll be tucked away on your JSAs."}));
+    box.appendChild(wchips);
+  }
+  draw();
+  return box;
+}
+
+/* ---------- Materials and SDS on this job (later fed from the Site Vault) ---------- */
+function chemPanel(){
+  var j=S.jsa; if(!j.chemicals) j.chemicals=[];
+  var list=h("div",{class:"chips",id:"chemList"});
+  function draw(){
+    list.innerHTML="";
+    if(!j.chemicals.length) list.appendChild(h("span",{class:"small mute",text:"No materials added yet."}));
+    j.chemicals.forEach(function(n){
+      list.appendChild(h("span",{class:"chemchip"},n,h("button",{type:"button",class:"ib","aria-label":"Remove "+n,onclick:function(){ removeChem(n); }},ic("x"))));
+    });
+    sum.textContent="Materials and SDS on this job"+(j.chemicals.length?(" ("+j.chemicals.length+")"):"");
+    drawSugg();
+  }
+  var inp=h("input",{class:"inp",id:"chemIn",placeholder:"Product or material, e.g. construction adhesive, tile grout",autocomplete:"off"});
+  var sugg=h("div",{class:"chips",style:"margin-top:8px"});
+  function drawSugg(){
+    sugg.innerHTML="";
+    var opts=(MATERIALS[openTrade()]||[]).filter(function(m){ return !j.chemicals.some(function(x){ return x.toLowerCase()===m.toLowerCase(); }); });
+    if(!opts.length) return;
+    sugg.appendChild(h("span",{class:"small mute",style:"align-self:center",text:"Common for "+TRADE_BY_KEY[openTrade()].label+":"}));
+    opts.forEach(function(m){ sugg.appendChild(h("button",{type:"button",class:"chip sugg",onclick:function(){ add(m); }},ic("plus"),m)); });
+  }
+  function add(name){
+    var n=(typeof name==="string"?name:inp.value).trim().replace(/\s+/g," "); if(!n) return;
+    if(j.chemicals.some(function(x){ return x.toLowerCase()===n.toLowerCase(); })){ toast(n+" is already listed."); return; }
+    j.chemicals.push(n); var r=chemRow(n); j.hazards.push(r); inp.value="";
+    touch(); renderSheet(); var d=$("#chemBox"); if(d) d.open=true; var i2=$("#chemIn"); if(i2) i2.focus();
+    flashRows([r.id]); toast(n+" added. Its SDS step is in section 4.");
+  }
+  inp.addEventListener("keydown",function(e){ if(e.key==="Enter"){ e.preventDefault(); add(); } });
+  var sum=h("summary",{});
+  var box=h("details",{class:"chembox",id:"chemBox",open:j.chemicals.length?true:null},sum,
+    h("p",{class:"small mute",style:"margin:6px 0 10px",text:"Each product adds a hazard step pointing to its SDS and technical data sheet, and is listed on the PDF as needed on site. Soon you'll pick these from your Site Vault, bringing in the PPE and procedures from each SDS and install guide."}),
+    h("div",{class:"row"},h("div",{style:"flex:1;min-width:200px"},inp),h("button",{type:"button",class:"btn",onclick:add},ic("plus"),"Add")),
+    sugg,
+    h("div",{style:"margin-top:10px"},list));
+  box._sugg=drawSugg;
+  draw();
+  return box;
+}
+function removeChem(n){
+  var j=S.jsa, snap={c:j.chemicals.slice(),h:j.hazards.slice()};
+  j.chemicals=j.chemicals.filter(function(x){ return x!==n; });
+  j.hazards=j.hazards.filter(function(r){ return r.src!=="chem:"+n; });
+  touch(); renderSheet(); var d=$("#chemBox"); if(d) d.open=true;
+  toast(n+" removed","Undo",function(){ j.chemicals=snap.c; j.hazards=snap.h; touch(); renderSheet(); var d2=$("#chemBox"); if(d2) d2.open=true; });
+}
+
+/* ---------- Section zones: fold and status ---------- */
+function secWrap(num,title,hint){
+  var kids=[].slice.call(arguments,3);
+  var folded=S.secFold.has(num);
+  var body=h("div",{class:"secbody",id:"secb-"+num,hidden:folded?true:null}, hint?h("p",{class:"hint",text:hint}):null, kids);
+  var head=h("button",{type:"button",class:"sech","aria-expanded":folded?"false":"true","aria-controls":"secb-"+num,onclick:function(){
+      var f=!S.secFold.has(num); if(f) S.secFold.add(num); else S.secFold.delete(num);
+      body.hidden=f; head.setAttribute("aria-expanded",f?"false":"true"); sec.classList.toggle("folded",f); }},
+    h("span",{class:"n",text:num}),h("h2",{text:title}),h("span",{class:"secsp"}),
+    h("span",{class:"stat",id:"stat-"+num}),h("span",{class:"secchev"},ic("down")));
+  var sec=h("section",{class:"sec"+(folded?" folded":""),id:"sec-"+num},head,body);
+  return sec;
+}
+/* Counts rather than "Complete": a JSA can always have more added (Eric). */
+function secStatus(n){
+  var j=S.jsa, e=function(v){ return !String(v||"").trim(); };
+  function frac(done,total,word){ return [done>=total&&total>0?"ok":"inc",done+" / "+total+" "+(word||"completed")]; }
+  if(n==="1") return frac(e(j.task)?0:1,1);
+  if(n==="2") return frac(REQ2.filter(function(k){ return !e(j[k]); }).length,REQ2.length);
+  if(n==="3") return j.ppe.length?["ok",j.ppe.length+" selected"]:["inc","0 selected"];
+  if(n==="4"){
+    if(!j.hazards.length) return ["inc","0 / 0 completed"];
+    var done=j.hazards.filter(function(x){ return !(e(x.hazard)||e(x.controls)||!rate(x.b)||!rate(x.a)); }).length;
+    var ext=j.hazards.filter(function(x){ return rate(x.a)==="E"; }).length;
+    var f=frac(done,j.hazards.length);
+    return ext?["rev",f[1],ext+" still Extreme"]:f;
+  }
+  if(n==="5"){ var ss=signState(j); if(j.approval&&j.approval.na) return (j.review&&j.review.ok)?["ok","1 / 1 signed","Manager not required"]:(j.review&&j.review.prev?["rev","0 / 1 signed","Sign again"]:["inc","0 / 1 signed","Manager not required"]); var k=ss==="signed"?2:(ss==="approved"?1:0);
+    return ss==="again"?["rev",k+" / 2 signed","Sign again"]:frac(k,2,"signed"); }
+  return null;
+}
+function updateStatuses(){
+  if(!S.jsa) return;
+  ["1","2","3","4","5"].forEach(function(n){
+    var el=$("#stat-"+n); if(!el) return; var st=secStatus(n);
+    el.className="stat "+st[0]; el.textContent=st[1]+(st[2]?("  ·  "+st[2]):"");
+  });
+  REQ2.concat(["task"]).forEach(function(k){ var i=$("#f-"+k); if(i) i.classList.toggle("need",!String(S.jsa[k]||"").trim()); });
+}
+
+/* ---------- High risk work: centre-screen prompt to move to a SWMS ---------- */
+function ackHrcw(items){ var j=S.jsa; j.hrcwAck=(j.hrcwAck||[]).concat((items||[]).filter(function(x){ return (j.hrcwAck||[]).indexOf(x)<0; })); }
+function moveToSwms(items){
+  if(Array.isArray(items)){ ackHrcw(items); touch("review"); }
+  closeOverlays();
+  toast("The SWMS Builder is being built next. This JSA will carry straight across when it's ready.");
+}
+function showHrcwPop(items){
+  var j=S.jsa; if($("#hrcwPop")) return;
+  closeOverlays();
+  function decline(){
+    ackHrcw(items); j.hrcwDeclined=nowLocal(); touch("review"); closeOverlays();
+    toast("Continuing with a JSA. You can move to a SWMS from the red banner at any time.");
+  }
+  var pop=h("div",{class:"pop hrcwpop",id:"hrcwPop",role:"alertdialog","aria-modal":"true","aria-labelledby":"hrcwT"},
+    h("div",{class:"row"},h("span",{class:"hrcwic"},ic("stop")),h("h4",{id:"hrcwT",style:"flex:1",text:"High risk construction work"})),
+    h("p",{class:"sub",text:"This job looks like it involves:"}),
+    h("ul",{class:"hrcwlist"},items.map(function(x){ return h("li",{text:x}); })),
+    h("p",{text:"Under WHS laws, high risk construction work needs a Safe Work Method Statement (SWMS), not just a JSA. We recommend moving this job to a SWMS. Everything you've entered carries across."}),
+    h("div",{class:"row",style:"margin-top:14px"},
+      h("button",{type:"button",class:"btn primary",text:"Move to a SWMS",onclick:function(){ moveToSwms(items); }}),
+      h("button",{type:"button",class:"btn",text:"Continue with JSA",onclick:decline})),
+    h("p",{class:"note",style:"margin-top:10px",text:"If you continue, your choice and the time are recorded on this JSA and its PDF."}));
+  var ov=$("#overlays");
+  ov.appendChild(h("div",{class:"scrim popscrim"})); ov.appendChild(pop);
+  var first=pop.querySelector(".btn.primary"); if(first) first.focus();
+}
+
+/* ---------- Crew sign-on (on paper or on screen) ---------- */
+function renderCrew(){
+  var j=S.jsa, box=$("#crew"); if(!box) return; box.innerHTML="";
+  j.crew.forEach(function(c,i){
+    var signCell=c.sig
+      ? h("button",{type:"button",class:"crewsig",title:"Signed. Tap to sign again","aria-label":"Worker "+(i+1)+" signed "+fmtDT(c.at)+". Sign again",onclick:function(){ openCrewSign(i); }},h("img",{src:c.sig,alt:""}),h("span",{text:fmtDT(c.at)}))
+      : h("button",{type:"button",class:"btn sm",text:"Sign on",onclick:function(){ openCrewSign(i); }});
+    box.appendChild(h("div",{class:"crow"},h("span",{class:"num",text:String(i+1)}),
+      h("input",{class:"inp",placeholder:"Worker name","aria-label":"Worker "+(i+1)+" name",value:c.name||"","data-crew":i,"data-cf":"name"}),
+      h("input",{class:"inp co2",placeholder:"Company","aria-label":"Worker "+(i+1)+" company",value:c.company||"","data-crew":i,"data-cf":"company"}),
+      h("div",{class:"csign"},signCell),
+      h("button",{type:"button",class:"ib del","aria-label":"Remove worker "+(i+1),onclick:function(){ j.crew.splice(i,1); if(!j.crew.length) j.crew.push({name:"",company:""}); touch("crew"); renderCrew(); }},ic("x"))));
+  });
+}
+function makePad(onInk){
+  var wrap=h("div",{class:"sigpad"}), cv=h("canvas",{"aria-label":"Signature pad"}), ph=h("div",{class:"ph",text:"Sign here"});
+  wrap.appendChild(cv); wrap.appendChild(ph);
+  var ctx=null, drawing=false, inked=false, last=null;
+  function size(){ var r=wrap.getBoundingClientRect(), d=window.devicePixelRatio||1; cv.width=Math.max(1,Math.round(r.width*d)); cv.height=Math.max(1,Math.round(r.height*d)); ctx=cv.getContext("2d"); ctx.scale(d,d); ctx.lineWidth=2.4; ctx.lineCap="round"; ctx.lineJoin="round"; ctx.strokeStyle="#0E1A2E"; }
+  function pt(e){ var r=cv.getBoundingClientRect(); return {x:e.clientX-r.left,y:e.clientY-r.top}; }
+  cv.addEventListener("pointerdown",function(e){ if(!ctx) size(); drawing=true; last=pt(e); try{ cv.setPointerCapture(e.pointerId); }catch(_){}; ph.hidden=true; e.preventDefault(); });
+  cv.addEventListener("pointermove",function(e){ if(!drawing) return; var p=pt(e); ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); last=p; if(!inked){ inked=true; if(onInk) onInk(true); } e.preventDefault(); });
+  function up(){ drawing=false; }
+  cv.addEventListener("pointerup",up); cv.addEventListener("pointercancel",up);
+  return {el:wrap,size:size,inked:function(){ return inked; },url:function(){ return cv.toDataURL("image/png"); },
+    clear:function(){ if(ctx) ctx.clearRect(0,0,cv.width,cv.height); inked=false; ph.hidden=false; if(onInk) onInk(false); }};
+}
+function openCrewSign(i){
+  var j=S.jsa, c=j.crew[i]; if(!c) return;
+  if(!String(c.name||"").trim()){ toast("Enter the worker's name first."); var n=document.querySelector('#crew input[data-crew="'+i+'"][data-cf="name"]'); if(n) n.focus(); return; }
+  closeOverlays();
+  var save=h("button",{type:"button",class:"btn primary",text:"Sign on",disabled:true});
+  var pad=makePad(function(on){ save.disabled=!on; });
+  save.addEventListener("click",function(){ if(!pad.inked()) return; c.sig=pad.url(); c.at=nowLocal(); touch("crew"); closeOverlays(); renderCrew(); toast(c.name+" signed on."); });
+  var pop=h("div",{class:"pop",role:"dialog","aria-modal":"true","aria-labelledby":"crewT"},
+    h("div",{class:"row"},h("h4",{id:"crewT",style:"flex:1",text:"Crew sign-on"}),h("button",{type:"button",class:"ib","aria-label":"Close",onclick:closeOverlays},ic("x"))),
+    h("p",{class:"sub",text:j.no+" Rev "+j.rev+(j.job?("  ·  "+j.job):"")}),
+    h("div",{class:"crewwho"},h("b",{text:c.name}),c.company?h("span",{class:"mute",text:"  ·  "+c.company}):null),
+    h("p",{style:"margin:8px 0 0;font-weight:600",text:"I have read and understood this JSA and will follow the controls in it."}),
+    pad.el,
+    h("div",{class:"row",style:"margin-top:12px"},save,h("button",{type:"button",class:"btn ghost",text:"Clear",onclick:pad.clear}),h("button",{type:"button",class:"btn ghost",text:"Cancel",onclick:closeOverlays})),
+    c.sig?h("button",{type:"button",class:"btn sm ghost",style:"margin-top:8px;color:var(--r)",text:"Remove signature",onclick:function(){ delete c.sig; delete c.at; touch("crew"); closeOverlays(); renderCrew(); }}):null);
+  var ov=$("#overlays"); ov.appendChild(h("div",{class:"scrim popscrim",onclick:closeOverlays})); ov.appendChild(pop);
+  document.addEventListener("keydown",escClose);
+  requestAnimationFrame(pad.size);
+}
+
+/* ---------- Approval and sign-off: name + signature, ticks itself ---------- */
+var SIGN={
+  approval:{step:"Step 1",title:"Office approval",line:"The supervising manager approves this JSA for use.",who:"Manager's name",done:"Approved",prevWord:"approval"},
+  review:{step:"Step 2",title:"Site supervisor sign-off",line:"The site supervisor checks it against this site, task and crew.",who:"Site supervisor's name",done:"Signed off",prevWord:"sign-off"}
+};
+var TICK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>';
+function completeSign(key,url){
+  var j=S.jsa, x=j[key];
+  if(!String(x.by||"").trim()){ toast("Enter the name first, then sign."); var n=$("#"+key+"By"); if(n) n.focus(); return; }
+  x.sig=url; x.ok=true; x.at=nowLocal(); delete x.date; delete x.prev; delete x.na; delete x.naAt;
+  $("#pdfWarn").hidden=true; touch("review"); syncReview(); renderLive();
+  toast(SIGN[key].done+" by "+x.by+".");
+}
+function clearSign(key){
+  var j=S.jsa, x=j[key]; x.ok=false; x.at=""; delete x.sig;
+  if(key==="approval"&&j.review&&j.review.ok){ j.review.ok=false; j.review.at=""; delete j.review.sig; }
+  touch("review"); syncReview(); renderLive();
+}
+function sigPad(key){
+  var x=S.jsa[key], wrap=h("div",{class:"sigpad"+(String(x.by||"").trim()?"":" off"),id:key+"Pad"});
+  var cv=h("canvas",{"aria-label":"Signature pad. Draw your signature with a finger, pen or mouse."});
+  var ph=h("div",{class:"ph",text:"Sign here"});
+  var hint=h("div",{class:"sighint",id:key+"Hint",text:"Sign with your finger, a pen or the mouse. It saves itself when you stop."});
+  wrap.appendChild(cv); wrap.appendChild(ph);
+  var ctx=null, drawing=false, inked=false, timer=null, last=null;
+  function size(){ var r=wrap.getBoundingClientRect(), d=window.devicePixelRatio||1; cv.width=Math.max(1,Math.round(r.width*d)); cv.height=Math.max(1,Math.round(r.height*d)); ctx=cv.getContext("2d"); ctx.scale(d,d); ctx.lineWidth=2.4; ctx.lineCap="round"; ctx.lineJoin="round"; ctx.strokeStyle="#0E1A2E"; }
+  requestAnimationFrame(size);
+  function pt(e){ var r=cv.getBoundingClientRect(); return {x:e.clientX-r.left,y:e.clientY-r.top}; }
+  cv.addEventListener("pointerdown",function(e){ if(wrap.classList.contains("off")) return; if(!ctx) size(); clearTimeout(timer); drawing=true; last=pt(e); try{ cv.setPointerCapture(e.pointerId); }catch(_){}; ph.hidden=true; hint.textContent="Keep going. It saves when you stop."; e.preventDefault(); });
+  cv.addEventListener("pointermove",function(e){ if(!drawing) return; var p=pt(e); ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); last=p; inked=true; e.preventDefault(); });
+  function up(){ if(!drawing) return; drawing=false; if(!inked) return; hint.textContent="Saving signature…"; clearTimeout(timer);
+    timer=setTimeout(function(){ completeSign(key,cv.toDataURL("image/png")); },1500); }
+  cv.addEventListener("pointerup",up); cv.addEventListener("pointercancel",up); cv.addEventListener("pointerleave",up);
+  wrap._clear=function(){ clearTimeout(timer); if(ctx) ctx.clearRect(0,0,cv.width,cv.height); inked=false; ph.hidden=false; hint.textContent="Sign with your finger, a pen or the mouse. It saves itself when you stop."; };
+  return [wrap,hint];
+}
+function renderSign(key){
+  var j=S.jsa, x=j[key], c=SIGN[key], box=$("#"+key+"Box"); if(!box||!x) return;
+  if(key==="review"&&x.na){ delete x.na; delete x.naAt; }
+  var locked=key==="review"&&!(j.approval.ok||j.approval.na);
+  if(locked&&x.ok){ x.ok=false; x.at=""; delete x.sig; }
+  if(!x.ok&&!x.by){ x.by=key==="review"?(j.supervisor||""):((S.profile||{}).approver||""); }
+  box.className="review"+(x.ok?" done":"")+(locked?" locked":"")+(!x.ok&&x.prev&&!locked?" stale":"");
+  box.innerHTML="";
+  var tick=h("span",{class:"signtick","aria-hidden":"true"}); if(x.ok) tick.innerHTML=TICK;
+  var body=h("div",{class:"signbody"},h("div",{class:"stepl",text:c.step+"  "+c.title}),h("p",{class:"signline",text:c.line}));
+  box.appendChild(tick); box.appendChild(body);
+  if(x.ok){
+    body.appendChild(h("div",{class:"signed"},
+      x.sig?h("img",{class:"sigimg",src:x.sig,alt:"Signature of "+(x.by||"signer")}):null,
+      h("div",{},h("div",{class:"signname",text:x.by||""}),h("div",{class:"sighint",text:c.done+" "+reviewedAt(x)}))));
+    body.appendChild(h("p",{class:"revnote",text:"Any change to the JSA undoes this."}));
+    body.appendChild(h("div",{class:"sigacts"},h("button",{type:"button",class:"btn sm ghost",text:"Clear and sign again",onclick:function(){ clearSign(key); }})));
+    return;
+  }
+  if(key==="approval"&&x.na){
+    box.className="review na";
+    body.appendChild(h("p",{class:"revnote",style:"font-weight:600;color:var(--ink)",text:"Manager approval not required. The site supervisor is responsible for this JSA."}));
+    body.appendChild(h("div",{class:"sigacts"},h("button",{type:"button",class:"btn sm ghost",text:"Manager will approve instead",onclick:function(){ delete x.na; delete x.naAt; var r=j.review; if(r&&r.ok){ r.ok=false; r.at=""; delete r.sig; } touch("review"); syncReview(); renderLive(); }})));
+    return;
+  }
+  var naBtn=key==="approval"?h("div",{class:"nabar"},h("span",{class:"sighint",text:"Done on site, with the supervisor responsible?"}),h("button",{type:"button",class:"btn sm",text:"Not required",onclick:function(){ x.na=true; x.naAt=nowLocal(); touch("review"); syncReview(); renderLive(); }})):null;
+  if(locked){ body.appendChild(h("p",{class:"revnote",text:"Waiting for office approval (step 1)."})); if(naBtn) body.appendChild(naBtn); return; }
+  if(x.prev) body.appendChild(h("p",{class:"revnote",text:"Changed since the last "+c.prevWord+(x.prev.by?(" by "+x.prev.by):"")+(x.prev.at?(" on "+fmtDT(x.prev.at)):"")+". Check the changes and sign again."}));
+  body.appendChild(h("label",{class:"f",style:"margin-top:8px"},h("span",{text:c.who}),h("input",{class:"inp",id:key+"By",value:x.by||"","data-sign":key,"data-sf":"by",autocomplete:"name"})));
+  var pad=sigPad(key); body.appendChild(pad[0]);
+  var up=h("input",{type:"file",accept:"image/png,image/jpeg,image/webp",id:key+"Upload",class:"vh"});
+  up.addEventListener("change",function(){ var fl=up.files&&up.files[0]; if(!fl) return; shrinkImage(fl,function(url){ if(url) completeSign(key,url); else toast("Couldn't read that image. Try a PNG or JPG."); }); });
+  var saved=key==="approval"&&(S.profile||{}).approverSig;
+  body.appendChild(h("div",{class:"sigacts"},
+    h("button",{type:"button",class:"btn sm ghost",text:"Clear",onclick:function(){ pad[0]._clear(); }}),
+    h("label",{class:"btn sm",for:key+"Upload"},"Upload signature"), up,
+    saved?h("button",{type:"button",class:"btn sm",text:"Use saved signature",onclick:function(){ completeSign(key,(S.profile||{}).approverSig); }}):null));
+  body.appendChild(pad[1]);
+  if(naBtn) body.appendChild(naBtn);
+}
+function syncReview(){
+  var j=S.jsa; if(!j.approval) j.approval={ok:false,by:"",at:""}; if(!j.review) j.review={ok:false,by:"",at:""};
+  renderSign("approval"); renderSign("review");
+}
+
+/* Parts that change while typing or rating */
+function renderLive(){
+  var j=S.jsa;
+  // HRCW
+  var hr=hrcwFor(j.groups), host=$("#hrcwHost"); host.innerHTML="";
+  if(hr.length) host.appendChild(h("div",{class:"banner hrcw",role:"note"},ic("stop"),
+    h("p",{style:"flex:1;min-width:0"},h("b",{text:"This may be high risk construction work. "}),"It looks like it involves "+hr.join("; ")+". Under WHS laws that work needs a SWMS (Safe Work Method Statement), not just a JSA."),
+    h("button",{type:"button",class:"btn sm swmsbtn",text:"Move to a SWMS",onclick:function(){ moveToSwms(); }})));
+  var fresh=hr.filter(function(x){ return (j.hrcwAck||[]).indexOf(x)<0; });
+  if(fresh.length&&!j.example&&!$("#hrcwPop")) setTimeout(function(){ showHrcwPop(fresh); },0);
+  // Summary
+  var b=counts(j.hazards,"b"), a=counts(j.hazards,"a"), n=j.hazards.length;
+  function dist(c){ var d=h("div",{class:"dist"}); ["L","M","H","E"].forEach(function(k){ if(c[k]) d.appendChild(h("span",{style:"width:"+(c[k]/Math.max(1,n)*100)+"%;background:var(--risk-"+k.toLowerCase()+")",title:RATING_NAME[k]+": "+c[k]})); }); return d; }
+  function lab(c){ return ["E","H","M","L"].filter(function(k){return c[k];}).map(function(k){return c[k]+" "+RATING_NAME[k];}).join(" · ")||"None rated"; }
+  var rv=j.review||{};
+  var sm=$("#summary"); sm.innerHTML="";
+  sm.appendChild(h("div",{},h("div",{class:"k",text:"Hazards"}),h("div",{class:"v",text:String(n)})));
+  sm.appendChild(h("div",{},h("div",{class:"k",text:"Before controls"}),dist(b),h("div",{class:"distlab",text:lab(b)})));
+  sm.appendChild(h("div",{},h("div",{class:"k",text:"After controls"}),dist(a),h("div",{class:"distlab",text:lab(a)})));
+  var ss=signState(j), SL={signed:["Signed off","var(--g)","Approved and signed off on site"],onsite:["Approved","var(--g)","Site supervisor signs on site"],approved:["Approved","var(--g)","Site supervisor to sign off"],again:["Again","var(--r)","Changed since approval"],draft:["Not yet","var(--plan)","Needs approval and sign-off"]}[ss];
+  sm.appendChild(h("div",{},h("div",{class:"k",text:"Approval"}),h("div",{class:"v",style:"font-size:20px;color:"+SL[1],text:SL[0]}),h("div",{class:"distlab",text:a.E?(a.E+" still Extreme. Fix before work"):SL[2]})));
+  // Static matrix with counts
+  var m=$("#mxStatic"); if(m){ m.innerHTML=""; m.appendChild(matrixGrid(null,function(l,c){ var k=0; j.hazards.forEach(function(x){ if(x.a&&x.a.l===l&&x.a.c===c) k++; }); return k; })); }
+  // Header meta
+  var meta=$("#lhMeta"); if(meta) meta.textContent=j.no+"  ·  Rev "+j.rev+"  ·  "+fmtDate(j.date);
+  renderBar();
+}
+
+function matrixGrid(sel,countFn,onPick){
+  var g=h("div",{class:"mx",role:onPick?"grid":null});
+  g.appendChild(h("div",{class:"corner",html:"Likelihood ↓<br>Consequence →"}));
+  CONS.forEach(function(c){ g.appendChild(h("div",{class:"ch",text:c})); });
+  for(var l=4;l>=0;l--){
+    g.appendChild(h("div",{class:"rh",text:LIKE[l]}));
+    for(var c=0;c<5;c++){
+      var r=MATRIX[l][c], isSel=sel&&sel.l===l&&sel.c===c;
+      var inner=[h("span",{text:RATING_NAME[r]})];
+      if(countFn){ var k=countFn(l,c); if(k) inner.push(h("span",{class:"cnt",text:k+(k===1?" hazard":" hazards")})); }
+      var cell;
+      if(onPick){ cell=h("button",{type:"button",class:"cell "+r+(isSel?" sel":""),"aria-label":LIKE[l]+" and "+CONS[c]+": "+RATING_NAME[r],"aria-pressed":isSel?"true":"false"},inner);
+        (function(l,c){ cell.addEventListener("click",function(){ onPick(l,c); }); })(l,c); }
+      else cell=h("div",{class:"cell "+r},inner);
+      g.appendChild(cell);
+    }
+  }
+  return g;
+}
+
+/* ---------- Editing ---------- */
+document.addEventListener("input",function(e){
+  var t=e.target; if(!S.jsa||!$("#sheet").contains(t)) return;
+  var j=S.jsa;
+  if(t.dataset.k){ j[t.dataset.k]=t.value; touch(); if(t.dataset.k==="date") renderLive(); return; }
+  if(t.dataset.row&&t.dataset.f){ var r=j.hazards.find(function(x){return x.id===t.dataset.row;}); if(r){ r[t.dataset.f]=t.value; touch(); } return; }
+  if(t.dataset.crew!=null&&t.dataset.cf){ var c=j.crew[+t.dataset.crew]; if(c){ c[t.dataset.cf]=t.value; touch("crew"); } return; }
+  if(t.dataset.sign){ j[t.dataset.sign][t.dataset.sf]=t.value; touch("review"); var pd=$("#"+t.dataset.sign+"Pad"); if(pd) pd.classList.toggle("off",!t.value.trim()); return; }
+});
+document.addEventListener("change",function(e){
+  if(e.target.id==="approvalOk"||e.target.id==="reviewOk"){
+    var j=S.jsa, key=e.target.id==="approvalOk"?"approval":"review", x=j[key];
+    if(key==="review"&&!j.approval.ok){ e.target.checked=false; toast("The office needs to approve it first (step 1)."); return; }
+    x.ok=e.target.checked;
+    if(x.ok){ x.at=nowLocal(); delete x.date; delete x.prev; if(!x.by){ var p=S.profile||{}; x.by=key==="review"?(j.supervisor||""):(p.approver||""); } }
+    else x.at="";
+    if(key==="approval"&&!x.ok&&j.review.ok){ j.review.ok=false; j.review.at=""; }
+    $("#pdfWarn").hidden=true; touch("review"); syncReview(); renderLive(); }
+});
+
+function suggest(){
+  var j=S.jsa, found=matchGroups(j.task), add=found.filter(function(k){return j.groups.indexOf(k)<0;});
+  var msg=$("#matchMsg");
+  if(!String(j.task||"").trim()){ msg.textContent="Type the job first, e.g. \"cut and fix decking boards\"."; return; }
+  if(!found.length){ msg.textContent="No match yet. Pick work types below or add your own hazards."; return; }
+  if(!add.length){ msg.textContent="Those work types are already on this JSA."; return; }
+  var before=j.hazards.length;
+  j.groupTrade=j.groupTrade||{};
+  add.forEach(function(k){ j.groups.push(k); j.groupTrade[k]=homeTrade(k,openTrade()); }); applyGroups(j,add);
+  touch(); renderSheet();
+  $("#matchMsg").textContent="Added "+(j.hazards.length-before)+" hazards for "+add.map(function(k){return GROUP_BY_KEY[k].label.toLowerCase();}).join(", ")+".";
+  flashRows(j.hazards.slice(before).map(function(r){return r.id;}));
+}
+function toggleGroup(key){
+  var j=S.jsa, on=j.groups.indexOf(key)>-1;
+  if(on){
+    var removed=j.hazards.map(function(r,i){return {r:r,i:i};}).filter(function(x){return x.r.src===key;});
+    var snapshot={hazards:j.hazards.slice(),groups:j.groups.slice()};
+    j.groups=j.groups.filter(function(k){return k!==key;}); j.hazards=j.hazards.filter(function(r){return r.src!==key;}); if(j.groupTrade) delete j.groupTrade[key];
+    touch(); renderSheet();
+    toast(GROUP_BY_KEY[key].label+": "+removed.length+" hazards taken off","Undo",function(){ j.hazards=snapshot.hazards; j.groups=snapshot.groups; touch(); renderSheet(); });
+  } else {
+    var before=j.hazards.length; j.groups.push(key); j.groupTrade=j.groupTrade||{}; j.groupTrade[key]=openTrade(); applyGroups(j,[key]); touch(); renderSheet();
+    flashRows(j.hazards.slice(before).map(function(r){return r.id;}));
+    toast(GROUP_BY_KEY[key].label+": "+(j.hazards.length-before)+" hazards added");
+  }
+}
+function togglePpe(k,btn){ var j=S.jsa, i=j.ppe.indexOf(k); if(i>-1) j.ppe.splice(i,1); else j.ppe.push(k); btn.setAttribute("aria-pressed",i>-1?"false":"true"); touch(); }
+function flashRows(ids){ ids.forEach(function(id){ var el=document.querySelector('.hrow[data-id="'+id+'"]'); if(el) el.classList.add("flash"); }); }
+function addRow(){
+  var r={id:uid("h"),src:"own",step:"",hazard:"",b:{l:null,c:null},controls:"",a:{l:null,c:null},who:""};
+  S.jsa.hazards.push(r); touch(); renderSheet();
+  var el=document.querySelector('.hrow[data-id="'+r.id+'"] textarea'); if(el){ el.focus(); el.scrollIntoView({block:"center",behavior:"smooth"}); }
+}
+function removeRow(id){
+  var j=S.jsa, i=j.hazards.findIndex(function(x){return x.id===id;}); if(i<0) return;
+  var row=j.hazards.splice(i,1)[0]; touch(); renderSheet();
+  toast("Hazard "+(i+1)+" removed","Undo",function(){ j.hazards.splice(i,0,row); touch(); renderSheet(); });
+}
+function moveRow(id,d){
+  var j=S.jsa, i=j.hazards.findIndex(function(x){return x.id===id;}), k=i+d; if(i<0||k<0||k>=j.hazards.length) return;
+  var t=j.hazards[i]; j.hazards[i]=j.hazards[k]; j.hazards[k]=t; touch(); renderSheet();
+  var btn=document.querySelector('.hrow[data-id="'+id+'"] .ib:nth-child('+(d<0?1:2)+')'); if(btn&&!btn.disabled) btn.focus();
+}
+
+/* ---------- Risk pop-up (fades out over 2 s after a pick) ---------- */
+var popFade=null;
+function closeOverlays(){ $("#overlays").innerHTML=""; document.removeEventListener("keydown",escClose); clearTimeout(popFade); }
+function escClose(e){ if(e.key==="Escape") closeOverlays(); }
+function openRisk(rowId,which){
+  var j=S.jsa, idx=j.hazards.findIndex(function(x){return x.id===rowId;}), row=j.hazards[idx]; if(!row) return;
+  var ov=$("#overlays"); closeOverlays();
+  var scrim=h("div",{class:"scrim popscrim",onclick:closeOverlays});
+  var picked=h("div",{class:"picked",role:"status"});
+  var pop=h("div",{class:"pop",role:"dialog","aria-modal":"true","aria-label":"Rate risk"});
+  function draw(){
+    pop.innerHTML="";
+    var k=rate(row[which]);
+    pop.appendChild(h("div",{class:"row"},h("h4",{style:"flex:1",text:which==="b"?"Risk before controls":"Risk after controls"}),h("button",{type:"button",class:"ib","aria-label":"Close",onclick:closeOverlays},ic("x"))));
+    pop.appendChild(h("p",{class:"sub",text:"Hazard "+(idx+1)+": "+(row.hazard||"(no description yet)")+". Pick how likely, then how bad."}));
+    pop.appendChild(h("div",{class:"mxwrap"},matrixGrid(row[which],null,function(l,c){
+      row[which]={l:l,c:c}; touch(); draw(); refreshRow(row.id);
+      var r=MATRIX[l][c]; picked.textContent=RATING_NAME[r]+": "+ACTIONS[r];
+      pop.classList.remove("fading"); void pop.offsetWidth; pop.classList.add("fading");
+      clearTimeout(popFade); popFade=setTimeout(closeOverlays,2050);
+    })));
+    pop.appendChild(picked);
+  }
+  pop.addEventListener("pointerenter",function(){ if(pop.classList.contains("fading")){ pop.classList.remove("fading"); clearTimeout(popFade); } });
+  draw();
+  ov.appendChild(scrim); ov.appendChild(pop);
+  document.addEventListener("keydown",escClose);
+  var first=pop.querySelector(".cell.sel")||pop.querySelector(".cell"); if(first) first.focus();
+}
+function refreshRow(id){
+  var j=S.jsa, i=j.hazards.findIndex(function(x){return x.id===id;}); var old=document.querySelector('.hrow[data-id="'+id+'"]');
+  if(old&&i>-1) old.replaceWith(hazardRow(j.hazards[i],i,j.hazards.length));
+  renderLive();
+}
+
+/* ---------- JSA bank and archive ---------- */
+function openBank(){
+  closeOverlays(); var ov=$("#overlays");
+  var body=h("div",{class:"db"});
+  var tabs=h("div",{class:"tabs",role:"tablist"});
+  ["active","archive"].forEach(function(t){
+    tabs.appendChild(h("button",{type:"button",class:"tab",role:"tab","aria-selected":S.bankTab===t?"true":"false",text:t==="active"?"JSA bank":"Archive",onclick:function(){ S.bankTab=t; openBank(); }}));
+  });
+  var q=h("input",{class:"inp",type:"search",placeholder:"Search job, site or client",value:S.bankQuery,"aria-label":"Search JSAs"});
+  q.addEventListener("input",function(){ S.bankQuery=q.value; fill(); });
+  function fill(){
+    [].slice.call(body.querySelectorAll(".item,.empty")).forEach(function(n){n.remove();});
+    var arch=S.bankTab==="archive", term=S.bankQuery.toLowerCase();
+    var items=S.list.filter(function(x){ return !!x.archived===arch; }).filter(function(x){ return !term||[x.job,x.site,x.client,x.task,x.no].join(" ").toLowerCase().indexOf(term)>-1; })
+      .sort(function(a,b){return (b.updated||0)-(a.updated||0);});
+    if(!items.length) body.appendChild(h("div",{class:"empty",text:arch?"Nothing archived yet. When you make a new revision, the old one lands here.":(S.list.length?"No JSAs match that search.":"No saved JSAs yet. Change anything on the example, or start a new JSA, and it saves here.")}));
+    items.forEach(function(x){ body.appendChild(bankItem(x)); });
+  }
+  body.appendChild(q);
+  body.appendChild(h("p",{class:"note",text:S.mode==="account"?"Saved to your account, so they follow you to other devices.":"Saved on this device only."}));
+  var dr=h("aside",{class:"drawer",role:"dialog","aria-modal":"true","aria-label":"JSA bank"},
+    h("div",{class:"dh"},h("h3",{text:"Your JSAs"}),h("button",{type:"button",class:"ib","aria-label":"Close",onclick:closeOverlays},ic("x"))), tabs, body);
+  ov.appendChild(h("div",{class:"scrim",onclick:closeOverlays})); ov.appendChild(dr);
+  document.addEventListener("keydown",escClose);
+  fill(); q.focus();
+}
+function bankItem(x){
+  var cur=S.jsa&&S.jsa.id===x.id;
+  var acts=h("div",{class:"acts"});
+  var it=h("div",{class:"item"+(cur?" cur":"")},
+    h("div",{class:"t",text:(x.job||x.task||"Untitled JSA")}),
+    h("div",{class:"m",text:[x.no+" · Rev "+x.rev, x.site, x.client, "Updated "+new Date(x.updated||x.created).toLocaleDateString("en-AU")].filter(Boolean).join("  ·  ")}),
+    h("div",{class:"m",text:(x.hazards||[]).length+" hazards · "+({signed:"Signed off "+reviewedAt(x.review),onsite:"Approved, site signs on paper",approved:"Approved, awaiting site sign-off",again:"Changed, needs approval again",draft:"Draft"})[signState(x)]}),
+    acts);
+  if(!cur) acts.appendChild(h("button",{type:"button",class:"btn sm",text:"Open",onclick:function(){ openJsa(x.id); closeOverlays(); }}));
+  else acts.appendChild(h("span",{class:"pill ex",text:"Open now"}));
+  if(!x.archived){
+    acts.appendChild(h("button",{type:"button",class:"btn sm",text:"New revision",title:"Copy as the next revision. The old one moves to the archive.",onclick:function(){ newRevision(x); }}));
+    acts.appendChild(h("button",{type:"button",class:"btn sm",text:"Copy for a new job",onclick:function(){ copyForNewJob(x); }}));
+    acts.appendChild(h("button",{type:"button",class:"btn sm ghost",text:"Archive",onclick:async function(){ var y=JSON.parse(JSON.stringify(x)); y.archived=true; await safePut(y); if(cur){ S.jsa=y; renderBar(); } updBankCount(); openBank(); toast(x.no+" archived"); }}));
+  } else {
+    acts.appendChild(h("button",{type:"button",class:"btn sm",text:"Restore",onclick:async function(){ var y=JSON.parse(JSON.stringify(x)); y.archived=false; await safePut(y); if(cur){ S.jsa=y; renderBar(); } updBankCount(); openBank(); toast(x.no+" back in the bank"); }}));
+    acts.appendChild(h("button",{type:"button",class:"btn sm",text:"Copy for a new job",onclick:function(){ copyForNewJob(x); }}));
+    var delBtn=h("button",{type:"button",class:"btn sm ghost",text:"Delete"});
+    delBtn.addEventListener("click",function(){
+      delBtn.replaceWith(h("span",{class:"row small"},"Delete for good?",
+        h("button",{type:"button",class:"btn sm",style:"border-color:var(--r);color:var(--r)",text:"Delete",onclick:async function(){ try{ await Store.del(x.id); }catch(e){ toast("Couldn't delete just now."); return; } if(cur) startNew(true); updBankCount(); openBank(); toast("Deleted"); }}),
+        h("button",{type:"button",class:"btn sm ghost",text:"Keep",onclick:function(){ openBank(); }})));
+    });
+    acts.appendChild(delBtn);
+  }
+  return it;
+}
+async function safePut(x){ try{ await Store.put(x); return true; }catch(e){ toast("Couldn't save just now."); return false; } }
+function openJsa(id){ var x=S.list.find(function(y){return y.id===id;}); if(!x) return; S.jsa=JSON.parse(JSON.stringify(x)); lsSet(LS_LAST,id); renderSheet(); setSaved(S.mode==="account"?"Saved to your account":"Saved on this device"); window.scrollTo({top:0,behavior:"smooth"}); }
+async function newRevision(x){
+  if(S.jsa&&S.jsa.id===x.id) await saveNow();
+  var old=JSON.parse(JSON.stringify(x)); old.archived=true;
+  var n=JSON.parse(JSON.stringify(x)); n.id=uid("j"); n.rev=(x.rev||1)+1; n.archived=false; n.created=n.updated=Date.now(); n.review={ok:false,by:"",at:""}; n.approval={ok:false,by:"",at:""}; n.prevId=x.id; n.date=todayISO();
+  if(!(await safePut(old))||!(await safePut(n))) return;
+  S.jsa=n; lsSet(LS_LAST,n.id); closeOverlays(); renderSheet(); updBankCount();
+  toast(n.no+" Rev "+n.rev+" ready. Rev "+x.rev+" moved to the archive.");
+}
+async function copyForNewJob(x){
+  var n=JSON.parse(JSON.stringify(x)); n.id=uid("j"); n.no=nextNo(); n.rev=1; n.archived=false; n.example=false; n.created=n.updated=Date.now();
+  n.job=""; n.site=""; n.client=""; n.date=todayISO(); n.crew=[{name:"",company:""}]; n.review={ok:false,by:"",at:""}; n.approval={ok:false,by:"",at:""}; delete n.prevId; delete n.hrcwAck; delete n.hrcwDeclined;
+  applyProfileDefaults(n);
+  if(!(await safePut(n))) return;
+  S.jsa=n; lsSet(LS_LAST,n.id); closeOverlays(); renderSheet(); updBankCount();
+  toast("Copied as "+n.no+". Fill in the new site details."); var f=$("#f-job"); if(f) f.focus();
+}
+function applyProfileDefaults(j){ var p=S.profile||{}; if(!j.trade&&myTrades().length) j.trade=mainTrade(); ["prepared","supervisor","supPhone","firstAid"].forEach(function(k){ if(!j[k]&&p[k]) j[k]=p[k]; }); if(p.ppe&&p.ppe.length){ p.ppe.forEach(function(q){ if(j.ppe.indexOf(q)<0) j.ppe.push(q); }); } }
+async function startNew(silent){
+  if(S.jsa&&!S.jsa.example) await saveNow();
+  var j=blankJsa(nextNo()); applyProfileDefaults(j); S.jsa=j;
+  renderSheet(); setSaved("New JSA. Saves when you start typing");
+  if(!silent){ window.scrollTo({top:0,behavior:"smooth"}); var t=$("#f-task"); if(t) t.focus(); }
+}
+
+/* ---------- Business profile ---------- */
+function openProfile(){
+  closeOverlays(); var ov=$("#overlays"); var p=JSON.parse(JSON.stringify(S.profile||{}));
+  function f(key,label,type){ return h("label",{class:"f"},h("span",{text:label}),h("input",{class:"inp",type:type||"text",value:p[key]||"",oninput:function(e){ p[key]=e.target.value; }})); }
+  var prev=h("div",{class:"logoprev"});
+  function drawLogo(){ prev.innerHTML=""; if(p.logo){ prev.appendChild(h("img",{src:p.logo,alt:"Logo preview"})); prev.appendChild(h("button",{type:"button",class:"btn sm ghost",text:"Remove",onclick:function(){ delete p.logo; drawLogo(); }})); } else prev.appendChild(h("span",{class:"small mute",text:"No logo yet. PNG or JPG works best."})); }
+  drawLogo();
+  var file=h("input",{type:"file",accept:"image/png,image/jpeg,image/webp",id:"logoFile",class:"inp"});
+  var sprev=h("div",{class:"logoprev"});
+  function drawSig(){ sprev.innerHTML=""; if(p.approverSig){ sprev.appendChild(h("img",{class:"sigimg",src:p.approverSig,alt:"Saved signature"})); sprev.appendChild(h("button",{type:"button",class:"btn sm ghost",text:"Remove",onclick:function(){ delete p.approverSig; drawSig(); }})); } else sprev.appendChild(h("span",{class:"small mute",text:"Optional. A photo or scan of the manager's signature on white paper."})); }
+  drawSig();
+  var sfile=h("input",{type:"file",accept:"image/png,image/jpeg,image/webp",id:"sigFile",class:"inp"});
+  sfile.addEventListener("change",function(){ var fl=sfile.files&&sfile.files[0]; if(!fl) return; shrinkImage(fl,function(url){ if(url){ p.approverSig=url; drawSig(); } else toast("Couldn't read that image. Try a PNG or JPG."); }); });
+  file.addEventListener("change",function(){ var fl=file.files&&file.files[0]; if(!fl) return; shrinkImage(fl,function(url){ if(url){ p.logo=url; drawLogo(); } else toast("Couldn't read that image. Try a PNG or JPG."); }); });
+  var ppe=h("div",{class:"chips"}); p.ppe=p.ppe||[];
+  PPE.forEach(function(q){ var b=h("button",{type:"button",class:"chip","aria-pressed":p.ppe.indexOf(q[0])>-1?"true":"false"},ic("check"),q[1]); b.addEventListener("click",function(){ var i=p.ppe.indexOf(q[0]); if(i>-1) p.ppe.splice(i,1); else p.ppe.push(q[0]); b.setAttribute("aria-pressed",i>-1?"false":"true"); }); ppe.appendChild(b); });
+  var body=h("div",{class:"db"},
+    h("p",{class:"note",text:"Set it once. Every new JSA picks this up, and your name, ABN and logo go on every PDF."}),
+    f("name","Business name"), f("abn","ABN"), f("phone","Phone","tel"), f("email","Email","email"), f("address","Business address"),
+    h("label",{class:"f"},h("span",{text:"Logo"}),prev,file),
+    h("div",{class:"chiplab",text:"Defaults for new JSAs"}),
+    tradePicker(p),
+    f("approver","Approving manager"), h("label",{class:"f"},h("span",{text:"Manager's saved signature"}),sprev,sfile), f("prepared","Prepared by"), f("supervisor","Site supervisor"), f("supPhone","Supervisor phone","tel"), f("firstAid","First aider"),
+    h("div",{class:"chiplab",text:"PPE you always wear"}), ppe,
+    h("div",{class:"row",style:"margin-top:8px"},h("button",{type:"button",class:"btn primary",text:"Save profile",onclick:async function(){
+      try{ await Store.putProfile(p); S.profile=p; if(S.jsa&&!S.jsa.example) applyProfileDefaults(S.jsa); closeOverlays(); renderSheet(); toast("Profile saved"); }
+      catch(e){ toast("Couldn't save the profile just now."); }
+    }}),h("button",{type:"button",class:"btn ghost",text:"Cancel",onclick:closeOverlays})));
+  var dr=h("aside",{class:"drawer",role:"dialog","aria-modal":"true","aria-label":"Business profile"},
+    h("div",{class:"dh"},h("h3",{text:"Business profile"}),h("button",{type:"button",class:"ib","aria-label":"Close",onclick:closeOverlays},ic("x"))), body);
+  ov.appendChild(h("div",{class:"scrim",onclick:closeOverlays})); ov.appendChild(dr);
+  document.addEventListener("keydown",escClose);
+}
+function shrinkImage(fl,cb){
+  var rd=new FileReader();
+  rd.onload=function(){ var im=new Image(); im.onload=function(){
+      var max=320, s=Math.min(1,max/Math.max(im.width,im.height)); var c=document.createElement("canvas");
+      c.width=Math.max(1,Math.round(im.width*s)); c.height=Math.max(1,Math.round(im.height*s));
+      c.getContext("2d").drawImage(im,0,0,c.width,c.height); try{ cb(c.toDataURL("image/png")); }catch(e){ cb(null); } };
+    im.onerror=function(){ cb(null); }; im.src=rd.result; };
+  rd.onerror=function(){ cb(null); }; rd.readAsDataURL(fl);
+}
+
+/* ---------- PDF ---------- */
+$("#pdfBtn").addEventListener("click",function(){
+  var j=S.jsa, w=$("#pdfWarn");
+  if(signState(j)!=="signed"&&signState(j)!=="onsite"){
+    w.hidden=false; w.innerHTML="";
+    w.appendChild(h("div",{class:"warnbox",style:"margin-bottom:14px"},
+      h("b",{text:signState(j)==="approved"?"Approved, but not signed off on site yet. ":"This JSA isn't approved and signed off. "}),(signState(j)==="again"?"It has changed since it was last approved. ":"")+"Section 5 needs the manager's signature, then the site supervisor's. You can still download it now. The PDF will show its current status.",
+      h("div",{class:"row"},
+        h("button",{type:"button",class:"btn sm primary",text:"Go to sign-off",onclick:function(){ w.hidden=true; var key=j.approval&&j.approval.ok?"review":"approval"; var r=$("#"+key+"Box"); r.scrollIntoView({behavior:"smooth",block:"center"}); setTimeout(function(){ var f=$("#"+key+"By"); if(f) f.focus(); },400); }}),
+        h("button",{type:"button",class:"btn sm",text:"Download draft anyway",onclick:function(){ w.hidden=true; makePdf(); }}))));
+    w.scrollIntoView({behavior:"smooth",block:"center"});
+    return;
+  }
+  makePdf();
+});
+async function makePdf(){
+  if(!window.jspdf||!window.jspdf.jsPDF){ toast("The PDF maker didn't load. Check your connection and refresh."); return; }
+  var dl=S.downloads;
+  if(!dl&&window.claude&&window.claude.use){ try{ dl=await window.claude.use("downloads"); S.downloads=dl; }catch(e){} }
+  if(!dl){
+    // On the crnrstone-co.com site there is no Claude save dialog, so the browser downloads the PDF directly
+    try{ var d2=buildPdf(window.jspdf.jsPDF,S.jsa,S.profile); var n2=(S.jsa.no+" Rev "+S.jsa.rev+" "+(S.jsa.job||S.jsa.task||"JSA")).replace(/[\\\/:*?"<>|]+/g," ").replace(/\s+/g," ").trim().slice(0,90)+".pdf"; d2.save(n2); toast("PDF saved"); }
+    catch(e){ toast("Couldn't make the PDF just now."); }
+    return;
+  }
+  var btn=$("#pdfBtn"); btn.disabled=true;
+  try{
+    var doc=buildPdf(window.jspdf.jsPDF,S.jsa,S.profile);
+    var name=(S.jsa.no+" Rev "+S.jsa.rev+" "+(S.jsa.job||S.jsa.task||"JSA")).replace(/[\\\/:*?"<>|]+/g," ").replace(/\s+/g," ").trim().slice(0,90)+".pdf";
+    await dl.save({filename:name,data:doc.output("blob")});
+    toast("PDF saved");
+  }catch(e){
+    var c=e&&e.code;
+    if(c==="declined"){} else if(c==="rate_limited") toast("A save is already waiting. Finish that one first.");
+    else toast("Couldn't make the PDF just now.");
+  }
+  btn.disabled=false;
+}
+
+/* ---------- Wire up ---------- */
+$("#openBank").addEventListener("click",openBank);
+$("#openProfile").addEventListener("click",openProfile);
+$("#newJsa").addEventListener("click",function(){ startNew(false); });
+
+async function boot(){
+  S.list=lsGet(LS_LIST,[]); S.profile=lsGet(LS_PROF,{});
+  var last=lsGet(LS_LAST,null), found=S.list.find(function(x){return x.id===last;});
+  S.jsa=found?JSON.parse(JSON.stringify(found)):exampleJsa();
+  renderSheet(); updBankCount();
+  if(found) setSaved("Saved on this device");
+  // Switch to account storage when signed in
+  if(!(window.claude&&window.claude.use)) return;
+  try{
+    var res=await Promise.all([window.claude.use("db"),window.claude.use("user"),window.claude.use("downloads")]);
+    var db=res[0], user=res[1]; S.downloads=res[2];
+    var id=user?await user.id():null;
+    if(!db||!id) return;
+    S.dbRef=db.doc("data/users/"+id+"/profile"); S.mode="account";
+    S.list=await Store.list(); S.profile=await Store.getProfile();
+    var cur=S.jsa;
+    if(cur&&!cur.example){
+      // Bring the JSA on screen across to the account so nothing is lost
+      if(!S.list.some(function(x){return x.id===cur.id;})) await Store.put(cur);
+    } else {
+      var acc=S.list.find(function(x){return x.id===last;});
+      if(acc) S.jsa=JSON.parse(JSON.stringify(acc));
+    }
+    renderSheet(); updBankCount();
+    setSaved(S.jsa.example?"Change anything to make it yours":"Saved to your account");
+  }catch(e){ S.mode="device"; S.dbRef=null; }
+}
+boot();
+})();
+</script>
+
+</body></html>

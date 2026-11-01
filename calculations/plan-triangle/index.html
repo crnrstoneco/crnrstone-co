@@ -1,0 +1,562 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Plan Triangle</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap">
+<style>
+/* Layout: one narrow column. Inputs, then the diagram with switches, then results tables, then formulas. */
+:root {
+  --bg: #EDF0F5; --surface: #ffffff; --ink: #0E1A2E; --mute: #56657A; --line: #D0D7E1;
+  --accent: #E3A857; --accent-ink: #0E1A2E; --logo-accent: #E3A857;
+   --plan: #C4821F; --g: #1E9E5A; --b: #0F7FBF; --r: #D93636;
+  --gridline: rgba(14,26,46,.055); --gridmajor: rgba(14,26,46,.09);
+  --font-display: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+  --font-body: 'Barlow', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0A1220; --surface: #111C30; --ink: #E6ECF5; --mute: #8FA0B8; --line: #22324A;
+    --accent: #E3A857; --accent-ink: #0E1A2E; --logo-accent: #E3A857;
+       --plan: #E3A857; --g: #3FCF85; --b: #4CC3F5; --r: #FF7070;
+    --gridline: rgba(230,236,245,.035); --gridmajor: rgba(230,236,245,.07);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0A1220; --surface: #111C30; --ink: #E6ECF5; --mute: #8FA0B8; --line: #22324A;
+  --accent: #E3A857; --accent-ink: #0E1A2E; --logo-accent: #E3A857;
+   --plan: #E3A857; --g: #3FCF85; --b: #4CC3F5; --r: #FF7070;
+  --gridline: rgba(230,236,245,.035); --gridmajor: rgba(230,236,245,.07);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+/* Page grid (Design Brief): one continuous drafting sheet, minor 24px / major 120px, shown in soft scattered patches plus one diagonal streak. Cards sit above it. */
+body { position: relative; }
+body::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image: linear-gradient(var(--gridmajor) 1px, transparent 1px), linear-gradient(90deg, var(--gridmajor) 1px, transparent 1px), linear-gradient(var(--gridline) 1px, transparent 1px), linear-gradient(90deg, var(--gridline) 1px, transparent 1px);
+  background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px; background-position: center top;
+  --patches: radial-gradient(ellipse 52% 11% at 86% 5%, #000, transparent 70%), radial-gradient(ellipse 40% 9% at 12% 22%, #000, transparent 70%), radial-gradient(ellipse 58% 12% at 78% 42%, rgba(0,0,0,.85), transparent 70%), linear-gradient(28deg, transparent 44%, rgba(0,0,0,.55) 50%, transparent 56%), radial-gradient(ellipse 36% 9% at 20% 64%, #000, transparent 70%), radial-gradient(ellipse 50% 10% at 84% 82%, rgba(0,0,0,.85), transparent 70%), radial-gradient(ellipse 36% 8% at 26% 97%, rgba(0,0,0,.8), transparent 70%);
+  -webkit-mask-image: var(--patches); mask-image: var(--patches); }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.45;
+  padding-block: 20px 32px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { position: relative; z-index: 1; max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+.tape { height: 14px; border-radius: 2px; margin-bottom: 14px; background: var(--accent);
+  background-image: repeating-linear-gradient(90deg, var(--accent-ink) 0 1.5px, transparent 1.5px 10px), repeating-linear-gradient(90deg, var(--accent-ink) 0 1.5px, transparent 1.5px 50px);
+  background-size: 100% 6px, 100% 11px; background-repeat: no-repeat; }
+.toprow { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.tgl { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px; border-radius: 999px; background: transparent; color: var(--ink); border: 1.5px solid var(--line); font: 600 14px var(--font-body); cursor: pointer; }
+.tgl:hover { border-color: var(--mute); }
+.tgl:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.tgl svg { width: 16px; height: 16px; flex: none; }
+@media (max-width: 720px) { .tgl { width: 36px; padding: 0; justify-content: center; } .tgl .t { display: none; } }
+.brand { font: 700 24px var(--font-display); letter-spacing: .02em; color: var(--ink); }
+.brand span { color: var(--logo-accent); }
+.brand .dash { margin: 0 .15em; }
+.centre { display: flex; justify-content: center; }
+h1 { font: 700 40px/1 var(--font-display); letter-spacing: .01em; margin: 6px 0 8px; text-wrap: balance; }
+.lead { color: var(--mute); margin: 0; max-width: 48ch; }
+h2 { font: 700 13px var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--mute); margin: 8px 0 0; }
+.status { min-height: 1.5em; font-weight: 500; margin: 0; }
+.status.err { color: var(--r); }
+.status.ok { color: var(--ink); }
+
+.inputs { display: flex; flex-direction: column; gap: 8px; }
+.row {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 150px); gap: 4px 12px; align-items: center;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px;
+}
+.row label { display: flex; flex-direction: column; min-width: 0; }
+.nm { font-weight: 600; }
+.sub { font-size: 13px; color: var(--mute); }
+.ctl { display: flex; align-items: center; gap: 6px; }
+.ctl input {
+  width: 100%; min-width: 0; font: 500 17px var(--font-body); font-variant-numeric: tabular-nums;
+  color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 9px 10px;
+}
+.u { color: var(--mute); font-size: 14px; min-width: 2ch; }
+.row.entered .ctl input { border-color: var(--accent); }
+input:focus-visible, button:focus-visible, select:focus-visible, .chip:focus-within, .seg label:focus-within { outline: 3px solid var(--accent); outline-offset: 2px; }
+.bar { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; justify-content: flex-end; flex-wrap: nowrap; }
+.bar .status { flex: 1; min-width: 0; font-size: 14px; line-height: 1.3; }
+.bar .unitlbl { flex: none; }
+select { font: 500 15px var(--font-body); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 7px 8px; }
+.unitlbl { display: flex; align-items: center; gap: 8px; font-weight: 500; }
+button.reset { font: 600 16px var(--font-body); color: var(--accent-ink); background: var(--accent); border: 0; border-radius: 6px; padding: 11px 32px; cursor: pointer; }
+button.reset:hover { filter: brightness(1.08); }
+
+.diagram { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 8px; border: 1.5px solid var(--line); border-radius: 999px; padding: 6px 12px; font-weight: 600; font-size: 14px; cursor: pointer; user-select: none; }
+.chip input { position: absolute; opacity: 0; pointer-events: none; }
+.chip .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--c); border: 2px solid var(--c); }
+.chip:has(input:not(:checked)) { color: var(--mute); }
+.chip:has(input:not(:checked)) .dot { background: transparent; }
+.chip:has(input:checked) { border-color: var(--c); }
+.chip.off { opacity: .55; cursor: default; border-style: dashed; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; align-self: flex-start; }
+.seg label { padding: 6px 14px; font-weight: 600; font-size: 14px; cursor: pointer; color: var(--mute); }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg label:has(input:checked) { background: var(--accent); color: var(--accent-ink); }
+.seg label:has(input:disabled) { opacity: .4; cursor: default; }
+.seg label + label { border-left: 1px solid var(--line); }
+svg { display: block; width: 100%; height: auto; max-width: 100%; }
+.lbl { font: 600 12px var(--font-body); fill: var(--ink); }
+.ang { font: 700 12px var(--font-body); }
+.val { font-weight: 700; }
+
+.canvas { position: relative; width: 100%; aspect-ratio: 400 / 480; }
+.canvas svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.boxrow { position: absolute; left: 0; right: 0; bottom: 0; display: flex; gap: 8px; }
+.bx { flex: 1; min-width: 0; background: var(--surface); border: 1.5px solid var(--line); border-radius: 8px; padding: 3px 8px 4px; display: flex; flex-direction: column; }
+.bx .nm { font: 600 10.5px var(--font-body); letter-spacing: .06em; text-transform: uppercase; color: var(--mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bx .in { display: flex; align-items: baseline; gap: 3px; }
+.bx input { width: 100%; min-width: 0; border: 0; background: transparent; padding: 0; font: 600 16px var(--font-body); font-variant-numeric: tabular-nums; color: var(--ink); }
+.bx input:focus { outline: none; }
+.bx input::placeholder { font-weight: 400; color: var(--mute); }
+.bx:focus-within { outline: 3px solid var(--accent); outline-offset: 1px; }
+.bx .u { font-size: 12px; color: var(--mute); flex: none; }
+.bx.entered { border-color: var(--accent); }
+.bx.entered .nm { color: var(--ink); }
+.warn { background: var(--surface); border: 1px solid var(--line); border-left: 6px solid var(--accent); border-radius: 8px; padding: 12px 14px; }
+.warn p { margin: 0 0 10px; font-weight: 500; }
+.warn-btns { display: flex; flex-wrap: wrap; gap: 10px; }
+.warn button.ghost { font: 600 16px var(--font-body); color: var(--ink); background: transparent; border: 1.5px solid var(--line); border-radius: 6px; padding: 11px 24px; cursor: pointer; }
+.warn button.ghost:hover { border-color: var(--mute); }
+.warn button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.scroll { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { padding: 9px 12px; text-align: right; white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; white-space: normal; }
+thead th { font: 700 12px var(--font-body); letter-spacing: .08em; text-transform: uppercase; color: var(--mute); border-bottom: 1px solid var(--line); }
+tbody tr + tr td { border-top: 1px solid var(--line); }
+.dots { display: inline-flex; gap: 3px; margin-right: 8px; vertical-align: middle; }
+.dots i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+td.total { font-weight: 700; }
+
+details { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+summary { font-weight: 600; cursor: pointer; }
+details ul { margin: 10px 0 0; padding-left: 18px; color: var(--mute); }
+details li { margin: 2px 0; }
+details p { margin: 10px 0 0; font-size: 14px; color: var(--mute); }
+.tip { border-top: 1px solid var(--line); padding-top: 14px; font-size: 15px; }
+.tip strong { font: 700 13px var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--ink); display: block; margin-bottom: 2px; }
+.foot { font-size: 12px; color: var(--mute); margin: 0; }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="tape" aria-hidden="true"></div>
+    <div class="toprow">
+      <div class="brand">crnrstone<span class="dash">-</span>co</div>
+      <button class="tgl" id="theme" type="button" aria-label="Switch to night mode"><svg id="theme-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg><span class="t" id="theme-t">Night</span></button>
+    </div>
+    <h1>Plan Triangle</h1>
+    <p class="lead" id="lead">An example is loaded. Change any number to try your own.</p>
+  </header>
+
+  <div class="warn" id="warn" role="alert" hidden>
+    <p id="warn-text"></p>
+    <div class="warn-btns"><button type="button" id="warn-go" class="reset">Continue</button><button type="button" id="warn-no" class="ghost">Cancel</button></div>
+  </div>
+
+  <div class="inputs">
+    <div class="bar">
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+      <label class="unitlbl">Units
+        <select id="units"><option value="mm" selected>mm</option><option value="cm">cm</option><option value="m">m</option></select>
+      </label>
+    </div>
+    <div class="row">
+      <label for="a-span"><span class="nm">Half span</span><span class="sub">wall to ridge, in plan</span></label>
+      <div class="ctl"><input id="a-span" type="text" inputmode="decimal" autocomplete="off" placeholder="—"><span class="u" data-unit>mm</span></div>
+    </div>
+    <div class="row">
+      <label for="a-pitch"><span class="nm">Pitch</span><span class="sub">roof angle, standard range 10° to 45°</span></label>
+      <div class="ctl"><input id="a-pitch" type="text" inputmode="decimal" autocomplete="off" placeholder="—"><span class="u">°</span></div>
+    </div>
+    <div class="row">
+      <label for="a-eave"><span class="nm">Eave width</span><span class="sub">overhang, added to the half span</span></label>
+      <div class="ctl"><input id="a-eave" type="text" inputmode="decimal" autocomplete="off" placeholder="optional"><span class="u" data-unit>mm</span></div>
+    </div>
+  </div>
+
+  <div class="diagram">
+    <div class="chips" id="chips">
+      <label class="chip" style="--c: var(--plan)"><input type="checkbox" id="t-plan" checked><span class="dot"></span>Plan</label>
+      <label class="chip" style="--c: var(--g)"><input type="checkbox" id="t-rafter" checked><span class="dot"></span>Rafter</label>
+      <label class="chip" style="--c: var(--b)"><input type="checkbox" id="t-hip" checked><span class="dot"></span>Hip / Valley</label>
+      <span class="chip off" style="--c: var(--r)" title="Coming next"><span class="dot"></span>Creeper (coming next)</span>
+    </div>
+    <div class="seg" id="seg" role="radiogroup" aria-label="Part of the roof to draw">
+      <label><input type="radio" name="part" value="main" id="p-main" checked>Main</label>
+      <label><input type="radio" name="part" value="eave" id="p-eave">Eave</label>
+      <label><input type="radio" name="part" value="total" id="p-total">Total</label>
+    </div>
+    <div class="seg" id="seg2" role="radiogroup" aria-label="What the drawing labels show">
+      <label><input type="radio" name="lab" value="nums" id="l-nums" checked>Numbers</label>
+      <label><input type="radio" name="lab" value="names" id="l-names">Names</label>
+    </div>
+    <div class="canvas" id="canvas">
+      <svg id="svg" viewBox="0 0 400 420" role="img" aria-label="Plan, rafter and hip triangles"></svg>
+      <div class="boxrow">
+        <label class="bx" id="bx-span"><span class="nm">Half span</span><span class="in"><input id="i-span" type="text" inputmode="decimal" autocomplete="off" placeholder="—" aria-label="Half span"><span class="u" data-unit>mm</span></span></label>
+        <label class="bx" id="bx-pitch"><span class="nm">Pitch</span><span class="in"><input id="i-pitch" type="text" inputmode="decimal" autocomplete="off" placeholder="10–45" aria-label="Pitch in degrees, standard range 10 to 45"><span class="u">°</span></span></label>
+        <label class="bx" id="bx-eave"><span class="nm">Eave width</span><span class="in"><input id="i-eave" type="text" inputmode="decimal" autocomplete="off" placeholder="optional" aria-label="Eave width, optional"><span class="u" data-unit>mm</span></span></label>
+      </div>
+    </div>
+  </div>
+  <div class="centre"><button class="reset" id="reset" type="button">Start again</button></div>
+
+  <h2>Lengths</h2>
+  <div class="scroll"><table id="lengths"></table></div>
+
+  <h2>Angles</h2>
+  <div class="scroll"><table id="angles"></table></div>
+
+  <details>
+    <summary>Show the formulas</summary>
+    <ul>
+      <li>Height = Run × tan (Seat)</li>
+      <li>Rafter length = Run ÷ cos (Seat)</li>
+      <li>Hip / Valley run = Run × 1.414</li>
+      <li>Hip / Valley length = √ (Hip run² + Height²)</li>
+      <li>Hip / Valley seat angle = tan⁻¹ (Height ÷ Hip run)</li>
+      <li>Plumb angle = 90° − Seat</li>
+    </ul>
+    <p>These assume a square-cornered roof with the same pitch on both sides, so the hip sits at 45° in plan. Rafter run is the half span for the main roof and the eave width for the eave.</p>
+  </details>
+
+  <div class="tip" id="tip"></div>
+  <p class="foot">Prototype. Check answers against your own working.</p>
+</div>
+
+<script>
+const DEG = Math.PI / 180;
+const K = Math.SQRT1_2;
+
+// Everything comes from one run and the pitch.
+function geom(run, pitch) {
+  const p = pitch * DEG;
+  const H = run * Math.tan(p);
+  const hipRun = run * Math.SQRT2;
+  const hipSeat = Math.atan(H / hipRun) / DEG;
+  return {
+    run, height: H, rafter: run / Math.cos(p), hipRun, hipLen: Math.hypot(hipRun, H),
+    pitch, plumb: 90 - pitch, hipSeat, hipPlumb: 90 - hipSeat
+  };
+}
+
+const TIPS = [
+  'The hip runs at 45° to the common rafters in plan, which is why the hip run is the rafter run × 1.414.',
+  'The rafter triangle and the hip triangle share the same height. Change the pitch and watch both move together.',
+  'The hip seat angle is always flatter than the pitch. The hip has further to travel for the same rise.',
+  'Add the eave to the half span and you get the total rafter length, because every length scales with the run.'
+];
+
+const el = id => document.getElementById(id);
+let tipIdx = 0, showExample = true;
+const PITCH_MIN = 10, PITCH_MAX = 45;
+let ackPitch = null;
+const DEC = { mm: 1, cm: 2, m: 3 };
+
+function num(id) {
+  const raw = el(id).value.replace(',', '.').trim();
+  if (raw === '') return { empty: true };
+  const n = Number(raw);
+  return isNaN(n) ? { bad: true } : { v: n };
+}
+
+function render() {
+  const unit = el('units').value, dec = DEC[unit];
+  document.querySelectorAll('[data-unit]').forEach(n => n.textContent = unit);
+  const s = num('i-span'), p = num('i-pitch'), e = num('i-eave');
+  let msg = '', cls = 'status', res = null, warnPitch = null;
+  if (s.bad || p.bad || e.bad) { msg = 'Enter numbers only, for example 3600 or 22.5.'; cls += ' err'; }
+  else if (p.empty) { msg = 'Enter the pitch, plus a half span, an eave width, or both.'; }
+  else if (!(p.v > 0 && p.v < 90)) { msg = 'Pitch must be between 0° and 90°.'; cls += ' err'; }
+  else if ((p.v < PITCH_MIN || p.v > PITCH_MAX) && ackPitch !== p.v) {
+    msg = 'Waiting for your answer about the pitch.'; warnPitch = p.v;
+  }
+  else if ((!s.empty && !(s.v > 0)) || (!e.empty && !(e.v > 0))) { msg = 'Lengths must be greater than 0.'; cls += ' err'; }
+  else if (s.empty && e.empty) { msg = 'Enter a half span, an eave width, or both.'; }
+  else {
+    res = {};
+    if (!s.empty) res.main = geom(s.v, p.v);
+    if (!e.empty) res.eave = geom(e.v, p.v);
+    if (!s.empty && !e.empty) res.total = geom(s.v + e.v, p.v);
+    msg = DONE_MSGS[doneIdx % DONE_MSGS.length];
+    cls += ' ok';
+  }
+  el('status').textContent = msg; el('status').className = cls;
+  el('warn').hidden = warnPitch == null;
+  if (warnPitch != null) el('warn-text').textContent = 'A pitch of ' + warnPitch + '° is outside the standard range for hip or gable roofs (' + PITCH_MIN + '° to ' + PITCH_MAX + '°). The figures entered are outside standard roof parameters. Do you wish to continue?';
+  [['span', s], ['pitch', p], ['eave', e]].forEach(([k, v]) => { const on = !!(v && v.v != null); el('bx-' + k).classList.toggle('entered', on); el('a-' + k).closest('.row').classList.toggle('entered', on); });
+
+  const avail = res ? ['main', 'eave', 'total'].filter(k => res[k]) : [];
+  for (const k of ['main', 'eave', 'total']) el('p-' + k).disabled = !avail.includes(k);
+  let part = document.querySelector('input[name=part]:checked').value;
+  if (avail.length && !avail.includes(part)) { part = avail[0]; el('p-' + part).checked = true; }
+
+  renderTables(res, avail, dec);
+  renderSvg(res && res[part] ? res[part] : null, part, p.v, dec);
+}
+
+function dots(cols) { return '<span class="dots">' + cols.map(c => '<i style="background:' + c + '"></i>').join('') + '</span>'; }
+
+function renderTables(res, avail, dec) {
+  const names = { main: 'Main', eave: 'Eave', total: 'Total' };
+  const G = 'var(--g)', B = 'var(--b)', P = 'var(--plan)';
+  const rows = [
+    ['Rafter run', 'run', [P, G]],
+    ['Height', 'height', [G, B]],
+    ['Rafter length', 'rafter', [G]],
+    ['Hip / Valley run', 'hipRun', [P, B]],
+    ['Hip / Valley length', 'hipLen', [B]]
+  ];
+  if (!res) {
+    el('lengths').innerHTML = '<tbody><tr><td>Results appear here once you enter a pitch and a length.</td></tr></tbody>';
+    el('angles').innerHTML = '<tbody><tr><td>Angles appear here.</td></tr></tbody>';
+    return;
+  }
+  let h = '<thead><tr><th></th>' + avail.map(k => '<th>' + names[k] + '</th>').join('') + '</tr></thead><tbody>';
+  for (const [label, key, cols] of rows) {
+    h += '<tr><td>' + dots(cols) + label + '</td>' + avail.map(k => '<td' + (k === 'total' ? ' class="total"' : '') + '>' + res[k][key].toFixed(dec) + '</td>').join('') + '</tr>';
+  }
+  el('lengths').innerHTML = h + '</tbody>';
+  const g = res[avail[0]];
+  const arows = [
+    ['Rafter seat angle (pitch)', g.pitch, [G]],
+    ['Rafter plumb angle', g.plumb, [G]],
+    ['Hip / Valley seat angle', g.hipSeat, [B]],
+    ['Hip / Valley plumb angle', g.hipPlumb, [B]]
+  ];
+  el('angles').innerHTML = '<tbody>' + arows.map(r => '<tr><td>' + dots(r[2]) + r[0] + '</td><td>' + r[1].toFixed(1) + '°</td></tr>').join('') + '</tbody>';
+}
+
+// Diagram. Model coordinates: y points down. O is the plan corner, T the top of the rafter run.
+function modelPts(R, H) {
+  const T = { x: 0, y: -R };
+  return { O: { x: 0, y: 0 }, T, Hs: { x: R, y: 0 }, Pt: { x: -H, y: -R }, Q: { x: T.x + H * K, y: T.y - H * K } };
+}
+const TRIS = {
+  plan: { pts: ['T', 'O', 'Hs'], right: 'O', color: 'var(--plan)', id: 't-plan' },
+  rafter: { pts: ['Pt', 'T', 'O'], right: 'T', color: 'var(--g)', id: 't-rafter' },
+  hip: { pts: ['T', 'Q', 'Hs'], right: 'T', color: 'var(--b)', id: 't-hip' }
+};
+
+function renderSvg(g, part, pitch, dec) {
+  const svg = el('svg');
+  const vw = 400, padX = 84, padY = 46;
+  const mode = g ? document.querySelector('input[name=lab]:checked').value : 'names';
+  const R = g ? g.run : 1, H = g ? g.height : Math.tan(22.5 * DEG);
+  const m = modelPts(R, H);
+  const all = Object.values(m);
+  const minX = Math.min(...all.map(p => p.x)), maxX = Math.max(...all.map(p => p.x));
+  const minY = Math.min(...all.map(p => p.y)), maxY = Math.max(...all.map(p => p.y));
+  const sc = Math.min((vw - 2 * padX) / (maxX - minX), 340 / (maxY - minY));
+  const vh = (maxY - minY) * sc + 2 * padY + 64;
+  svg.setAttribute('viewBox', '0 0 ' + vw + ' ' + Math.round(vh));
+  el('canvas').style.aspectRatio = vw + ' / ' + Math.round(vh);
+  const ox = (vw - (maxX - minX) * sc) / 2 - minX * sc;
+  const oy = padY - minY * sc;
+  const P = {};
+  for (const [k, p] of Object.entries(m)) P[k] = { x: ox + p.x * sc, y: oy + p.y * sc };
+  const on = {};
+  for (const [k, t] of Object.entries(TRIS)) on[k] = el(t.id).checked;
+  const cen = k => { const a = TRIS[k].pts.map(n => P[n]); return { x: (a[0].x + a[1].x + a[2].x) / 3, y: (a[0].y + a[1].y + a[2].y) / 3 }; };
+
+  let out = '<g' + (g ? '' : ' opacity="0.45"') + '>';
+  for (const k of ['plan', 'rafter', 'hip']) {
+    if (!on[k]) continue;
+    const t = TRIS[k], a = t.pts.map(n => P[n]);
+    out += '<polygon points="' + a.map(p => p.x.toFixed(1) + ',' + p.y.toFixed(1)).join(' ') + '" fill="' + t.color + '" fill-opacity="0.10" stroke="' + t.color + '" stroke-width="2.5" stroke-linejoin="round"/>';
+    // right-angle square
+    const c = P[t.right], others = t.pts.filter(n => n !== t.right).map(n => P[n]);
+    const u = unit(c, others[0]), v = unit(c, others[1]), z = 11;
+    out += '<path d="M' + (c.x + u.x * z) + ',' + (c.y + u.y * z) + ' L' + (c.x + (u.x + v.x) * z) + ',' + (c.y + (u.y + v.y) * z) + ' L' + (c.x + v.x * z) + ',' + (c.y + v.y * z) + '" fill="none" stroke="' + t.color + '" stroke-width="1.5"/>';
+  }
+  const spanName = part === 'eave' ? 'Eave width' : part === 'total' ? 'Half span + eave' : 'Half span';
+  // inward = label sits inside its triangle.
+  const edges = [
+    ['T', 'O', 'Rafter run', ['plan', 'rafter'], 'run', true],
+    ['O', 'Hs', spanName, ['plan'], 'run', false],
+    ['T', 'Hs', 'Hip / Valley run', ['plan', 'hip'], 'hipRun', true],
+    ['Pt', 'T', 'Height', ['rafter'], 'height', false],
+    ['Pt', 'O', 'Rafter length', ['rafter'], 'rafter', false],
+    ['T', 'Q', 'Height', ['hip'], 'height', false],
+    ['Q', 'Hs', 'Hip / Valley length', ['hip'], 'hipLen', false]
+  ];
+  for (const [a, b, text, owners, key, inward] of edges) {
+    const own = owners.find(o => on[o]);
+    if (!own) continue;
+    const label = mode === 'names' ? text : '<tspan class="val">' + g[key].toFixed(dec) + '</tspan>';
+    // on steep roofs the plan triangle is small: the rafter run label slides down its edge, and the hip run label moves to the hip triangle side, clear of the 45° labels
+    const steep = g && g.pitch >= 23 && a === 'T';
+    const slide = (steep && b === 'O') ? 16 : 0;
+    const inw = (steep && b === 'Hs') ? false : inward;
+    out += edgeLabel(P[a], P[b], label, cen(own), inw, slide);
+  }
+  // out = true puts the label outside the triangle, beside the vertex, so thin triangles stay readable
+  const ang = (name, v) => (mode === 'names' ? name : v.toFixed(1) + '°');
+  const verts = [
+    ['T', '45°', 'plan', 'var(--plan)', false], ['Hs', '45°', 'plan', 'var(--plan)', false],
+    ['Pt', ang('Rafter plumb', g ? g.plumb : 0), 'rafter', 'var(--g)', true], ['O', ang('Rafter seat angle|(pitch)', g ? g.pitch : 0), 'rafter', 'var(--g)', true],
+    ['Q', ang('Hip plumb', g ? g.hipPlumb : 0), 'hip', 'var(--b)', true]
+  ];
+  for (const [n, text, own, col, out_] of verts) {
+    if (!on[own]) continue;
+    const c = cen(own), p = P[n], d = unit(p, c);
+    const sgn = out_ ? -1 : 1, dist = out_ ? 14 : 34;
+    let lx = p.x + sgn * d.x * dist;
+    let ly = p.y + sgn * d.y * dist;
+    const dxs = sgn * d.x;
+    let anchor = dxs < -0.3 ? 'end' : dxs > 0.3 ? 'start' : 'middle';
+    // Plumb and Pitch sit just left of their corners so they never cross the base or height labels
+    if (n === 'Pt') { lx = p.x - 6; ly = p.y + 14; anchor = 'end'; }
+    // Rafter seat angle sits level with the hip seat label, clear of the rafter length edge
+    if (n === 'O') {
+      const nl = text.split('|').length;
+      ly = p.y - 12 - (nl - 1) * 7;
+      const topDrop = (p.y - ly) / (p.y - P.Pt.y);
+      lx = p.x + (P.Pt.x - p.x) * Math.min(topDrop, 1) - 8; anchor = 'end';
+    }
+    // Hip plumb sits to the right of its corner
+    if (n === 'Q') { lx = p.x + 10; ly = p.y; anchor = 'start'; }
+    // The two 45° labels sit on the bisector of the plan triangle's corner, then shift sideways until the box has equal clearance from both sides
+    if (n === 'T' || n === 'Hs') {
+      const nb = n === 'T' ? [P.O, P.Hs] : [P.O, P.T];
+      const u1 = unit(p, nb[0]), u2 = unit(p, nb[1]);
+      const bx = u1.x + u2.x, by = u1.y + u2.y, bl = Math.hypot(bx, by) || 1;
+      const dx = bx / bl, dy = by / bl, px = -dy, py = dx;
+      const hw = 12, hh = 7;
+      const d45 = (g && g.pitch >= 23) ? 41 : 46;
+      const clear = (cx, cy, u) => {
+        const vx = cx - p.x, vy = cy - p.y;
+        const dist = Math.abs(vx * u.y - vy * u.x);
+        return dist - (hw * Math.abs(-u.y) + hh * Math.abs(u.x));
+      };
+      let best = 0, bestGap = 1e9;
+      for (let t = -12; t <= 12; t += 0.25) {
+        const cx = p.x + dx * d45 + px * t, cy = p.y + dy * d45 + py * t;
+        const gap = Math.abs(clear(cx, cy, u1) - clear(cx, cy, u2));
+        if (gap < bestGap) { bestGap = gap; best = t; }
+      }
+      lx = p.x + dx * d45 + px * best; ly = p.y + dy * d45 + py * best; anchor = 'middle';
+    }
+    const w = Math.max(...text.split('|').map(t => t.length)) * 6.6;
+    if (anchor === 'start') lx = Math.min(lx, vw - 4 - w);
+    if (anchor === 'end') lx = Math.max(lx, 4 + w);
+    out += '<text class="ang" fill="' + col + '" x="' + lx.toFixed(1) + '" y="' + ly.toFixed(1) + '" text-anchor="' + anchor + '" dominant-baseline="middle">' + text.split('|').map((t, i) => '<tspan x="' + lx.toFixed(1) + '" dy="' + (i ? 14 : 0) + '">' + t + '</tspan>').join('') + '</text>';
+  }
+  if (on.hip) out += '<text class="ang" fill="var(--b)" x="' + (P.Hs.x + 8) + '" y="' + (P.Hs.y - 12) + '" text-anchor="start" dominant-baseline="middle">' + ang('Hip seat', g ? g.hipSeat : 0) + '</text>';
+  out += '</g>';
+  svg.innerHTML = out;
+  svg.setAttribute('aria-label', g ? 'Triangles drawn for the ' + part + ' roof at ' + pitch + ' degrees' : 'Example triangles');
+}
+
+function unit(a, b) { const dx = b.x - a.x, dy = b.y - a.y, l = Math.hypot(dx, dy) || 1; return { x: dx / l, y: dy / l }; }
+
+function edgeLabel(a, b, text, inside, inward, shift) {
+  const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy) || 1;
+  const mx = (a.x + b.x) / 2 + dx / len * (shift || 0), my = (a.y + b.y) / 2 + dy / len * (shift || 0);
+  let nx = -dy / len, ny = dx / len;
+  const toward = (inside.x - mx) * nx + (inside.y - my) * ny > 0;
+  if (inward ? !toward : toward) { nx = -nx; ny = -ny; }
+  let ang = Math.atan2(dy, dx) / DEG;
+  if (ang > 90 || ang < -90) ang += 180;
+  const x = mx + nx * 12, y = my + ny * 12;
+  return '<text class="lbl" x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" text-anchor="middle" dominant-baseline="middle" transform="rotate(' + ang.toFixed(1) + ' ' + x.toFixed(1) + ' ' + y.toFixed(1) + ')">' + text + '</text>';
+}
+
+function setTip() { el('tip').innerHTML = '<strong>Did you know</strong>' + TIPS[tipIdx % TIPS.length]; }
+
+// Result messages take turns so they don't get repetitive. Add more to the list any time.
+// The first one shows with the example on open, so it doesn't praise work not yet done.
+const DONE_MSGS = [
+  'All set. Your results are below.',
+  'Nice work. Your results are below.',
+  'Looking good. Scroll down for your results.',
+  'Your roof is worked out below.',
+  'Sorted. Check your numbers below.'
+];
+let doneIdx = 0, doneTimer = null;
+function typed() {
+  showExample = false; render();
+  // move to the next message once they pause typing, not on every keystroke
+  clearTimeout(doneTimer);
+  doneTimer = setTimeout(() => { doneIdx++; render(); }, 900);
+}
+['i-span', 'i-pitch', 'i-eave'].forEach(i => el(i).addEventListener('focus', () => setTimeout(() => el(i).select(), 0)));
+
+function startAgain() {
+  showExample = false; ackPitch = null;
+  ['i-span', 'i-pitch', 'i-eave', 'a-span', 'a-pitch', 'a-eave'].forEach(i => el(i).value = '');
+  el('p-main').checked = true;
+  el('lead').textContent = 'Enter a half span and pitch to start.';
+  tipIdx++; setTip(); render();
+}
+
+['i-span', 'i-pitch', 'i-eave'].forEach(i => el(i).addEventListener('input', typed));
+// The boxes above the drawing and the boxes on it hold the same three values. Typing in either updates the other.
+['span', 'pitch', 'eave'].forEach(k => {
+  const top = el('a-' + k), onDrawing = el('i-' + k);
+  top.addEventListener('input', () => { onDrawing.value = top.value; typed(); });
+  onDrawing.addEventListener('input', () => { top.value = onDrawing.value; });
+  top.addEventListener('focus', () => setTimeout(() => top.select(), 0));
+});
+// Changing units converts the lengths (3500 mm becomes 3.5 m), so the answers stay the same.
+const MM = { mm: 1, cm: 10, m: 1000 };
+let lastUnit = el('units').value;
+el('units').addEventListener('change', () => {
+  const f = MM[lastUnit] / MM[el('units').value];
+  lastUnit = el('units').value;
+  ['span', 'eave'].forEach(k => {
+    const v = num('i-' + k);
+    if (v.v != null) { const nv = String(parseFloat((v.v * f).toFixed(6))); el('i-' + k).value = nv; el('a-' + k).value = nv; }
+  });
+  render();
+});
+el('warn-go').addEventListener('click', () => { const v = num('i-pitch'); if (v.v != null) ackPitch = v.v; render(); });
+el('warn-no').addEventListener('click', () => { el('i-pitch').value = ''; el('a-pitch').value = ''; ackPitch = null; render(); el('a-pitch').focus(); });
+el('reset').addEventListener('click', startAgain);
+['t-plan', 't-rafter', 't-hip', 'p-main', 'p-eave', 'p-total', 'l-nums', 'l-names'].forEach(i => el(i).addEventListener('change', () => render()));
+setTip();
+// Example on open: 3500 mm half span, 22.5° pitch, 600 mm eave. Start again clears it.
+[['span', '3500'], ['pitch', '22.5'], ['eave', '600']].forEach(([k, v]) => { el('a-' + k).value = v; el('i-' + k).value = v; });
+render();
+
+(function () {
+  var root = document.documentElement, btn = document.getElementById('theme');
+  var SUN = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>';
+  var MOON = '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>';
+  function isDark() {
+    var t = root.getAttribute('data-theme');
+    if (t) return t === 'dark';
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  function paint() {
+    var dark = isDark();
+    document.getElementById('theme-ic').innerHTML = dark ? SUN : MOON;
+    document.getElementById('theme-t').textContent = dark ? 'Day' : 'Night';
+    btn.setAttribute('aria-label', dark ? 'Switch to day mode' : 'Switch to night mode');
+  }
+  try { var saved = localStorage.getItem('crnrstone-theme'); if (saved === 'dark' || saved === 'light') root.setAttribute('data-theme', saved); } catch (e) {}
+  btn.addEventListener('click', function () {
+    var next = isDark() ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('crnrstone-theme', next); } catch (e) {}
+    paint();
+  });
+  paint();
+})();
+</script>
+
+</body></html>
