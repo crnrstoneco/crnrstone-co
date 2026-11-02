@@ -113,6 +113,12 @@ section{padding-block:56px}
 .signup .msg{margin:0;max-width:none;font-weight:500;min-height:1.2em;text-align:center}
 .signup .msg.err{color:var(--r)}
 .signup .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+/* Missing answers: red border until the field is filled in */
+.signup .bad input[type=text],.signup .bad input[type=email]{border-color:var(--r);box-shadow:0 0 0 3px color-mix(in srgb,var(--r) 18%,transparent)}
+.signup fieldset.bad .pills span{border-color:var(--r)}
+.signup .bad>span:first-child,.signup fieldset.bad legend{color:var(--r)}
+.signup .need{font-size:13px;font-weight:500;color:var(--r)}
+.signup .need:empty{display:none}
 .thanks{text-align:center;padding:12px 4px}
 .thanks h3{margin-bottom:6px}
 @media (max-width:560px){.signup .row2{grid-template-columns:1fr}.signup{padding:18px}}
@@ -221,10 +227,10 @@ nav{position:relative}
   <form class="signup" id="signup" novalidate>
     <h3>Join the early access list</h3>
     <div class="row2">
-      <label class="fld"><span>Name</span><input type="text" id="su-name" name="name" autocomplete="name" required></label>
-      <label class="fld"><span>Email</span><input type="email" id="su-email" name="email" autocomplete="email" inputmode="email" required></label>
+      <label class="fld" id="fld-name"><span>Name</span><input type="text" id="su-name" name="name" autocomplete="name" required><span class="need" id="need-name"></span></label>
+      <label class="fld" id="fld-email"><span>Email</span><input type="email" id="su-email" name="email" autocomplete="email" inputmode="email" required><span class="need" id="need-email"></span></label>
     </div>
-    <fieldset>
+    <fieldset id="fld-role">
       <legend>I’m a</legend>
       <div class="pills" id="su-role">
         <label><input type="radio" name="role" id="su-role-1" value="Tradesperson"><span>Tradesperson</span></label>
@@ -232,6 +238,7 @@ nav{position:relative}
         <label><input type="radio" name="role" id="su-role-3" value="Apprentice or student"><span>Apprentice or student</span></label>
         <label><input type="radio" name="role" id="su-role-4" value="Educator or trainer"><span>Educator or trainer</span></label>
       </div>
+      <span class="need" id="need-role"></span>
     </fieldset>
     <label class="fld"><span>Your trade <span class="opt">(optional)</span></span><input type="text" id="su-trade" name="trade" placeholder="e.g. Carpentry"></label>
     <label class="fld"><span>What would save you the most time? <span class="opt">(optional)</span></span><textarea id="su-help" name="help" placeholder="e.g. Getting SDSs and JSAs sorted for each job"></textarea></label>
@@ -414,13 +421,36 @@ nav{position:relative}
   var msg = document.getElementById('su-msg'), btn = document.getElementById('su-send');
   function val(id) { return document.getElementById(id).value.trim(); }
   function say(t, err) { msg.textContent = t; msg.className = 'msg' + (err ? ' err' : ''); }
+  var EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  var CHECKS = [
+    { key: 'name', ok: function () { return !!val('su-name'); }, text: 'Add your name.', focus: 'su-name' },
+    { key: 'email', ok: function () { return EMAIL.test(val('su-email')); }, text: 'Check your email address.', focus: 'su-email' },
+    { key: 'role', ok: function () { return !!f.querySelector('input[name=role]:checked'); }, text: 'Pick the option that fits you best.', focus: 'su-role-1' }
+  ];
+  function mark(c, bad) {
+    document.getElementById('fld-' + c.key).classList.toggle('bad', bad);
+    document.getElementById('need-' + c.key).textContent = bad ? c.text : '';
+  }
+  // Each field goes back to normal as soon as it's filled in correctly
+  CHECKS.forEach(function (c) {
+    document.getElementById('fld-' + c.key).addEventListener(c.key === 'role' ? 'change' : 'input', function () {
+      if (document.getElementById('fld-' + c.key).classList.contains('bad') && c.ok()) { mark(c, false); if (!f.querySelector('.bad')) say(''); }
+    });
+  });
   f.addEventListener('submit', function (e) {
     e.preventDefault();
+    var first = null;
+    CHECKS.forEach(function (c) { var bad = !c.ok(); mark(c, bad); if (bad && !first) first = c; });
+    if (first) {
+      say('Fill in the boxes marked in red.', true);
+      var el = document.getElementById('fld-' + first.key);
+      var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      el.scrollIntoView({ behavior: still ? 'auto' : 'smooth', block: 'center' });
+      document.getElementById(first.focus).focus({ preventScroll: true });
+      return;
+    }
     var name = val('su-name'), email = val('su-email');
     var roleEl = f.querySelector('input[name=role]:checked');
-    if (!name) { say('Add your name.', true); document.getElementById('su-name').focus(); return; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { say('Check your email address.', true); document.getElementById('su-email').focus(); return; }
-    if (!roleEl) { say('Pick the option that fits you best.', true); document.getElementById('su-role-1').focus(); return; }
     if (val('su-hp')) { done(); return; }
     var data = new URLSearchParams();
     data.append(ENTRY.name, name); data.append(ENTRY.email, email); data.append(ENTRY.role, roleEl.value);
