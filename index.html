@@ -1,6 +1,7 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>crnrstone-co</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Crect width=%27100%27 height=%27100%27 rx=%2718%27 fill=%27%230E1A2E%27/%3E%3Cpolygon points=%2720,20 80,20 80,40 40,40 40,58 20,58%27 fill=%27%23EAF0F8%27/%3E%3Crect x=%2745%27 y=%2763%27 width=%2735%27 height=%2717%27 fill=%27%23EAF0F8%27/%3E%3Crect x=%2720%27 y=%2763%27 width=%2720%27 height=%2717%27 fill=%27%23E3A857%27/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap">
 <style>
 /* Layout: dark hero on a drafting grid with the plan triangle, then roles, toolkit (live tools, 3D model preview, planned), the name story, and an updates band. Faint grid linework runs through the hero and banded sections, echoing the 3D model's ground grid. */
@@ -36,7 +37,9 @@ main > section > .wrap{position:relative;z-index:1}
 .hero{background:var(--hero);color:var(--hero-ink)}
 nav{display:flex;justify-content:space-between;align-items:center;padding-block:18px;gap:12px}
 .logo{font:700 24px "Barlow Condensed",sans-serif;text-decoration:none;letter-spacing:.02em;white-space:nowrap}
-.logo span{color:var(--accent)}
+.logo{display:inline-flex;align-items:center;gap:10px}
+.logo .mark{width:30px;height:30px;flex:none}
+.logo .dash{color:var(--accent)}
 .logo .dash{margin:0 .15em}
 nav .links{display:flex;gap:18px;align-items:center;font-weight:500}
 nav a.l{text-decoration:none;opacity:.85}
@@ -123,29 +126,15 @@ section{padding-block:56px}
 .thanks h3{margin-bottom:6px}
 @media (max-width:560px){.signup .row2{grid-template-columns:1fr}.signup{padding:18px}}
 footer{padding-block:28px 40px;color:var(--mute);font-size:14px;border-top:1px solid var(--line)}
-/* Side rail (laptops and desktops, 900px and wider): slim dark strip down the left with pop-out panels.
-   Phones and tablets keep the top-bar menus. */
-.rail{display:none}
-@media (min-width:900px){
-  body{padding-left:88px}
-  .rail{display:flex;flex-direction:column;align-items:stretch;gap:4px;position:fixed;z-index:30;top:0;bottom:0;left:0;width:88px;
-    padding:14px 8px calc(14px + env(safe-area-inset-bottom,0px));background:#0E1A2E;border-right:1px solid rgba(234,240,248,.08)}
-  .rail .mark{display:block;text-align:center;line-height:44px;height:44px;white-space:nowrap;margin-bottom:10px;font:700 18px "Barlow Condensed",sans-serif;color:#EAF0F8;text-decoration:none;letter-spacing:.02em}
-  .rail .mark span{color:var(--accent)}
-  .ri{display:flex;flex-direction:column;align-items:center;gap:4px;width:100%;padding:10px 4px;border-radius:8px;border:0;background:none;color:#B8C4D6;font:600 12px Barlow,sans-serif;text-decoration:none;cursor:pointer;list-style:none;text-align:center}
-  .ri::-webkit-details-marker{display:none}
-  .ri svg{width:22px;height:22px;flex:none}
-  .ri:hover{color:#EAF0F8;background:rgba(234,240,248,.07)}
-  .ri.on{background:var(--accent);color:var(--accent-ink)}
-  .rp[open]>.ri{background:rgba(234,240,248,.14);color:#EAF0F8}
-  .ri:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-  .rp{position:relative}
-  .rp>.menu{position:absolute;left:calc(100% + 14px);top:0;right:auto;width:300px}
-  .rail .spacer{flex:1}
-  .rail .rule{height:1px;background:rgba(234,240,248,.12);margin:6px 8px}
-  /* the rail replaces the top-bar menus on bigger screens */
-  nav .dd,nav .tgl{display:none}
-}
+/* Top bar: fixed at the top. At the very top of the page it always shows. Further down it fades away
+   2 seconds after the last scroll or mouse move, and comes back on scrolling up, moving the mouse to the top,
+   or using a menu. */
+html{scroll-padding-top:96px}
+.topbar{position:fixed;top:0;left:0;right:0;z-index:40;color:var(--hero-ink);transition:opacity .45s ease,transform .45s ease,background-color .3s ease,box-shadow .3s ease}
+.topbar.solid{background:var(--hero);box-shadow:0 6px 20px rgba(5,10,20,.28)}
+.topbar.hide{opacity:0;transform:translateY(-100%);pointer-events:none}
+.hero{padding-top:var(--barh,90px);z-index:40} /* keeps the fixed top bar above the rest of the page */
+@media (prefers-reduced-motion:reduce){.topbar{transition:opacity .2s ease}.topbar.hide{transform:none}}
 /* Top menus: Tools and The Vault drop down from the nav */
 .dd{position:relative}
 .dd>summary{list-style:none;display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 14px;border-radius:6px;font:600 16px Barlow,sans-serif;cursor:pointer;user-select:none;border:1.5px solid transparent}
@@ -164,30 +153,26 @@ footer{padding-block:28px 40px;color:var(--mute);font-size:14px;border-top:1px s
 .menu .soon{opacity:.75}
 .menu .soon b::after{content:"Coming soon";margin-left:8px;font:600 11px Barlow,sans-serif;letter-spacing:.06em;text-transform:uppercase;border:1.5px solid var(--line);color:var(--mute);border-radius:99px;padding:1px 7px;vertical-align:2px}
 nav{position:relative}
-@media (max-width:720px){.dd{position:static}.dd>summary{height:36px;padding:0 9px;font-size:15px;gap:5px}.menu{left:0;right:0;width:auto}.logo{font-size:20px}nav .links{gap:8px}}
+@media (max-width:720px){.dd{position:static}.dd>summary{height:36px;padding:0 9px;font-size:15px;gap:5px}.menu{left:0;right:0;width:auto}.logo{font-size:20px;gap:7px}.logo .mark{width:24px;height:24px}nav .links{gap:8px}}
 @media (max-width:440px){.dd.vault .the{display:none}}
+/* small phones: drop the menu arrows and shrink the wordmark; very small phones show the mark only */
+@media (max-width:420px){.dd>summary::after{display:none}.dd>summary{padding:0 10px}.logo{font-size:18px}}
+@media (max-width:374px){.logo .word{display:none}}
 @media (max-width:720px){.herogrid{grid-template-columns:1fr;padding-bottom:44px}nav .links .l{display:none}}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
 
-<aside class="rail" aria-label="Site menu">
-  <a class="mark" href="#top" aria-label="crnrstone-co home">c<span>-</span>co</a>
-  <a class="ri on" href="#top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>Home</a>
-  <details class="rp"><summary class="ri"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 12h2M14 12h2M8 16h2M14 16h2"/></svg>Tools</summary><div class="menu"><a href="calculations/calculator/"><b>Calculator</b><small>Basic and scientific, with GST keys and a history log</small></a><a href="calculations/plan-triangle/"><b>Plan triangle</b><small>Rafter and hip or valley lengths and angles</small></a><a href="calculations/trig-solver/"><b>Trig solver</b><small>Any right-angle triangle from two values</small></a><a href="learn/floor-model/"><b>3D floor model</b><small>See how slab and timber floors go together</small></a><div class="soon"><b>Job calculators and quotes</b><small>Materials for a job, straight into a quote</small></div></div></details>
-  <details class="rp"><summary class="ri"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>Vault</summary><div class="menu"><div class="mh">Safety and documents</div><div class="soon"><b>JSA Builder</b><small>Job safety analysis with a risk matrix and crew sign-on</small></div><div class="soon"><b>SWMS Builder</b><small>Safe work method statements for high risk work</small></div><div class="soon"><b>SDS register</b><small>Safety data sheets, PPE at a glance and review dates</small></div><div class="soon"><b>Installation guides</b><small>Manufacturers’ guides and specs on your phone</small></div><div class="soon"><b>Tool registry</b><small>Tools and equipment, who has them, test and tag dates</small></div></div></details>
-  <a class="ri" href="learn/floor-model/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>Learn</a>
-  <div class="spacer"></div>
-  <a class="ri" href="#updates"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>Join</a>
-  <div class="rule"></div>
-  <button class="ri" type="button" id="rail-theme" aria-label="Switch to night mode"><svg id="rail-theme-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><span id="rail-theme-t">Night</span></button>
-</aside>
 <header class="hero gridded" id="top">
-  <div class="tape" aria-hidden="true"></div>
+  <div class="topbar" id="topbar">
+    <div class="tape" aria-hidden="true"></div>
+    <div class="wrap">
+      <nav>
+        <a class="logo" href="#top" aria-label="crnrstone-co home"><svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="8,8 92,8 92,34 34,34 34,60 8,60" fill="currentColor"/><rect x="40" y="66" width="52" height="26" fill="currentColor"/><rect x="8" y="66" width="26" height="26" fill="#E3A857"/></svg><span class="word">crnrstone<span class="dash">-</span>co</span></a>
+        <div class="links"><button class="tgl" id="theme" type="button" aria-label="Switch to night mode"><svg id="theme-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg><span class="t" id="theme-t">Night</span></button><details class="dd tools"><summary>Tools</summary><div class="menu"><a href="calculations/calculator/"><b>Calculator</b><small>Basic and scientific, with GST keys and a history log</small></a><a href="calculations/plan-triangle/"><b>Plan triangle</b><small>Rafter and hip or valley lengths and angles</small></a><a href="calculations/trig-solver/"><b>Trig solver</b><small>Any right-angle triangle from two values</small></a><a href="learn/floor-model/"><b>3D floor model</b><small>See how slab and timber floors go together</small></a><div class="soon"><b>Job calculators and quotes</b><small>Materials for a job, straight into a quote</small></div></div></details><details class="dd vault"><summary><span class="the">The</span>Vault</summary><div class="menu"><div class="mh">Safety and documents</div><div class="soon"><b>JSA Builder</b><small>Job safety analysis with a risk matrix and crew sign-on</small></div><div class="soon"><b>SWMS Builder</b><small>Safe work method statements for high risk work</small></div><div class="soon"><b>SDS register</b><small>Safety data sheets, PPE at a glance and review dates</small></div><div class="soon"><b>Installation guides</b><small>Manufacturers’ guides and specs on your phone</small></div><div class="soon"><b>Tool registry</b><small>Tools and equipment, who has them, test and tag dates</small></div></div></details></div>
+      </nav>
+    </div>
+  </div>
   <div class="wrap">
-    <nav>
-      <a class="logo" href="#top">crnrstone<span class="dash">-</span>co</a>
-      <div class="links"><button class="tgl" id="theme" type="button" aria-label="Switch to night mode"><svg id="theme-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg><span class="t" id="theme-t">Night</span></button><details class="dd tools"><summary>Tools</summary><div class="menu"><a href="calculations/calculator/"><b>Calculator</b><small>Basic and scientific, with GST keys and a history log</small></a><a href="calculations/plan-triangle/"><b>Plan triangle</b><small>Rafter and hip or valley lengths and angles</small></a><a href="calculations/trig-solver/"><b>Trig solver</b><small>Any right-angle triangle from two values</small></a><a href="learn/floor-model/"><b>3D floor model</b><small>See how slab and timber floors go together</small></a><div class="soon"><b>Job calculators and quotes</b><small>Materials for a job, straight into a quote</small></div></div></details><details class="dd vault"><summary><span class="the">The</span>Vault</summary><div class="menu"><div class="mh">Safety and documents</div><div class="soon"><b>JSA Builder</b><small>Job safety analysis with a risk matrix and crew sign-on</small></div><div class="soon"><b>SWMS Builder</b><small>Safe work method statements for high risk work</small></div><div class="soon"><b>SDS register</b><small>Safety data sheets, PPE at a glance and review dates</small></div><div class="soon"><b>Installation guides</b><small>Manufacturers’ guides and specs on your phone</small></div><div class="soon"><b>Tool registry</b><small>Tools and equipment, who has them, test and tag dates</small></div></div></details></div>
-    </nav>
     <div class="herogrid">
       <div>
         <h1>Building strong foundations for trades.</h1>
@@ -500,19 +485,32 @@ nav{position:relative}
     f.innerHTML = '<div class="thanks"><h3>You’re on the list</h3><p>Thanks for signing up. We’ll be in touch as new tools open.</p></div>';
   }
 })();
-/* Side rail Night/Day button works the same as the top-bar one */
+/* Top bar: fade out when not in use, come back when needed */
 (function () {
-  var rb = document.getElementById('rail-theme'), main = document.getElementById('theme');
-  if (!rb || !main) return;
-  function sync() {
-    var dark = main.getAttribute('aria-label') === 'Switch to day mode';
-    document.getElementById('rail-theme-t').textContent = dark ? 'Day' : 'Night';
-    rb.setAttribute('aria-label', main.getAttribute('aria-label'));
-    document.getElementById('rail-theme-ic').innerHTML = document.getElementById('theme-ic').innerHTML;
+  var bar = document.getElementById('topbar'); if (!bar) return;
+  var timer = null, hover = false, lastY = window.scrollY;
+  function menuOpen() { return !!bar.querySelector('details[open]') || bar.contains(document.activeElement); }
+  function atTop() { return window.scrollY <= 8; }
+  function setH() { document.documentElement.style.setProperty('--barh', bar.offsetHeight + 'px'); }
+  function show() { bar.classList.remove('hide'); arm(); }
+  function arm() {
+    clearTimeout(timer);
+    if (atTop()) return;
+    timer = setTimeout(function () { if (!atTop() && !hover && !menuOpen()) bar.classList.add('hide'); }, 2000);
   }
-  rb.addEventListener('click', function () { main.click(); sync(); });
-  main.addEventListener('click', function () { setTimeout(sync, 0); });
-  sync();
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY;
+    bar.classList.toggle('solid', !atTop());
+    if (atTop() || y < lastY - 4) show(); else arm();
+    lastY = y;
+  }, { passive: true });
+  document.addEventListener('mousemove', function (e) { if (e.clientY < 90) show(); });
+  bar.addEventListener('mouseenter', function () { hover = true; show(); });
+  bar.addEventListener('mouseleave', function () { hover = false; arm(); });
+  bar.addEventListener('focusin', show);
+  bar.addEventListener('toggle', arm, true);
+  window.addEventListener('resize', setH);
+  setH(); bar.classList.toggle('solid', !atTop()); arm();
 })();
 </script>
 
