@@ -1,5 +1,6 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Trig Solver</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Crect width=%27100%27 height=%27100%27 rx=%2718%27 fill=%27%230E1A2E%27/%3E%3Cpolygon points=%2720,20 80,20 80,40 40,40 40,58 20,58%27 fill=%27%23EAF0F8%27/%3E%3Crect x=%2745%27 y=%2763%27 width=%2735%27 height=%2717%27 fill=%27%23EAF0F8%27/%3E%3Crect x=%2720%27 y=%2763%27 width=%2720%27 height=%2717%27 fill=%27%23E3A857%27/%3E%3C/svg%3E">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap">
 <style>
@@ -52,11 +53,16 @@ body {
 .tape { height: 14px; border-radius: 2px; margin-bottom: 14px; background: var(--accent);
   background-image: repeating-linear-gradient(90deg, var(--accent-ink) 0 1.5px, transparent 1.5px 10px), repeating-linear-gradient(90deg, var(--accent-ink) 0 1.5px, transparent 1.5px 50px);
   background-size: 100% 6px, 100% 11px; background-repeat: no-repeat; }
-.toprow { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.toprow { position: relative; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 12px; } /* phone menus drop down from this row */
 .brand { font: 700 24px var(--font-display); letter-spacing: .02em; color: var(--ink); }
-.brand span { color: var(--logo-accent); }
-.brand .dash { margin: 0 .15em; }
 .centre { display: flex; justify-content: center; }
+/* Turn and flip buttons sit centred under the drawing. Flip fills amber while it is on. */
+.view { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-top: -6px; }
+.vb { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; border-radius: 999px; background: var(--surface); color: var(--ink); border: 1.5px solid var(--line); font: 600 14px var(--font-body); cursor: pointer; }
+.vb:hover { border-color: var(--mute); }
+.vb svg { width: 16px; height: 16px; flex: none; }
+.vb[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.vb:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 .tgl { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px; border-radius: 999px; background: transparent; color: var(--ink); border: 1.5px solid var(--line); font: 600 14px var(--font-body); cursor: pointer; }
 .tgl:hover { border-color: var(--mute); }
 .tgl svg { width: 16px; height: 16px; flex: none; }
@@ -108,23 +114,96 @@ button:focus-visible, select:focus-visible, .chk input:focus-visible { outline: 
 .tip { border-top: 1px solid var(--line); padding-top: 14px; font-size: 15px; }
 .tip strong { font: 700 13px var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: var(--ink); display: block; margin-bottom: 2px; }
 .foot { font-size: 12px; color: var(--mute); margin: 0; }
+
+/* ===== Site navigation kit v1 (claude/site-nav-kit.md), copied as written ===== */
+/* Top menus: Tools and The Vault drop down from the nav */
+.dd{position:relative}
+.dd>summary{list-style:none;display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 14px;border-radius:6px;font:600 16px Barlow,sans-serif;cursor:pointer;user-select:none;border:1.5px solid transparent}
+.dd>summary::-webkit-details-marker{display:none}
+.dd>summary::after{content:"";width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:translateY(-2px) rotate(45deg);transition:transform .2s}
+.dd[open]>summary::after{transform:translateY(1px) rotate(-135deg)}
+.dd>summary{background:var(--accent);color:var(--accent-ink)}
+.dd>summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.menu{position:absolute;right:0;top:calc(100% + 8px);z-index:20;width:min(300px,calc(100vw - 32px));background:var(--surface);color:var(--ink);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:8px;padding:8px;box-shadow:0 12px 32px rgba(10,18,32,.28);display:flex;flex-direction:column;gap:2px}
+.menu .mh{font:700 12px Barlow,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);padding:8px 10px 4px}
+.menu a,.menu .soon{display:flex;flex-direction:column;gap:1px;padding:8px 10px;border-radius:6px;text-decoration:none}
+.menu a:hover,.menu a:focus-visible{background:var(--bg);outline:none}
+.menu b{font:600 16px Barlow,sans-serif}
+.menu small{font-size:13px;color:var(--mute);line-height:1.35}
+.menu .soon{opacity:.75}
+.menu .soon b::after{content:"Coming soon";margin-left:8px;font:600 11px Barlow,sans-serif;letter-spacing:.06em;text-transform:uppercase;border:1.5px solid var(--line);color:var(--mute);border-radius:99px;padding:1px 7px;vertical-align:2px}
+@media (max-width:720px){.dd{position:static}.dd>summary{height:36px;padding:0 9px;font-size:15px;gap:5px}.menu{left:0;right:0;width:auto}}
+@media (max-width:420px){.dd>summary::after{display:none}.dd>summary{padding:0 10px}}
+/* Phone menus sit beside the page's Night/Day button */
+.navr{display:flex;align-items:center;gap:8px}
+.menu a{color:var(--ink)}
+@media (max-width:440px){.dd.vault .the{display:none}}
+/* Logo link home */
+.brand{color:inherit;text-decoration:none;white-space:nowrap}
+.brand .mark{display:inline-block;width:28px;height:28px;vertical-align:-5px;margin-right:9px}
+.brand .word{color:inherit}
+.brand .dash{color:var(--logo-accent,var(--accent));margin:0 .15em}
+@media (max-width:420px){.brand{font-size:19px}.brand .mark{width:22px;height:22px;vertical-align:-4px;margin-right:7px}}
+@media (max-width:374px){.brand .word{display:none}}
+/* Side rail (laptops and desktops, 900px and wider): slim dark strip down the left with pop-out panels.
+   Phones and tablets use the Tools and Vault drop-downs instead. */
+.rail{display:none}
+@media (min-width:900px){
+  body{padding-left:88px}
+  .rail{display:flex;flex-direction:column;align-items:stretch;gap:4px;position:fixed;z-index:30;top:0;bottom:0;left:0;width:88px;
+    padding:14px 8px calc(14px + env(safe-area-inset-bottom,0px));background:#0E1A2E;border-right:1px solid rgba(234,240,248,.08)}
+  .rail .mark{display:block;text-align:center;line-height:44px;height:44px;white-space:nowrap;margin-bottom:10px;font:700 18px "Barlow Condensed",sans-serif;color:#EAF0F8;text-decoration:none;letter-spacing:.02em}
+  .rail .mark .rmark{width:34px;height:34px;vertical-align:middle;color:#EAF0F8}
+  .ri{display:flex;flex-direction:column;align-items:center;gap:4px;width:100%;padding:10px 4px;border-radius:8px;border:0;background:none;color:#B8C4D6;font:600 12px Barlow,sans-serif;text-decoration:none;cursor:pointer;list-style:none;text-align:center}
+  .ri::-webkit-details-marker{display:none}
+  .ri svg{width:22px;height:22px;flex:none}
+  .ri:hover{color:#EAF0F8;background:rgba(234,240,248,.07)}
+  .ri.on{background:var(--accent);color:var(--accent-ink)}
+  .rp[open]>.ri{background:rgba(234,240,248,.14);color:#EAF0F8}
+  .ri:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  .rp{position:relative}
+  .rp>.menu{position:absolute;left:calc(100% + 14px);top:0;right:auto;width:300px}
+  .rail .spacer{flex:1}
+  .rail .rule{height:1px;background:rgba(234,240,248,.12);margin:6px 8px}
+  /* the rail replaces the top-bar menus on bigger screens */
+  /* the rail replaces the phone menus and the page's own Night/Day button */
+  .dd,.tgl{display:none}
+}
 </style>
+
+<aside class="rail" aria-label="Site menu">
+  <a class="mark" href="https://crnrstone-co.com/" aria-label="crnrstone-co home"><svg class="rmark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="8,8 92,8 92,34 34,34 34,60 8,60" fill="currentColor"/><rect x="40" y="66" width="52" height="26" fill="currentColor"/><rect x="8" y="66" width="26" height="26" fill="#E3A857"/></svg></a>
+  <a class="ri" href="https://crnrstone-co.com/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>Home</a>
+  <details class="rp"><summary class="ri on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 12h2M14 12h2M8 16h2M14 16h2"/></svg>Tools</summary><div class="menu"><a href="https://crnrstone-co.com/calculations/calculator/"><b>Calculator</b><small>Basic and scientific, with GST keys and a history log</small></a><a href="https://crnrstone-co.com/calculations/plan-triangle/"><b>Plan triangle</b><small>Rafter and hip or valley lengths and angles</small></a><a href="https://crnrstone-co.com/calculations/trig-solver/"><b>Trig solver</b><small>Any right-angle triangle from two values</small></a><a href="https://crnrstone-co.com/learn/floor-model/"><b>3D floor model</b><small>See how slab and timber floors go together</small></a><div class="soon"><b>Job calculators and quotes</b><small>Materials for a job, straight into a quote</small></div></div></details>
+  <details class="rp"><summary class="ri"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>Vault</summary><div class="menu"><div class="mh">Safety and documents</div><div class="soon"><b>JSA Builder</b><small>Job safety analysis with a risk matrix and crew sign-on</small></div><div class="soon"><b>SWMS Builder</b><small>Safe work method statements for high risk work</small></div><div class="soon"><b>SDS register</b><small>Safety data sheets, PPE at a glance and review dates</small></div><div class="soon"><b>Installation guides</b><small>Manufacturers’ guides and specs on your phone</small></div><div class="soon"><b>Tool registry</b><small>Tools and equipment, who has them, test and tag dates</small></div></div></details>
+  <a class="ri" href="https://crnrstone-co.com/learn/floor-model/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>Learn</a>
+  <div class="spacer"></div>
+  <a class="ri" href="https://crnrstone-co.com/#updates"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>Join</a>
+  <div class="rule"></div>
+  <button class="ri" type="button" id="rail-theme" aria-label="Switch to night mode"><svg id="rail-theme-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><span id="rail-theme-t">Night</span></button>
+</aside>
 
 <div class="wrap">
   <header>
     <div class="tape" aria-hidden="true"></div>
     <div class="toprow">
-      <div class="brand">crnrstone<span class="dash">-</span>co</div>
-      <button class="tgl" id="theme" type="button" aria-label="Switch to night mode"><svg id="theme-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg><span class="t" id="theme-t">Night</span></button>
+      <a class="brand" href="https://crnrstone-co.com/" aria-label="crnrstone-co home"><svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="8,8 92,8 92,34 34,34 34,60 8,60" fill="currentColor"/><rect x="40" y="66" width="52" height="26" fill="currentColor"/><rect x="8" y="66" width="26" height="26" fill="#E3A857"/></svg><span class="word">crnrstone<span class="dash">-</span>co</span></a>
+      <div class="navr"><details class="dd tools"><summary>Tools</summary><div class="menu"><a href="https://crnrstone-co.com/calculations/calculator/"><b>Calculator</b><small>Basic and scientific, with GST keys and a history log</small></a><a href="https://crnrstone-co.com/calculations/plan-triangle/"><b>Plan triangle</b><small>Rafter and hip or valley lengths and angles</small></a><a href="https://crnrstone-co.com/calculations/trig-solver/"><b>Trig solver</b><small>Any right-angle triangle from two values</small></a><a href="https://crnrstone-co.com/learn/floor-model/"><b>3D floor model</b><small>See how slab and timber floors go together</small></a><div class="soon"><b>Job calculators and quotes</b><small>Materials for a job, straight into a quote</small></div></div></details><details class="dd vault"><summary><span class="the">The</span>Vault</summary><div class="menu"><div class="mh">Safety and documents</div><div class="soon"><b>JSA Builder</b><small>Job safety analysis with a risk matrix and crew sign-on</small></div><div class="soon"><b>SWMS Builder</b><small>Safe work method statements for high risk work</small></div><div class="soon"><b>SDS register</b><small>Safety data sheets, PPE at a glance and review dates</small></div><div class="soon"><b>Installation guides</b><small>Manufacturers’ guides and specs on your phone</small></div><div class="soon"><b>Tool registry</b><small>Tools and equipment, who has them, test and tag dates</small></div></div></details>
+      <button class="tgl" id="theme" type="button" aria-label="Switch to night mode"><svg id="theme-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg><span class="t" id="theme-t">Night</span></button></div>
     </div>
     <h1>Trig Solver</h1>
-    <p class="lead">Type any two values into the boxes on the triangle, with at least one side. The other boxes fill in. Change any box to try new numbers.</p>
+    <p class="lead">Type any two values into the boxes on the triangle, with at least one side. The other boxes fill in. Turn or flip the drawing to match the job.</p>
   </header>
 
   <p class="status" id="status" role="status" aria-live="polite"></p>
 
   <div class="diagram" id="diagram">
     <svg id="svg" viewBox="0 0 340 300" role="img" aria-label="Right-angle triangle"></svg>
+  </div>
+  <div class="view" role="group" aria-label="Turn or flip the triangle">
+    <button class="vb" id="rot-l" type="button" aria-label="Turn anticlockwise 90 degrees" title="Turn anticlockwise"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 2.6-6.4"/><path d="M3 3v6h6"/></svg>90°</button>
+    <button class="vb" id="rot-r" type="button" aria-label="Turn clockwise 90 degrees" title="Turn clockwise"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/></svg>90°</button>
+    <button class="vb" id="flip" type="button" aria-pressed="false" title="Mirror left to right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18" stroke-dasharray="2 3"/><path d="M9 7L4 17h5z"/><path d="M15 7l5 10h-5z"/></svg>Flip</button>
   </div>
   <div class="centre"><button class="reset" id="reset" type="button">Start again</button></div>
   <p class="legend"><span><i style="background: var(--accent)"></i>You entered</span><span><i style="background: var(--solved); border: 1px solid var(--solved-line)"></i>Worked out for you</span><span>Drawing is not to scale.</span></p>
@@ -203,7 +282,8 @@ const TIPS = [
   'A 3-4-5 triangle is a quick square check. If two edges measure 3 and 4 units and the diagonal measures 5, the corner is a true 90°.',
   'The roof pitch is Angle A, the angle at the seat. Rise over run gives you tan(A).',
   'On a square-cornered roof with equal pitches, the hip runs at 45° to the rafters when seen from above.',
-  'Opposite and adjacent swap depending on which angle you stand at. The hypotenuse never changes.'
+  'Opposite and adjacent swap depending on which angle you stand at. The hypotenuse never changes.',
+  'Turn or flip the triangle as much as you like. Opposite is always across from Angle A, and the hypotenuse is always across from the square corner.'
 ];
 
 const VW = 340, VH = 300;
@@ -281,63 +361,143 @@ function render(badNumber, typingKey) {
   el('workbox').hidden = !(el('working').checked && list.children.length);
 }
 
-function place(key, x, y) {
-  // keep every box at least 6px inside the drawing on narrow phones
-  boxes[key].style.left = 'clamp(52px, ' + (x / VW * 100).toFixed(2) + '%, calc(100% - 52px))';
-  boxes[key].style.top = (y / VH * 100).toFixed(2) + '%';
+// ---- Drawing and box layout ----
+// The triangle can be turned 90° at a time and flipped. rot = quarter turns clockwise; flip = mirrored left to right.
+// Every box is pushed out from the shape until it clears the outline (and the other boxes), then the triangle
+// is shrunk until the triangle and all five boxes fit inside the drawing. Full names first; short names only if full names would crowd the triangle.
+let rot = 0, flip = false, shape = null, lastFit = null;
+const AREA = [VW - 12, VH - 12];   // room inside the drawing, less a 6-unit edge
+
+function view(p) {            // local point -> turned and flipped point (screen y points down)
+  let x = flip ? -p[0] : p[0], y = p[1];
+  for (let i = 0; i < rot; i++) { const t = x; x = -y; y = t; }
+  return [x, y];
+}
+const sub = (p, q) => [p[0] - q[0], p[1] - q[1]];
+const unit = v => { const l = Math.hypot(v[0], v[1]) || 1; return [v[0] / l, v[1] / l]; };
+
+// Does a box (centre c, half sizes hw, hh) touch the triangle? Separating-axis test.
+function hitsTri(c, hw, hh, tri) {
+  const R = [[c[0] - hw, c[1] - hh], [c[0] + hw, c[1] - hh], [c[0] + hw, c[1] + hh], [c[0] - hw, c[1] + hh]];
+  const axes = [[1, 0], [0, 1]];
+  for (let i = 0; i < 3; i++) { const e = sub(tri[(i + 1) % 3], tri[i]); axes.push([-e[1], e[0]]); }
+  for (const ax of axes) {
+    let a0 = Infinity, a1 = -Infinity, b0 = Infinity, b1 = -Infinity;
+    for (const q of R) { const d = q[0] * ax[0] + q[1] * ax[1]; a0 = Math.min(a0, d); a1 = Math.max(a1, d); }
+    for (const q of tri) { const d = q[0] * ax[0] + q[1] * ax[1]; b0 = Math.min(b0, d); b1 = Math.max(b1, d); }
+    if (a1 <= b0 || b1 <= a0) return false;
+  }
+  return true;
 }
 
-function draw(adj, opp, live) {
-  const x0 = 96, maxW = 140, maxH = 150;
-  const s = Math.min(maxW / adj, maxH / opp);
-  const w = Math.max(adj * s, 72), h = Math.max(opp * s, 48);
-  const base = 149 + h / 2;
-  const Ax = x0, Ay = base, Cx = x0 + w, Cy = base, Bx = x0 + w, By = base - h;
-  const len = Math.hypot(w, h), th = Math.atan2(h, w);
+function placeBoxes(P, size) {
+  const GAP = 7, tri = [P.A, P.B, P.C];
+  const G = [(P.A[0] + P.B[0] + P.C[0]) / 3, (P.A[1] + P.B[1] + P.C[1]) / 3];
+  const side = (p, q) => {    // midpoint of an edge and the direction pointing away from the triangle
+    const m = [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2], e = sub(q, p);
+    let n = unit([-e[1], e[0]]); if (n[0] * (m[0] - G[0]) + n[1] * (m[1] - G[1]) < 0) n = [-n[0], -n[1]];
+    return [m, n];
+  };
+  // Corner boxes can sit straight out from the corner, or above, below, left or right of it. Each option is tried and the one
+  // that keeps the whole layout most compact (for the drawing's shape) wins.
+  const corner = (v, p, q) => { const a = unit(sub(p, v)), b = unit(sub(q, v)); return [unit([-(a[0] + b[0]), -(a[1] + b[1])]), [0, -1], [0, 1], [-1, 0], [1, 0]].map(u => [v, u]); };
+  const spots = { adj: [side(P.A, P.C)], opp: [side(P.C, P.B)], hyp: [side(P.A, P.B)], A: corner(P.A, P.B, P.C), B: corner(P.B, P.A, P.C) };
+  const out = {}, placed = []; let jam = false;
+  let x0 = Math.min(P.A[0], P.B[0], P.C[0]), x1 = Math.max(P.A[0], P.B[0], P.C[0]), y0 = Math.min(P.A[1], P.B[1], P.C[1]), y1 = Math.max(P.A[1], P.B[1], P.C[1]);
+  const push = (o, u, hw, hh) => {
+    for (let t = 0; t < 500; t += 1.5) {
+      const c = [o[0] + u[0] * t, o[1] + u[1] * t];
+      if (hitsTri(c, hw + GAP, hh + GAP, tri)) continue;
+      if (placed.some(b => Math.abs(b.c[0] - c[0]) < b.hw + hw + 4 && Math.abs(b.c[1] - c[1]) < b.hh + hh + 4)) continue;
+      return c;
+    }
+    return null;
+  };
+  for (const key of ['adj', 'opp', 'hyp', 'A', 'B']) {
+    const [hw, hh] = size[key];
+    let best = null, bestScore = Infinity;
+    const bis = spots[key][0][1];
+    spots[key].forEach(([o, u], i) => {
+      if (i && u[0] * bis[0] + u[1] * bis[1] < 0.2) return;           // never head back across the triangle
+      const c = push(o, u, hw, hh); if (!c) return;
+      if (i) {                                                       // corner boxes must stay beside their own corner
+        const gx = Math.max(Math.abs(c[0] - o[0]) - hw, 0), gy = Math.max(Math.abs(c[1] - o[1]) - hh, 0);
+        if (Math.hypot(gx, gy) > GAP + 20) return;
+      }
+      const W = Math.max(x1, c[0] + hw) - Math.min(x0, c[0] - hw), H = Math.max(y1, c[1] + hh) - Math.min(y0, c[1] - hh);
+      const score = Math.max(W / AREA[0], H / AREA[1]) + (i ? 0.02 : 0);   // small preference for straight out from the corner
+      if (score < bestScore) { bestScore = score; best = c; }
+    });
+    if (!best) { jam = true; best = spots[key][0][0]; }
+    out[key] = best; placed.push({ c: best, hw, hh });
+    x0 = Math.min(x0, best[0] - hw); x1 = Math.max(x1, best[0] + hw); y0 = Math.min(y0, best[1] - hh); y1 = Math.max(y1, best[1] + hh);
+  }
+  return { out, placed, jam };
+}
 
-  geo = { x0, w, h, base, Ax, Ay, Bx, By, Cx, len };
+function fitLayout(r, size, MIN) {   // MIN = smallest the triangle's longest side may get, in drawing units
+  const PAD = 6, AW = VW - 2 * PAD, AH = VH - 2 * PAD;
+  const local = { A: [0, 0], C: [1, 0], B: [1, -r] };
+  let s = 220 / Math.max(1, r), res;
+  for (let i = 0; i < 30; i++) {
+    const P = {}; for (const v in local) { const q = view(local[v]); P[v] = [q[0] * s, q[1] * s]; }
+    const L = placeBoxes(P, size);
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const q of [P.A, P.B, P.C]) { x0 = Math.min(x0, q[0]); x1 = Math.max(x1, q[0]); y0 = Math.min(y0, q[1]); y1 = Math.max(y1, q[1]); }
+    for (const b of L.placed) { x0 = Math.min(x0, b.c[0] - b.hw); x1 = Math.max(x1, b.c[0] + b.hw); y0 = Math.min(y0, b.c[1] - b.hh); y1 = Math.max(y1, b.c[1] + b.hh); }
+    const W = x1 - x0, H = y1 - y0;
+    res = { P, L, s, dx: VW / 2 - (x0 + x1) / 2, dy: VH / 2 - (y0 + y1) / 2, ok: W <= AW && H <= AH && !L.jam };
+    if (res.ok) return res;
+    const f = Math.min(AW / W, AH / H, 0.96);
+    if (s * Math.max(1, r) * f < MIN) return res;   // can't shrink the triangle any further
+    s *= f;
+  }
+  return res;
+}
 
-  const rA = 28, rB = 26, sq = 12;
-  const arcA = 'M' + (Ax + rA) + ',' + Ay + ' A' + rA + ' ' + rA + ' 0 0 0 ' + (Ax + rA * Math.cos(th)).toFixed(1) + ',' + (Ay - rA * Math.sin(th)).toFixed(1);
-  const arcB = 'M' + Bx + ',' + (By + rB) + ' A' + rB + ' ' + rB + ' 0 0 1 ' + (Bx - rB * w / len).toFixed(1) + ',' + (By + rB * h / len).toFixed(1);
+function draw(adj, opp, live) { shape = { adj, opp, live }; layout(); }
+
+function layout() {
+  if (!shape) return;
+  const d = el('diagram'), k = VW / (d.clientWidth || VW);
+  const r = Math.min(4, Math.max(0.25, shape.opp / shape.adj));   // very flat or steep shapes are drawn less extreme (not to scale)
+  let res;
+  // Full names keep the triangle at least 150 units long; if they can't, switch to short names (which may go down to 70).
+  for (const [short, min] of [[false, 150], [true, 70]]) {
+    d.classList.toggle('short', short);
+    const size = {};
+    for (const key in boxes) { const b = boxes[key].getBoundingClientRect(); size[key] = [b.width * k / 2, b.height * k / 2]; }
+    res = fitLayout(r, size, min);
+    if (res.ok) break;
+  }
+  lastFit = res;
+  const T = q => [q[0] + res.dx, q[1] + res.dy];
+  for (const key in res.L.out) {
+    const c = T(res.L.out[key]);
+    boxes[key].style.left = (c[0] / VW * 100).toFixed(2) + '%';
+    boxes[key].style.top = (c[1] / VH * 100).toFixed(2) + '%';
+  }
+  const A = T(res.P.A), B = T(res.P.B), C = T(res.P.C);
+  const shortest = Math.min(Math.hypot(...sub(A, C)), Math.hypot(...sub(B, C)));
+  const arc = (v, p, q, rad) => {   // angle arc at corner v, between the edges towards p and q
+    const a = unit(sub(p, v)), b = unit(sub(q, v));
+    const sweep = a[0] * b[1] - a[1] * b[0] > 0 ? 1 : 0;
+    return 'M' + (v[0] + a[0] * rad).toFixed(1) + ',' + (v[1] + a[1] * rad).toFixed(1) + ' A' + rad + ' ' + rad + ' 0 0 ' + sweep + ' ' + (v[0] + b[0] * rad).toFixed(1) + ',' + (v[1] + b[1] * rad).toFixed(1);
+  };
+  const rad = Math.min(28, shortest * 0.42), sq = Math.min(12, shortest * 0.25);
+  const ua = unit(sub(A, C)), ub = unit(sub(B, C));
+  const square = 'M' + (C[0] + ua[0] * sq).toFixed(1) + ',' + (C[1] + ua[1] * sq).toFixed(1) + ' L' + (C[0] + (ua[0] + ub[0]) * sq).toFixed(1) + ',' + (C[1] + (ua[1] + ub[1]) * sq).toFixed(1) + ' L' + (C[0] + ub[0] * sq).toFixed(1) + ',' + (C[1] + ub[1] * sq).toFixed(1);
+  const pts = [A, C, B].map(q => q[0].toFixed(1) + ',' + q[1].toFixed(1)).join(' ');
+  const live = shape.live;
   el('svg').innerHTML =
     '<g opacity="' + (live ? 1 : 0.45) + '">' +
-    '<polygon points="' + Ax + ',' + Ay + ' ' + Cx + ',' + Cy + ' ' + Bx + ',' + By + '" fill="var(--fill)" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round"' + (live ? '' : ' stroke-dasharray="6 5"') + '/>' +
-    '<path d="M' + (Cx - sq) + ',' + Cy + ' L' + (Cx - sq) + ',' + (Cy - sq) + ' L' + Cx + ',' + (Cy - sq) + '" fill="none" stroke="var(--ink)" stroke-width="1.5"/>' +
-    '<path d="' + arcA + '" fill="none" stroke="var(--accent)" stroke-width="2.5"/>' +
-    '<path d="' + arcB + '" fill="none" stroke="var(--accent)" stroke-width="2.5"/>' +
+    '<polygon points="' + pts + '" fill="var(--fill)" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round"' + (live ? '' : ' stroke-dasharray="6 5"') + '/>' +
+    '<path d="' + square + '" fill="none" stroke="var(--ink)" stroke-width="1.5"/>' +
+    '<path d="' + arc(A, C, B, rad) + '" fill="none" stroke="var(--accent)" stroke-width="2.5"/>' +
+    '<path d="' + arc(B, C, A, rad * 0.92) + '" fill="none" stroke="var(--accent)" stroke-width="2.5"/>' +
     '</g>';
-  fitNames();
-  el('svg').setAttribute('aria-label', live ? 'Right-angle triangle drawn to your values' : 'Example right-angle triangle');
-}
-
-// Use short names only when two boxes would overlap at full size.
-function clash() {
-  const r = Object.values(boxes).map(b => b.getBoundingClientRect());
-  for (let i = 0; i < r.length; i++) for (let j = i + 1; j < r.length; j++) {
-    const a = r[i], b = r[j];
-    if (a.left < b.right + 2 && b.left < a.right + 2 && a.top < b.bottom + 2 && b.top < a.bottom + 2) return true;
-  }
-  return false;
-}
-// Box positions follow the triangle's edges and corners. With short names, Angle A lifts clear of Adjacent and Angle B moves right, clear of Hypotenuse.
-let geo = null;
-function layoutBoxes(short) {
-  const { x0, w, h, base, Ax, Ay, Bx, By, Cx, len } = geo;
-  place('adj', x0 + w / 2, base + 36);
-  place('opp', Cx + 52, base - h / 2);
-  place('B', short ? Bx + 28 : Bx, By - (short ? 30 : 34));
-  place('A', x0 - 46, base - (short ? 28 : 6));
-  const nx = -h / len, ny = -w / len;
-  const d = 14 + Math.abs(nx) * 46 + Math.abs(ny) * 24;
-  place('hyp', (Ax + Bx) / 2 + nx * d, (Ay + By) / 2 + ny * d);
-}
-function fitNames() {
-  if (!geo) return;
-  const d = el('diagram');
-  d.classList.remove('short');
-  layoutBoxes(false);
-  if (clash()) { d.classList.add('short'); layoutBoxes(true); }
+  const turns = ['', ', turned 90° clockwise', ', turned 180°', ', turned 90° anticlockwise'][rot] + (flip ? ', flipped' : '');
+  el('svg').setAttribute('aria-label', (live ? 'Right-angle triangle drawn to your values' : 'Example right-angle triangle') + turns);
 }
 
 function setTip() { el('tip').innerHTML = '<strong>Did you know</strong>' + TIPS[tipIdx % TIPS.length]; }
@@ -358,8 +518,12 @@ function loadExample() {
 buildBoxes();
 setTip();
 el('working').addEventListener('change', () => render(false));
-el('names').addEventListener('change', () => { el('diagram').classList.toggle('nonames', !el('names').checked); fitNames(); });
-window.addEventListener('resize', fitNames);
+el('names').addEventListener('change', () => { el('diagram').classList.toggle('nonames', !el('names').checked); layout(); });
+window.addEventListener('resize', layout);
+el('rot-r').addEventListener('click', () => { rot = (rot + 1) % 4; layout(); });
+el('rot-l').addEventListener('click', () => { rot = (rot + 3) % 4; layout(); });
+// Flipping a turned triangle mirrors what you see, so the turn direction reverses with it.
+el('flip').addEventListener('click', () => { flip = !flip; rot = (4 - rot) % 4; el('flip').setAttribute('aria-pressed', String(flip)); layout(); });
 el('units').addEventListener('change', () => render(false));
 el('reset').addEventListener('click', startAgain);
 loadExample();
@@ -387,6 +551,31 @@ loadExample();
     paint();
   });
   paint();
+})();
+
+/* ===== Site navigation kit v1 script ===== */
+/* Top menus: one open at a time; close on outside tap or Escape */
+(function () {
+  var dds = document.querySelectorAll('details.dd, details.rp');
+  dds.forEach(function (d) {
+    d.addEventListener('toggle', function () { if (d.open) dds.forEach(function (o) { if (o !== d) o.open = false; }); });
+  });
+  document.addEventListener('click', function (e) { dds.forEach(function (d) { if (d.open && !d.contains(e.target)) d.open = false; }); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') dds.forEach(function (d) { if (d.open) { d.open = false; d.querySelector('summary').focus(); } }); });
+})();
+/* Side rail Night/Day button works the same as the top-bar one */
+(function () {
+  var rb = document.getElementById('rail-theme'), main = document.getElementById('theme');
+  if (!rb || !main) return;
+  function sync() {
+    var dark = main.getAttribute('aria-label') === 'Switch to day mode';
+    document.getElementById('rail-theme-t').textContent = dark ? 'Day' : 'Night';
+    rb.setAttribute('aria-label', main.getAttribute('aria-label'));
+    document.getElementById('rail-theme-ic').innerHTML = document.getElementById('theme-ic').innerHTML;
+  }
+  rb.addEventListener('click', function () { main.click(); sync(); });
+  main.addEventListener('click', function () { setTimeout(sync, 0); });
+  sync();
 })();
 </script>
 

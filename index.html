@@ -66,6 +66,8 @@ section{padding-block:56px}
 .tag{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:99px;margin-bottom:8px;background:var(--accent);color:var(--accent-ink)}
 .tag.soon{background:transparent;border:1.5px solid var(--line);color:var(--mute)}
 .tag.test{background:transparent;border:1.5px solid var(--plan);color:var(--plan)}
+.tag.dev{background:var(--wash,transparent);border:1.5px solid var(--accent);color:var(--ink)}
+#tools .feature + .cards{margin-top:14px}
 .card a.go{display:inline-block;margin-top:10px;font-weight:600}
 .band{background:var(--surface);border-block:1px solid var(--line)}
 
@@ -150,6 +152,7 @@ html{scroll-padding-top:96px}
 .menu b{font:600 16px Barlow,sans-serif}
 .menu small{font-size:13px;color:var(--mute);line-height:1.35}
 .menu .soon{opacity:.75}
+.menu a.test b::after{content:"Testing";margin-left:8px;font:600 11px Barlow,sans-serif;letter-spacing:.06em;text-transform:uppercase;border:1.5px solid var(--plan);color:var(--plan);border-radius:99px;padding:1px 7px;vertical-align:2px}
 .menu .soon b::after{content:"Coming soon";margin-left:8px;font:600 11px Barlow,sans-serif;letter-spacing:.06em;text-transform:uppercase;border:1.5px solid var(--line);color:var(--mute);border-radius:99px;padding:1px 7px;vertical-align:2px}
 nav{position:relative}
 @media (max-width:720px){.dd{position:static}.dd>summary{height:36px;padding:0 9px;font-size:15px;gap:5px}.menu{left:0;right:0;width:auto}.logo{font-size:20px;gap:7px}.logo .mark{width:24px;height:24px}nav .links{gap:8px}}
@@ -167,7 +170,7 @@ nav{position:relative}
     <div class="wrap">
       <nav>
         <a class="logo" href="#top" aria-label="crnrstone-co home"><svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="8,8 92,8 92,34 34,34 34,60 8,60" fill="currentColor"/><rect x="40" y="66" width="52" height="26" fill="currentColor"/><rect x="8" y="66" width="26" height="26" fill="#E3A857"/></svg><span class="word">crnrstone<span class="dash">-</span>co</span></a>
-        <div class="links"><button class="tgl" id="theme" type="button" aria-label="Switch to night mode"><svg id="theme-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg><span class="t" id="theme-t">Night</span></button><details class="dd tools"><summary>Tools</summary><div class="menu"><a href="calculations/calculator/"><b>Calculator</b><small>Basic and scientific, with GST keys and a history log</small></a><a href="calculations/plan-triangle/"><b>Plan triangle</b><small>Rafter and hip or valley lengths and angles</small></a><a href="calculations/trig-solver/"><b>Trig solver</b><small>Any right-angle triangle from two values</small></a><a href="learn/floor-model/"><b>3D floor model</b><small>See how slab and timber floors go together</small></a><div class="soon"><b>Job calculators and quotes</b><small>Materials for a job, straight into a quote</small></div></div></details><details class="dd vault"><summary><span class="the">The</span>Vault</summary><div class="menu"><div class="mh">Safety and documents</div><div class="soon"><b>JSA Builder</b><small>Job safety analysis with a risk matrix and crew sign-on</small></div><div class="soon"><b>SWMS Builder</b><small>Safe work method statements for high risk work</small></div><div class="soon"><b>SDS register</b><small>Safety data sheets, PPE at a glance and review dates</small></div><div class="soon"><b>Installation guides</b><small>Manufacturers’ guides and specs on your phone</small></div><div class="soon"><b>Tool registry</b><small>Tools and equipment, who has them, test and tag dates</small></div></div></details></div>
+        <div class="links"><button class="tgl" id="theme" type="button" aria-label="Switch to night mode"><svg id="theme-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg><span class="t" id="theme-t">Night</span></button><details class="dd tools"><summary>Tools</summary><div class="menu"><a href="calculations/calculator/"><b>Calculator</b><small>Basic and scientific, with GST keys and a history log</small></a><a href="calculations/plan-triangle/"><b>Plan triangle</b><small>Rafter and hip or valley lengths and angles</small></a><a href="calculations/trig-solver/"><b>Trig solver</b><small>Any right-angle triangle from two values</small></a><a href="learn/floor-model/"><b>3D floor model</b><small>See how slab and timber floors go together</small></a><div class="soon"><b>Job calculators and quotes</b><small>Materials for a job, straight into a quote</small></div></div></details><details class="dd vault"><summary><span class="the">The</span>Vault</summary><div class="menu"><div class="mh">Safety and documents</div><a class="test" href="vault/jsa-builder/"><b>JSA Builder</b><small>Job safety analysis with a risk matrix and crew sign-on</small></a><div class="soon"><b>SWMS Builder</b><small>Safe work method statements for high risk work</small></div><div class="soon"><b>SDS register</b><small>Safety data sheets, PPE at a glance and review dates</small></div><div class="soon"><b>Installation guides</b><small>Manufacturers’ guides and specs on your phone</small></div><div class="soon"><b>Tool registry</b><small>Tools and equipment, who has them, test and tag dates</small></div></div></details></div>
       </nav>
     </div>
   </div>
@@ -198,7 +201,7 @@ nav{position:relative}
   <p class="lead">Start with what’s ready now, and watch the rest take shape.</p>
   <h3 class="sub">Ready to try</h3>
   <div class="cards live">
-    <div class="card" style="--c:var(--b)"><span class="tag">Live</span><h3>Plan triangle</h3><p>Type a half span, pitch and eave width into boxes on the drawing to see every side and angle of the rafter and hip or valley triangles.</p><a class="go" href="calculations/plan-triangle/">Open the tool</a></div>
+    <div class="card" style="--c:var(--b)"><span class="tag">Live</span><h3>Plan triangle</h3><p>Type a half span, pitch and eave width into boxes on the drawing to see every side and angle of the rafter, hip or valley and creeper triangles, with creeper lengths at your rafter spacing.</p><a class="go" href="calculations/plan-triangle/">Open the tool</a></div>
     <div class="card" style="--c:var(--g)"><span class="tag">Live</span><h3>Trig solver</h3><p>Type any two values into the triangle, with at least one side, and the rest fills in, with the working shown if you want it.</p><a class="go" href="calculations/trig-solver/">Open the tool</a></div>
     <div class="card" style="--c:var(--accent)"><span class="tag">Live</span><h3>Calculator</h3><p>Basic and scientific in one, with + GST and − GST keys, a history log, and answers you can copy straight into a quote.</p><a class="go" href="calculations/calculator/">Open the tool</a></div>
   </div>
@@ -225,10 +228,18 @@ nav{position:relative}
       <p class="cap" id="cap" aria-live="polite"></p>
     </div>
   </div>
+  <div class="cards">
+    <div class="card" style="--c:var(--plan)"><span class="tag test">Testing</span><h3>JSA Builder</h3><p>Type the job and the common hazards drop in for your trade. Rate the risks on a 5 × 5 matrix, get it signed off, sign the crew on and download the PDF. The first piece of the Vault.</p><a class="go" href="vault/jsa-builder/">Try the test version</a></div>
+  </div>
 
-  <h3 class="sub">Coming next</h3>
+  <h3 class="sub">In development</h3>
+  <div class="cards">
+    <div class="card"><span class="tag dev">In development</span><h3>The Vault</h3><p>All your safety paperwork in one place. Being built now: an SDS register with the PPE for every product at a glance and reminders when an SDS is due for review, plus installation guides on your phone. Your JSAs and SWMS will live here too.</p></div>
+  </div>
+
+  <h3 class="sub">On the roadmap</h3>
   <div class="cards soon4">
-    <div class="card"><span class="tag soon">Planned</span><h3>The Vault</h3><p>All your safety paperwork in one place: SDSs, installation guides, JSAs and SWMS. Build JSAs and SWMS, see the PPE for every product at a glance, and get reminders when an SDS is due for review.</p></div>
+    <div class="card"><span class="tag soon">Planned</span><h3>SWMS Builder</h3><p>Safe work method statements for high risk construction work. Start from a JSA and carry everything across in one tap, then add what a SWMS needs on top.</p></div>
     <div class="card"><span class="tag soon">Planned</span><h3>Job calculators and quotes</h3><p>Work out the materials for a job in minutes and turn them straight into a quote, so nothing gets missed and your pricing stays consistent. Think concrete volumes for a slab, studs and plates for a wall, flooring for a room, or rafter lengths for a roof.</p></div>
     <div class="card"><span class="tag soon">Planned</span><h3>Tool registry</h3><p>Every tool and piece of equipment in one list: who has it, where it is, and when its next test and tag or service is due.</p></div>
   </div>

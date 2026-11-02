@@ -50,7 +50,7 @@ button{cursor:pointer}
 .nav{display:flex;align-items:center;gap:10px;padding-block:14px}
 .logo{font-family:var(--f-display);font-weight:700;font-size:24px;letter-spacing:.01em;text-decoration:none;color:var(--ink);white-space:nowrap}
 .logo .dash{color:var(--logo-accent);margin:0 .15em}
-.logo .co{color:var(--mute)}
+.logo .co{color:inherit}
 .nav .sp{flex:1}
 .nbtn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 11px;font-weight:600;font-size:14px}
 .nbtn:hover{border-color:var(--accent)}
@@ -247,30 +247,35 @@ label.f>span{font-family:var(--f-display);text-transform:uppercase;letter-spacin
 #chips{padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
 .chip.sugg{font-weight:500;border-style:dashed}
 .chip.sugg svg{width:13px;height:13px}
+.minebox{margin-top:12px;border:1px solid var(--accent);border-radius:8px;padding:10px 12px;background:var(--wash)}
+.minebox .chip span.mute{font-weight:500;font-size:12px}
+.minelist{display:flex;flex-direction:column;gap:6px}
+.mineitem{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--line);border-radius:6px;padding:8px 10px}
+.mineitem .t{font-weight:600;font-size:13.5px;line-height:1.3}
+.mineitem .m{font-size:12px;color:var(--mute);margin-top:2px}
 .chembox{margin-top:16px;border:1px solid var(--line);border-radius:8px;padding:10px 14px;background:var(--soft)}
 .chembox summary{cursor:pointer;font-family:var(--f-display);text-transform:uppercase;letter-spacing:.08em;font-size:13px;font-weight:700;list-style:none;display:flex;align-items:center;gap:8px}
 .chembox summary::-webkit-details-marker{display:none}
 .chembox summary::before{content:"";width:8px;height:8px;border-right:2px solid var(--mute);border-bottom:2px solid var(--mute);transform:rotate(-45deg);transition:transform .2s}
 .chembox[open] summary::before{transform:rotate(45deg)}
 .chemchip{display:inline-flex;align-items:center;gap:2px;border:1px solid var(--line);background:var(--surface);border-radius:20px;padding:2px 2px 2px 12px;font-size:13.5px;font-weight:600}
+.linkbtn{background:none;border:0;padding:2px 0;color:var(--b);font-size:12.5px;text-decoration:underline;text-underline-offset:2px;align-self:flex-start}
+.hintx{text-transform:none;letter-spacing:0;font-family:var(--f-body);font-weight:400;font-size:11.5px}
 .hempty{padding:18px 16px;color:var(--mute);font-size:14px;text-align:center}
 .hempty b{color:var(--ink)}
-.hoc{position:relative;display:flex;align-items:center;gap:12px;margin-top:14px;padding:10px 10px 10px 14px;border:1px solid var(--line);border-radius:8px;background:var(--soft)}
-.hoc>p{margin:0;flex:1;min-width:0;font-size:13.5px;color:var(--mute)}
-.hoc>p b{color:var(--ink);font-family:var(--f-display);text-transform:uppercase;letter-spacing:.06em;font-size:14px}
-.hocbtn{flex:none;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center}
-.hocbtn:hover,.hocbtn[aria-expanded="true"]{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
-.hocbtn svg{width:20px;height:20px}
-.hocpop{position:absolute;right:0;bottom:calc(100% + 8px);width:min(440px,calc(100vw - 40px));z-index:25;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 24px 50px -20px rgba(0,0,0,.45);padding:16px;display:flex;flex-direction:column;gap:6px;opacity:1;transition:opacity .15s}
+.c-ctl{position:relative}
+.hocrow{display:flex;justify-content:flex-end;padding:2px 2px 0}
+.hocbtn{display:inline-flex;align-items:center;gap:5px;border:1px solid transparent;border-radius:20px;background:var(--surface);color:var(--mute);padding:2px 4px 2px 9px;font-family:var(--f-display);font-weight:600;font-size:12px;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.hocbtn:hover,.hocbtn:focus-visible{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+.hocbtn svg{width:14px;height:14px}
+.hocpop{position:fixed;z-index:45;width:min(300px,calc(100vw - 16px));background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 18px 40px -16px rgba(0,0,0,.45);padding:12px;display:flex;flex-direction:column;align-items:center;gap:3px;opacity:1;transition:opacity .15s}
 .hocpop.fading{opacity:0;transition:opacity 1.6s ease .4s}
-.hoct{font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:18px}
-.hocsub{margin:0 0 6px;font-size:13px;color:var(--mute)}
-.lvlwrap{display:flex;flex-direction:column;align-items:center;gap:2px}
-.lvl{display:flex;justify-content:space-between;gap:10px;align-items:baseline;border-radius:4px;padding:5px 10px;color:var(--risk-ink);min-width:0}
-.lvl b{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.05em;font-size:14px;white-space:nowrap}
-.lvl span{font-size:12.5px;opacity:.95;text-align:right}
+.hoct{font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:15px;align-self:flex-start}
+.hocsub{margin:0 0 4px;font-size:12.5px;color:var(--mute);align-self:flex-start}
+.lvl{display:flex;justify-content:space-between;gap:8px;align-items:baseline;border-radius:4px;padding:4px 8px;color:var(--risk-ink);min-width:0}
+.lvl b{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.04em;font-size:13px;white-space:nowrap}
+.lvl span{font-size:11.5px;opacity:.95;text-align:right}
 .lvl.L{background:var(--risk-l)}.lvl.M{background:var(--risk-m)}.lvl.H{background:var(--risk-h)}.lvl.E{background:var(--risk-e)}
-.lvlex{font-size:12px;color:var(--mute);text-align:center;margin-bottom:3px}
 
 /* Review */
 .review{display:flex;gap:12px;align-items:flex-start;padding:14px;border:1.5px solid var(--accent);border-radius:8px;background:var(--wash)}
@@ -375,17 +380,89 @@ button.cell:hover{filter:brightness(1.1)}
 
 footer.ft{padding-block:10px 40px;color:var(--mute);font-size:13px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ===== Site navigation kit v1 (from claude/site-nav-kit.md, copied as written) ===== */
+/* Top menus: Tools and The Vault drop down from the nav */
+.dd{position:relative}
+.dd>summary{list-style:none;display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 14px;border-radius:6px;font:600 16px Barlow,sans-serif;cursor:pointer;user-select:none;border:1.5px solid transparent}
+.dd>summary::-webkit-details-marker{display:none}
+.dd>summary::after{content:"";width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:translateY(-2px) rotate(45deg);transition:transform .2s}
+.dd[open]>summary::after{transform:translateY(1px) rotate(-135deg)}
+.dd>summary{background:var(--accent);color:var(--accent-ink)}
+.dd>summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.menu{position:absolute;right:0;top:calc(100% + 8px);z-index:20;width:min(300px,calc(100vw - 32px));background:var(--surface);color:var(--ink);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:8px;padding:8px;box-shadow:0 12px 32px rgba(10,18,32,.28);display:flex;flex-direction:column;gap:2px}
+.menu .mh{font:700 12px Barlow,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);padding:8px 10px 4px}
+.menu a,.menu .soon{display:flex;flex-direction:column;gap:1px;padding:8px 10px;border-radius:6px;text-decoration:none}
+.menu a:hover,.menu a:focus-visible{background:var(--bg);outline:none}
+.menu b{font:600 16px Barlow,sans-serif}
+.menu small{font-size:13px;color:var(--mute);line-height:1.35}
+.menu .soon{opacity:.75}
+.menu .soon b::after{content:"Coming soon";margin-left:8px;font:600 11px Barlow,sans-serif;letter-spacing:.06em;text-transform:uppercase;border:1.5px solid var(--line);color:var(--mute);border-radius:99px;padding:1px 7px;vertical-align:2px}
+@media (max-width:720px){.dd{position:static}.dd>summary{height:36px;padding:0 9px;font-size:15px;gap:5px}.menu{left:0;right:0;width:auto}}
+@media (max-width:420px){.dd>summary::after{display:none}.dd>summary{padding:0 10px}}
+/* Phone menus sit beside the page's Night/Day button */
+.navr{display:flex;align-items:center;gap:8px}
+.menu a{color:var(--ink)}
+@media (max-width:440px){.dd.vault .the{display:none}}
+/* Logo link home */
+.brand{color:inherit;text-decoration:none;white-space:nowrap}
+.brand .mark{display:inline-block;width:28px;height:28px;vertical-align:-5px;margin-right:9px}
+.brand .word{color:inherit}
+.brand .dash{color:var(--logo-accent,var(--accent));margin:0 .15em}
+@media (max-width:420px){.brand{font-size:19px}.brand .mark{width:22px;height:22px;vertical-align:-4px;margin-right:7px}}
+@media (max-width:374px){.brand .word{display:none}}
+/* Side rail (laptops and desktops, 900px and wider): slim dark strip down the left with pop-out panels.
+   Phones and tablets use the Tools and Vault drop-downs instead. */
+.rail{display:none}
+@media (min-width:900px){
+  body{padding-left:88px}
+  .rail{display:flex;flex-direction:column;align-items:stretch;gap:4px;position:fixed;z-index:30;top:0;bottom:0;left:0;width:88px;
+    padding:14px 8px calc(14px + env(safe-area-inset-bottom,0px));background:#0E1A2E;border-right:1px solid rgba(234,240,248,.08)}
+  .rail .mark{display:block;text-align:center;line-height:44px;height:44px;white-space:nowrap;margin-bottom:10px;font:700 18px "Barlow Condensed",sans-serif;color:#EAF0F8;text-decoration:none;letter-spacing:.02em}
+  .rail .mark .rmark{width:34px;height:34px;vertical-align:middle;color:#EAF0F8}
+  .ri{display:flex;flex-direction:column;align-items:center;gap:4px;width:100%;padding:10px 4px;border-radius:8px;border:0;background:none;color:#B8C4D6;font:600 12px Barlow,sans-serif;text-decoration:none;cursor:pointer;list-style:none;text-align:center}
+  .ri::-webkit-details-marker{display:none}
+  .ri svg{width:22px;height:22px;flex:none}
+  .ri:hover{color:#EAF0F8;background:rgba(234,240,248,.07)}
+  .ri.on{background:var(--accent);color:var(--accent-ink)}
+  .rp[open]>.ri{background:rgba(234,240,248,.14);color:#EAF0F8}
+  .ri:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  .rp{position:relative}
+  .rp>.menu{position:absolute;left:calc(100% + 14px);top:0;right:auto;width:300px}
+  .rail .spacer{flex:1}
+  .rail .rule{height:1px;background:rgba(234,240,248,.12);margin:6px 8px}
+  /* the rail replaces the top-bar menus on bigger screens */
+  /* the rail replaces the phone menus and the page's own Night/Day button */
+  .dd,.tgl{display:none}
+}
+/* JSA Builder fit: menus open above the page and the sticky bar */
+.nav.wrap{z-index:26}
+/* JSA Builder fit: on phones the menus drop to their own row under the logo, bank and profile */
+@media (max-width:599px){ .nav{flex-wrap:wrap;row-gap:10px} .nav .navr{flex-basis:100%;justify-content:flex-end} }
+/* JSA Builder fit: keep the safe-area band and the sticky bar clear of the rail */
+@media (min-width:900px){ body::before{left:88px} }
 </style>
 
 <div class="page">
+<aside class="rail" aria-label="Site menu">
+  <a class="mark" href="https://crnrstone-co.com/" aria-label="crnrstone-co home"><svg class="rmark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="8,8 92,8 92,34 34,34 34,60 8,60" fill="currentColor"/><rect x="40" y="66" width="52" height="26" fill="currentColor"/><rect x="8" y="66" width="26" height="26" fill="#E3A857"/></svg></a>
+  <a class="ri" href="https://crnrstone-co.com/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>Home</a>
+  <details class="rp"><summary class="ri"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 12h2M14 12h2M8 16h2M14 16h2"/></svg>Tools</summary><div class="menu"><a href="https://crnrstone-co.com/calculations/calculator/"><b>Calculator</b><small>Basic and scientific, with GST keys and a history log</small></a><a href="https://crnrstone-co.com/calculations/plan-triangle/"><b>Plan triangle</b><small>Rafter and hip or valley lengths and angles</small></a><a href="https://crnrstone-co.com/calculations/trig-solver/"><b>Trig solver</b><small>Any right-angle triangle from two values</small></a><a href="https://crnrstone-co.com/learn/floor-model/"><b>3D floor model</b><small>See how slab and timber floors go together</small></a><div class="soon"><b>Job calculators and quotes</b><small>Materials for a job, straight into a quote</small></div></div></details>
+  <details class="rp"><summary class="ri on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>Vault</summary><div class="menu"><div class="mh">Safety and documents</div><div class="soon"><b>JSA Builder</b><small>Job safety analysis with a risk matrix and crew sign-on</small></div><div class="soon"><b>SWMS Builder</b><small>Safe work method statements for high risk work</small></div><div class="soon"><b>SDS register</b><small>Safety data sheets, PPE at a glance and review dates</small></div><div class="soon"><b>Installation guides</b><small>Manufacturers’ guides and specs on your phone</small></div><div class="soon"><b>Tool registry</b><small>Tools and equipment, who has them, test and tag dates</small></div></div></details>
+  <a class="ri" href="https://crnrstone-co.com/learn/floor-model/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>Learn</a>
+  <div class="spacer"></div>
+  <a class="ri" href="https://crnrstone-co.com/#updates"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>Join</a>
+  <div class="rule"></div>
+  <button class="ri" type="button" id="rail-theme" aria-label="Switch to night mode"><svg id="rail-theme-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><span id="rail-theme-t">Night</span></button>
+</aside>
   <div class="gridbg" aria-hidden="true"></div>
 
   <header class="nav wrap">
-    <a class="logo" href="#top" aria-label="crnrstone-co">crnrstone<span class="dash">-</span><span class="co">co</span></a>
+    <a class="brand logo" href="https://crnrstone-co.com/" aria-label="crnrstone-co home"><svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="8,8 92,8 92,34 34,34 34,60 8,60" fill="currentColor"/><rect x="40" y="66" width="52" height="26" fill="currentColor"/><rect x="8" y="66" width="26" height="26" fill="#E3A857"/></svg><span class="word">crnrstone<span class="dash">-</span>co</span></a>
     <span class="sp"></span>
     <button class="nbtn" id="openBank" type="button" aria-label="JSA bank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18M5 7v12h14V7M9 11h6"/><path d="M4 3h16v4H4z"/></svg><span class="lbl">JSA bank</span><span class="count" id="bankCount">0</span></button>
     <button class="nbtn" id="openProfile" type="button" aria-label="Business profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-7h6v7"/></svg><span class="lbl">Business profile</span></button>
-    <button class="nbtn" id="theme" type="button" aria-label="Switch night or day"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><span class="lbl" id="themeLbl">Night</span></button>
+    <div class="navr"><details class="dd tools"><summary>Tools</summary><div class="menu"><a href="https://crnrstone-co.com/calculations/calculator/"><b>Calculator</b><small>Basic and scientific, with GST keys and a history log</small></a><a href="https://crnrstone-co.com/calculations/plan-triangle/"><b>Plan triangle</b><small>Rafter and hip or valley lengths and angles</small></a><a href="https://crnrstone-co.com/calculations/trig-solver/"><b>Trig solver</b><small>Any right-angle triangle from two values</small></a><a href="https://crnrstone-co.com/learn/floor-model/"><b>3D floor model</b><small>See how slab and timber floors go together</small></a><div class="soon"><b>Job calculators and quotes</b><small>Materials for a job, straight into a quote</small></div></div></details><details class="dd vault"><summary><span class="the">The</span>Vault</summary><div class="menu"><div class="mh">Safety and documents</div><div class="soon"><b>JSA Builder</b><small>Job safety analysis with a risk matrix and crew sign-on</small></div><div class="soon"><b>SWMS Builder</b><small>Safe work method statements for high risk work</small></div><div class="soon"><b>SDS register</b><small>Safety data sheets, PPE at a glance and review dates</small></div><div class="soon"><b>Installation guides</b><small>Manufacturers’ guides and specs on your phone</small></div><div class="soon"><b>Tool registry</b><small>Tools and equipment, who has them, test and tag dates</small></div></div></details><button class="nbtn tgl" id="theme" type="button" aria-label="Switch to night mode"><svg id="theme-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><span class="lbl" id="themeLbl">Night</span></button></div>
   </header>
 
   <section class="intro wrap" id="top">
@@ -481,11 +558,39 @@ var GROUPS = [
   {step:"Handling plasterboard and sheets",hazard:"Strains and back injury from large, heavy sheets",b:[3,2],controls:"Team lift or sheet trolley. Stack sheets close to where they'll be fixed.",a:[1,1],who:"All workers"},
   {step:"Fixing overhead sheets",hazard:"Sheets falling, neck and shoulder strain",b:[2,2],controls:"Sheet lifter or props until fixed. Work from platform ladders or trestles, not boxes or buckets.",a:[1,1],who:"All workers"},
   {step:"Cutting fibre cement sheets",hazard:"Breathing silica dust",b:[2,3],controls:"Score and snap or use sheet shears, not a saw or grinder. If power cutting can't be avoided, use dust extraction or water and a P2 mask.",a:[1,2],who:"Operator"}]},
- {key:"tools",label:"Power tools and cutting",kw:["saw","cut","nail","drill","grinder","power tool","router","planer","nailer"],ppe:["eyes","ears","mask"],rows:[
+ {key:"tools",label:"Power tools: carpentry",trade:"carpentry",kw:["saw","cut","nail","drill","grinder","power tool","router","planer","nailer"],ppe:["eyes","ears","mask"],rows:[
   {step:"Cutting with circular or drop saw",hazard:"Cuts and kickback",b:[2,3],controls:"Guards working. Sharp, correct blade. Work supported and clamped. Competent operators only.",a:[1,2],who:"Operator"},
   {step:"Using nail guns",hazard:"Nail into hand, body or another worker",b:[2,3],controls:"Sequential trigger for framing. Disconnect to clear jams or move. Never point it at anyone.",a:[1,2],who:"Operator"},
   {step:"Cutting and sanding",hazard:"Dust and noise",b:[3,2],controls:"Dust extraction or cut outside, downwind. P2 mask and hearing protection on.",a:[1,1],who:"Operator"},
   {step:"Leads and plug-in tools",hazard:"Electric shock",b:[1,3],controls:"Tested and tagged. RCD protection. Leads off the ground. Damaged gear tagged out.",a:[0,3],who:"All workers"}]},
+ {key:"tools_plumb",label:"Power tools: plumbing",trade:"plumbing",kw:["saw","cut","drill","grinder","power tool","pipe cutter","press tool","core drill"],ppe:["eyes","ears"],rows:[
+  {step:"Cutting and pressing pipe",hazard:"Cuts, crushed fingers and flying burrs",b:[2,2],controls:"Pipe cutters or saws with guards. Deburr ends. Keep fingers out of press tool jaws. Eye protection.",a:[1,1],who:"Plumber"},
+  {step:"Drilling and cutting through walls and floors",hazard:"Drill kickback and hitting hidden services",b:[2,3],controls:"Side handle on, correct speed. Scan for cables and pipes first. Clutch set on core drills.",a:[1,2],who:"Plumber"},
+  {step:"Leads and plug-in tools",hazard:"Electric shock",b:[1,3],controls:"Tested and tagged. RCD protection. Leads off the ground. Damaged gear tagged out.",a:[0,3],who:"All workers"}]},
+ {key:"tools_elec",label:"Power tools: electrical",trade:"electrical",kw:["drill","hole saw","cut","grinder","power tool","saw"],ppe:["eyes","ears","mask"],rows:[
+  {step:"Drilling and hole sawing",hazard:"Wrist injury from bind-up and flying debris",b:[2,2],controls:"Side handle and clutch on. Pilot holes. Eye protection and dust mask for ceilings.",a:[1,1],who:"Electrician"},
+  {step:"Leads and plug-in tools",hazard:"Electric shock",b:[1,3],controls:"Tested and tagged. RCD protection. Leads off the ground. Damaged gear tagged out.",a:[0,3],who:"All workers"}]},
+ {key:"tools_hvac",label:"Power tools: air conditioning",trade:"hvac",kw:["drill","core drill","cut","grinder","power tool","saw"],ppe:["eyes","ears","mask"],rows:[
+  {step:"Core drilling for pipe and drain penetrations",hazard:"Kickback, silica dust and hitting hidden services",b:[2,3],controls:"Scan the wall first. Core drill with clutch, water or dust extraction. P2 mask and eye protection.",a:[1,2],who:"Technician"},
+  {step:"Cutting and flaring copper pipe",hazard:"Cuts and burrs",b:[2,1],controls:"Pipe cutter, deburr tool. Gloves.",a:[1,1],who:"Technician"},
+  {step:"Leads and plug-in tools",hazard:"Electric shock",b:[1,3],controls:"Tested and tagged. RCD protection. Leads off the ground. Damaged gear tagged out.",a:[0,3],who:"All workers"}]},
+ {key:"tools_mech",label:"Power tools: workshop",trade:"mechlv",kw:["grinder","impact","air tool","rattle gun","drill","cut","power tool","saw"],ppe:["eyes","ears","gloves"],rows:[
+  {step:"Using air and impact tools",hazard:"Hand-arm vibration, noise and whipping air hoses",b:[3,2],controls:"Correct sockets (impact rated). Check hoses and couplings. Hearing protection. Limit continuous use.",a:[1,1],who:"Mechanic"},
+  {step:"Grinding and cutting metal",hazard:"Flying sparks and fragments, disc failure",b:[2,3],controls:"Guard on, correct disc for the speed. Face shield or glasses. Clear fuel and flammables. Never remove the guard.",a:[1,2],who:"Mechanic"},
+  {step:"Leads and plug-in tools",hazard:"Electric shock",b:[1,3],controls:"Tested and tagged. RCD protection. Leads off the ground. Damaged gear tagged out.",a:[0,3],who:"All workers"}]},
+ {key:"tools_tile",label:"Power tools: tiling",trade:"tiling",kw:["grinder","mixer","drill","cut","power tool","saw"],ppe:["eyes","ears","mask"],rows:[
+  {step:"Mixing adhesive with a paddle mixer",hazard:"Wrist injury and cement dust",b:[2,2],controls:"Two-handed mixer, start slow. Mix in a sturdy bucket on the floor. Dust mask.",a:[1,1],who:"Tiler"},
+  {step:"Grinding and drilling tiles",hazard:"Flying fragments and silica dust",b:[3,3],controls:"Guards on. Wet cut or extraction. P2 mask and eye protection.",a:[1,2],who:"Tiler"},
+  {step:"Leads and plug-in tools",hazard:"Electric shock",b:[1,3],controls:"Tested and tagged. RCD protection. Leads off the ground. Damaged gear tagged out.",a:[0,3],who:"All workers"}]},
+ {key:"tools_join",label:"Power tools: joinery",trade:"joinery",kw:["router","drill","cut","power tool","saw","nailer","sander"],ppe:["eyes","ears","mask"],rows:[
+  {step:"Hand-held routers, saws and nailers",hazard:"Cuts, kickback and nail injuries",b:[2,3],controls:"Clamp the work. Guards working. Sharp bits and blades. Disconnect nailers to clear jams.",a:[1,2],who:"Joiner"},
+  {step:"Leads and plug-in tools",hazard:"Electric shock",b:[1,3],controls:"Tested and tagged. RCD protection. Leads off the ground. Damaged gear tagged out.",a:[0,3],who:"All workers"}]},
+ {key:"tools_conc",label:"Power tools: concreting",trade:"concreting",kw:["concrete saw","saw","grinder","vibrator","cut","power tool"],ppe:["eyes","ears","mask"],rows:[
+  {step:"Concrete saw and grinder",hazard:"Silica dust, kickback and noise",b:[3,3],controls:"Water on the blade. P2 mask, hearing and eye protection. Two hands, stand to the side of the blade.",a:[1,2],who:"Concreter"},
+  {step:"Using a concrete vibrator",hazard:"Electric shock and hand-arm vibration",b:[2,2],controls:"RCD protected. Check leads before use. Rotate the operator.",a:[1,1],who:"Concreter"}]},
+ {key:"tools_brick",label:"Power tools: bricklaying",trade:"brick",kw:["brick saw","saw","grinder","mixer","cut","power tool"],ppe:["eyes","ears","mask"],rows:[
+  {step:"Cutting bricks and blocks",hazard:"Silica dust and flying fragments",b:[3,3],controls:"Wet brick saw or extraction. P2 mask and eye protection. Guards on.",a:[1,2],who:"Bricklayer"},
+  {step:"Using a mortar mixer",hazard:"Entanglement and electric shock",b:[2,3],controls:"Guards on. Never reach into a running mixer. RCD protected.",a:[1,2],who:"Bricklayer"}]},
  {key:"dig",label:"Digging and trenches",kw:["dig","trench","excavat","pier hole","footing","post hole","drainage","stormwater","sewer"],
   hrcw:"trench or shaft deeper than 1.5 m",rows:[
   {step:"Before digging",hazard:"Hitting underground power, gas, water or comms",b:[2,4],controls:"Before You Dig Australia enquiry. Locate and mark services. Hand dig near known services.",a:[0,4],who:"Supervisor"},
@@ -599,15 +704,15 @@ var GROUPS = [
 /* Trades: headers with their own chip lists. Shared chips appear under several trades. */
 var TRADES = [
  {key:"carpentry",label:"Carpentry",chips:["site","heights","roof","framing","floor","stairs","decking","linings","tools","scaffold","demo","chem","plant","power"]},
- {key:"plumbing",label:"Plumbing",chips:["site","sewer","dig","gasfit","roofplumb","heights","ceiling","hot","tools","chem","silica"]},
- {key:"electrical",label:"Electrical",chips:["site","elec","cablepull","ceiling","heights","tools","dig","power","scaffold"]},
- {key:"hvac",label:"Air conditioning / HVAC",chips:["site","refrig","unitlift","elec","ceiling","heights","hot","tools","silica"]},
- {key:"mechlv",label:"Mechanics (light vehicle)",chips:["site","vlift","vfluids","vexhaust","tyres","battery","brakes","hot","chem","tools"]},
- {key:"mechhv",label:"Mechanics (heavy vehicle)",chips:["site","vlift","hvcomp","airbrakes","vfluids","vexhaust","tyres","battery","brakes","heights","hot","chem","tools"]},
- {key:"tiling",label:"Tiling",chips:["site","tilecut","tilelay","waterproof","silica","demo","chem","tools"]},
- {key:"joinery",label:"Joinery",chips:["site","jmach","wooddust","jinstall","chem","tools"]},
- {key:"concreting",label:"Concreting",chips:["site","concrete","formwork","silica","dig","plant","power","tools"]},
- {key:"brick",label:"Brick and block laying",chips:["site","brick","silica","scaffold","heights","plant","tools"]}
+ {key:"plumbing",label:"Plumbing",chips:["site","sewer","dig","gasfit","roofplumb","heights","ceiling","hot","tools_plumb","chem","silica"]},
+ {key:"electrical",label:"Electrical",chips:["site","elec","cablepull","ceiling","heights","tools_elec","dig","power","scaffold"]},
+ {key:"hvac",label:"Air conditioning / HVAC",chips:["site","refrig","unitlift","elec","ceiling","heights","hot","tools_hvac","silica"]},
+ {key:"mechlv",label:"Mechanics (light vehicle)",chips:["site","vlift","vfluids","vexhaust","tyres","battery","brakes","hot","chem","tools_mech"]},
+ {key:"mechhv",label:"Mechanics (heavy vehicle)",chips:["site","vlift","hvcomp","airbrakes","vfluids","vexhaust","tyres","battery","brakes","heights","hot","chem","tools_mech"]},
+ {key:"tiling",label:"Tiling",chips:["site","tilecut","tilelay","waterproof","silica","demo","chem","tools_tile"]},
+ {key:"joinery",label:"Joinery",chips:["site","jmach","wooddust","jinstall","chem","tools_join"]},
+ {key:"concreting",label:"Concreting",chips:["site","concrete","formwork","silica","dig","plant","power","tools_conc"]},
+ {key:"brick",label:"Brick and block laying",chips:["site","brick","silica","scaffold","heights","plant","tools_brick"]}
 ];
 var MATERIALS = {
  carpentry:["Construction adhesive","Silicone sealant","Treated pine (H3/H4)","Timber stain or oil","Expanding foam","Two-pack epoxy"],
@@ -624,10 +729,10 @@ var MATERIALS = {
 var TRADE_BY_KEY = {}; TRADES.forEach(function(t){ TRADE_BY_KEY[t.key]=t; });
 var GROUP_BY_KEY = {}; GROUPS.forEach(function(g){ GROUP_BY_KEY[g.key]=g; });
 
-function matchGroups(text){
+function matchGroups(text,trade){
   var t=(" "+String(text||"").toLowerCase()+" ");
   /* keyword must start a word, so "roof" doesn't match "waterproofing" */
-  return GROUPS.filter(function(g){ return g.kw.some(function(k){ var i=t.indexOf(k); while(i>-1){ if(!/[a-z0-9]/.test(t.charAt(i-1))) return true; i=t.indexOf(k,i+1); } return false; }); }).map(function(g){return g.key;});
+  return GROUPS.filter(function(g){ return !g.trade||g.trade===(trade||"carpentry")||(trade==="mechhv"&&g.trade==="mechlv"); }).filter(function(g){ return g.kw.some(function(k){ var i=t.indexOf(k); while(i>-1){ if(!/[a-z0-9]/.test(t.charAt(i-1))) return true; i=t.indexOf(k,i+1); } return false; }); }).map(function(g){return g.key;});
 }
 function uid(p){ return (p||"x")+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
 function rowFrom(src,tmpl){
@@ -669,7 +774,7 @@ function exampleJsa(){
   j.job="Lot 12 new home, frame stage"; j.site="12 Example Street, Sampletown"; j.client="Sample Homes";
   j.prepared="Lead carpenter"; j.supervisor="Site supervisor"; j.supPhone="0400 000 000"; j.firstAid="Lead carpenter";
   j.assembly="Front footpath by the site sign"; j.hospital="Nearest hospital ED (check address)";
-  applyGroups(j, matchGroups(j.task)); j.groups=j.groups.concat(matchGroups(j.task));
+  applyGroups(j, matchGroups(j.task,"carpentry")); j.groups=j.groups.concat(matchGroups(j.task,"carpentry"));
   j.crew=[{name:"",company:""},{name:"",company:""}];
   return j;
 }
@@ -741,7 +846,7 @@ function buildPdf(jsPDFCtor, j, profile){
 
   var body=(j.hazards||[]).map(function(h,i){ return [String(i+1),h.step||"",h.hazard||"",riskText(h.b),h.controls||"",riskText(h.a),h.who||""]; });
   doc.autoTable(Object.assign({},base,{startY:y,
-    head:[["#","Job step","Hazard","Risk before","Controls","Risk after","Who"]],
+    head:[["#","Job step","Hazard","Risk before","Controls","Risk after","Who is responsible"]],
     body:body.length?body:[["","No hazards listed","","","","",""]],
     headStyles:{fillColor:NAVY,textColor:[234,240,248],fontStyle:"bold",fontSize:8},
     columnStyles:{0:{cellWidth:7,halign:"center"},1:{cellWidth:38},2:{cellWidth:48},3:{cellWidth:27},4:{cellWidth:"auto"},5:{cellWidth:27},6:{cellWidth:28}},
@@ -834,8 +939,8 @@ if(typeof module!=="undefined") module.exports={MATRIX:MATRIX,rate:rate,matchGro
 /* ===== Page ===== */
 (function(){
 "use strict";
-var S={jsa:null,list:[],profile:{},mode:"device",uid:null,dbRef:null,downloads:null,bankTab:"active",bankQuery:"",folded:new Set(),foldFor:null,secFold:new Set(),showOther:false,showHidden:false};
-var LS_LIST="crnrstone-jsa-list", LS_PROF="crnrstone-jsa-profile", LS_LAST="crnrstone-jsa-last";
+var S={jsa:null,list:[],profile:{},mode:"device",uid:null,dbRef:null,downloads:null,bankTab:"active",bankQuery:"",folded:new Set(),foldFor:null,secFold:new Set(),showOther:false,showHidden:false,mine:[],mineSugg:null};
+var LS_LIST="crnrstone-jsa-list", LS_PROF="crnrstone-jsa-profile", LS_LAST="crnrstone-jsa-last", LS_MINE="crnrstone-jsa-myhazards";
 function lsGet(k,d){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } }
 function lsSet(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); return true; }catch(e){ return false; } }
 function $(s,r){ return (r||document).querySelector(s); }
@@ -862,7 +967,10 @@ function ic(n){ var s=h("span"); s.innerHTML=ICON[n]; return s.firstChild; }
 /* ---------- Theme ---------- */
 function applyTheme(t){ if(t) document.documentElement.setAttribute("data-theme",t); else document.documentElement.removeAttribute("data-theme"); updThemeLbl(); }
 function isDark(){ var t=document.documentElement.getAttribute("data-theme"); if(t) return t==="dark"; return window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches; }
-function updThemeLbl(){ $("#themeLbl").textContent=isDark()?"Day":"Night"; }
+var MOON='<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>', SUN='<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>';
+function updThemeLbl(){ var d=isDark(), b=$("#theme"); $("#themeLbl").textContent=d?"Day":"Night";
+  if(b) b.setAttribute("aria-label",d?"Switch to day mode":"Switch to night mode"); var ic=$("#theme-ic"); if(ic) ic.innerHTML=d?SUN:MOON;
+  var rt=$("#rail-theme-t"); if(rt){ rt.textContent=d?"Day":"Night"; var ri=$("#rail-theme-ic"); if(ri) ri.innerHTML=d?SUN:MOON; var rb=$("#rail-theme"); if(rb) rb.setAttribute("aria-label",b.getAttribute("aria-label")); } }
 try{ var st=localStorage.getItem("crnrstone-theme"); if(st) applyTheme(st); }catch(e){}
 updThemeLbl();
 $("#theme").addEventListener("click",function(){ var t=isDark()?"light":"dark"; applyTheme(t); try{ localStorage.setItem("crnrstone-theme",t); }catch(e){} });
@@ -897,6 +1005,14 @@ var Store={
     if(S.mode==="account"){ var d=await S.dbRef.get(); return d.exists?(d.data()||{}):{}; }
     return lsGet(LS_PROF,{});
   },
+  async getMine(){
+    if(S.mode==="account"){ var d=await S.dbRef.collection("lib").doc("myhazards").get(); return d.exists?((d.data()||{}).items||[]):[]; }
+    return lsGet(LS_MINE,[]);
+  },
+  async putMine(items){
+    if(S.mode==="account") await S.dbRef.collection("lib").doc("myhazards").set({items:JSON.parse(JSON.stringify(items))});
+    else if(!lsSet(LS_MINE,items)) throw new Error("device storage full");
+  },
   async putProfile(p){
     if(S.mode==="account") await S.dbRef.set(JSON.parse(JSON.stringify(p)));
     else lsSet(LS_PROF,p);
@@ -905,6 +1021,14 @@ var Store={
 
 var saveTimer=null, savingNow=false, savePending=false;
 function setSaved(t){ $("#abSaved").textContent=t; }
+/* The example's made-up site and contact details never carry into a real JSA. Keeps whatever field is being typed in. */
+function clearExampleDetails(){
+  var j=S.jsa, a=document.activeElement, typing=a&&a.dataset?a.dataset.k:null;
+  ["job","site","client","prepared","supervisor","supPhone","firstAid","assembly","hospital"].forEach(function(k){
+    if(k===typing) return; j[k]=""; });
+  applyProfileDefaults(j);
+  ["job","site","client","prepared","supervisor","supPhone","firstAid","assembly","hospital"].forEach(function(k){ var el=$("#f-"+k); if(el&&k!==typing) el.value=j[k]||""; });
+}
 /* kind: "review" or "crew" changes don't undo approval or sign-off. Anything else undoes both. */
 function touch(kind){
   if(!S.jsa) return;
@@ -918,7 +1042,7 @@ function touch(kind){
     if(crewUndone) renderCrew();
     if(undone||crewUndone){ syncReview(); renderLive(); toast("Changed after signing. This JSA needs approving and signing again, and the crew need to sign on again."); }
   }
-  if(S.jsa.example){ S.jsa.example=false; S.jsa.no=nextNo(); renderBar(); }
+  if(S.jsa.example){ S.jsa.example=false; assignNo(S.jsa); clearExampleDetails(); var nf=$("#f-no"); if(nf&&document.activeElement!==nf) nf.value=S.jsa.no; renderBar(); }
   S.jsa.updated=Date.now();
   requestAnimationFrame(updateStatuses);
   setSaved("Saving…");
@@ -928,14 +1052,21 @@ async function saveNow(){
   if(!S.jsa||S.jsa.example) return;
   if(savingNow){ savePending=true; return; }
   savingNow=true;
-  try{ await Store.put(S.jsa); lsSet(LS_LAST,S.jsa.id); setSaved(S.mode==="account"?"Saved to your account":"Saved on this device"); updBankCount(); }
+  try{ await Store.put(S.jsa); lsSet(LS_LAST,S.jsa.id); setSaved(S.mode==="account"?"Saved to your account":"Saved on this device"); updBankCount(); harvestMine(); }
   catch(e){ setSaved("Not saved"); toast(e&&e.code==="quota_exceeded"?"Storage is full. Delete some archived JSAs to make room.":"Couldn't save just now. Your changes are still on screen."); }
   savingNow=false; if(savePending){ savePending=false; saveNow(); }
 }
-function nextNo(){
-  var max=0; S.list.forEach(function(x){ var n=parseInt(String(x.no||"").replace(/\D/g,""),10); if(n>max) max=n; });
-  return padNo(max+1);
+/* Automatic numbering runs on its own counter (seq), so a custom name never upsets the sequence. */
+function nextSeq(){
+  var max=0;
+  S.list.concat(S.jsa&&!S.jsa.example?[S.jsa]:[]).forEach(function(x){
+    var n=x.seq!=null?x.seq:(x.noCustom?0:parseInt(String(x.no||"").replace(/\D/g,""),10));
+    if(n>max) max=n; });
+  return max+1;
 }
+function nextNo(){ return padNo(nextSeq()); }
+function assignNo(j){ j.seq=nextSeq(); j.no=padNo(j.seq); j.noCustom=false; }
+function autoNo(j){ return j.seq!=null?padNo(j.seq):(j.noCustom?"":j.no); }
 
 /* ---------- Action bar ---------- */
 function renderBar(){
@@ -954,6 +1085,13 @@ function updBankCount(){ $("#bankCount").textContent=S.list.filter(function(x){r
 
 /* ---------- Sheet ---------- */
 var REQ2=["site","date","prepared","supervisor","supPhone","firstAid","assembly","hospital"];
+function numField(){
+  var j=S.jsa, auto=autoNo(j);
+  var reset=h("button",{type:"button",class:"linkbtn",id:"noReset",hidden:!j.noCustom||!auto?true:null,onclick:function(){
+    j.no=autoNo(j); j.noCustom=false; $("#f-no").value=j.no; reset.hidden=true; touch(); renderLive(); }},"Use "+(auto||"automatic number"));
+  return h("label",{class:"f"},h("span",{},"JSA number ",h("span",{class:"hintx",text:"(automatic, or type your own)"})),
+    h("input",{class:"inp",id:"f-no",value:j.no||"","data-k":"no",autocomplete:"off"}),reset);
+}
 function field(key,label,type,cls){
   return h("label",{class:"f "+(cls||"")},h("span",{},label,REQ2.indexOf(key)>-1?h("b",{class:"req",text:" *"}):null),
     h("input",{class:"inp",id:"f-"+key,type:type||"text",value:S.jsa[key]||"","data-k":key,autocomplete:"off"}));
@@ -989,9 +1127,9 @@ function hazardRow(row,i,n){
     h("div",{class:"c-step"},h("span",{class:"cl",text:"Job step"}),ta("step","Job step")),
     h("div",{class:"c-haz"},h("span",{class:"cl",text:"Hazard"}),ta("hazard","Hazard")),
     h("div",{class:"c-b"},h("span",{class:"cl",text:"Risk before"}),riskBtn(row,"b",i)),
-    h("div",{class:"c-ctl"},h("span",{class:"cl",text:"Controls"}),ta("controls","Controls")),
+    h("div",{class:"c-ctl"},h("span",{class:"cl",text:"Controls"}),ta("controls","Controls"),hocIcon()),
     h("div",{class:"c-a"},h("span",{class:"cl",text:"Risk after"}),riskBtn(row,"a",i)),
-    h("div",{class:"c-who"},h("span",{class:"cl",text:"Who"}),ta("who","Who")),
+    h("div",{class:"c-who"},h("span",{class:"cl",text:"Who is responsible"}),ta("who","Who is responsible")),
     rowTools(row,i,n)
   );
 }
@@ -1009,11 +1147,11 @@ function foldAll(on){
 function renderSheet(){
   var j=S.jsa, p=S.profile||{}, sheet=$("#sheet"); sheet.innerHTML="";
   // Fold state: every step starts folded for a quick snapshot. New rows always open.
-  if(S.foldFor!==j.id){ S.foldFor=j.id; S.folded=new Set(j.hazards.map(function(r){return r.id;})); }
+  if(S.foldFor!==j.id){ S.foldFor=j.id; S.mineSugg=null; S.folded=new Set(j.hazards.map(function(r){return r.id;})); }
   // Letterhead
   var biz = (p.name||p.logo) ?
     h("div",{class:"biz"}, p.logo?h("img",{src:p.logo,alt:(p.name||"Business")+" logo"}):null,
-      h("div",{}, h("div",{class:"nm",text:p.name||""}), h("div",{class:"meta",text:[p.abn?("ABN "+p.abn):"",p.phone||""].filter(Boolean).join("  ·  ")})))
+      h("div",{}, h("div",{class:"nm",text:p.name||""}), h("div",{class:"meta",text:p.abn?("ABN "+p.abn):""})))
     : h("button",{type:"button",class:"addbiz",onclick:openProfile}, h("b",{text:"Add your business details"}),"Set it once and every JSA carries your name, ABN and logo.");
   sheet.appendChild(h("div",{class:"lh"}, biz,
     h("div",{class:"doctitle"}, h("div",{class:"t",text:"Job Safety Analysis"}), h("div",{class:"m",id:"lhMeta",text:j.no+"  ·  Rev "+j.rev+"  ·  "+fmtDate(j.date)}))));
@@ -1028,13 +1166,14 @@ function renderSheet(){
   sheet.appendChild(secWrap("1","The job","",
     h("label",{class:"f task"},h("span",{},"What's the job?",h("b",{class:"req",text:" *"})),h("textarea",{class:"ta",id:"f-task","data-k":"task",rows:"2",placeholder:"e.g. Stand wall frames and install roof trusses, single storey",value:j.task||""})),
     h("div",{class:"row",style:"margin-top:10px"},h("button",{type:"button",class:"btn primary",id:"suggest",onclick:suggest},"Add hazards for this job"),h("span",{class:"small mute",id:"matchMsg"})),
+    h("div",{id:"mineSugg"}),
     workTypesLabel(), chips,
     chemPanel()));
 
   // 2 Site and contacts
   sheet.appendChild(secWrap("2","Site and contacts","Fields marked * are needed before the JSA is complete.",
     h("div",{class:"fields"},
-      field("job","Job / project"), field("site","Site address"), field("client","Client / builder"), field("date","Date","date"),
+      numField(), field("job","Job / project"), field("site","Site address"), field("client","Client / builder"), field("date","Date","date"),
       field("prepared","Prepared by"), field("supervisor","Site supervisor"), field("supPhone","Supervisor phone","tel"), field("firstAid","First aider"),
       field("assembly","Emergency assembly point"), field("hospital","Nearest hospital or medical centre"))));
 
@@ -1046,14 +1185,13 @@ function renderSheet(){
   // 4 Hazards
   var tbl=h("div",{class:"htable",id:"htable"});
   tbl.appendChild(h("div",{class:"hrow hhead","aria-hidden":"true"},
-    ["#","Job step","Hazard","Risk before","Controls","Risk after","Who",""].map(function(t){return h("div",{text:t});})));
+    ["#","Job step","Hazard","Risk before","Controls","Risk after","Who is responsible",""].map(function(t){return h("div",{text:t});})));
   j.hazards.forEach(function(r,i){ tbl.appendChild(hazardRow(r,i,j.hazards.length)); });
   if(!j.hazards.length) tbl.appendChild(h("div",{class:"hempty"},h("b",{text:"No hazards yet."})," Describe the job in section 1 and tap “Add hazards for this job”, pick a work type, or add your own below."));
   sheet.appendChild(secWrap("4","Hazards and controls","Work down each step: hazard, risk before, controls, risk after. Each step needs a hazard, controls and both risk ratings.",
     h("div",{class:"row foldbar"},h("button",{type:"button",class:"btn sm",onclick:function(){ foldAll(true); }},ic("up"),"Fold all"),h("button",{type:"button",class:"btn sm",onclick:function(){ foldAll(false); }},ic("down"),"Open all")),
     tbl,
-    h("div",{class:"row",style:"margin-top:12px"},h("button",{type:"button",class:"btn",onclick:addRow},ic("plus"),"Add a hazard")),
-    hocBlock()));
+    h("div",{class:"row",style:"margin-top:12px"},h("button",{type:"button",class:"btn",onclick:addRow},ic("plus"),"Add a hazard"))));
 
   // 5 Review and sign-on
   var rv=j.review||(j.review={ok:false,by:"",at:""});
@@ -1073,45 +1211,139 @@ function renderSheet(){
 
   sheet.appendChild(h("div",{class:"sheetfoot",text:"Made with crnrstone-co JSA Builder. A guide only. Check your state's WHS laws and codes of practice. High risk construction work needs a SWMS."}));
 
-  renderBar(); renderLive(); syncReview(); renderCrew(); updateStatuses();
+  renderBar(); renderLive(); syncReview(); renderCrew(); updateStatuses(); drawMineSugg();
 }
 
 /* ---------- Hierarchy of control (hover or tap the icon) ---------- */
 var HOC=[
   {n:"Eliminate",s:"Get rid of it",e:"Build frames and trusses on the ground, then lift them into place.",c:"L"},
-  {n:"Substitute",s:"Swap it for something safer",e:"Cordless tools instead of leads. Lighter sheet products.",c:"L"},
-  {n:"Isolate",s:"Separate people from it",e:"Exclusion zones and barricades around crane lifts and open trenches.",c:"M"},
+  {n:"Substitute",s:"Swap for safer",e:"Cordless tools instead of leads. Lighter sheet products.",c:"L"},
+  {n:"Isolate",s:"Keep people away",e:"Exclusion zones and barricades around crane lifts and open trenches.",c:"M"},
   {n:"Engineering",s:"Engineer it out",e:"Edge protection, saw guards, dust extraction.",c:"M"},
-  {n:"Administrative",s:"Set work rules",e:"Toolbox talks, signage, safe work procedures, permits.",c:"H"},
-  {n:"PPE",s:"Protect the person",e:"Harness, P2 mask, glasses, hearing protection. The last line of defence.",c:"E"}
+  {n:"Admin",s:"Rules and training",e:"Toolbox talks, signage, safe work procedures, permits.",c:"H"},
+  {n:"PPE",s:"Last line",e:"Harness, P2 mask, glasses, hearing protection. The last line of defence.",c:"E"}
 ];
-function hocBlock(){
-  var timer=null;
-  var pop=h("div",{class:"hocpop",id:"hocPop",role:"dialog","aria-label":"Hierarchy of control",hidden:true},
+/* One shared panel, opened from the small info icon in any step's Controls box */
+var hocTimer=null, hocFrom=null;
+function hocPanel(){
+  var pop=$("#hocPop"); if(pop) return pop;
+  pop=h("div",{class:"hocpop",id:"hocPop",role:"tooltip",hidden:true},
     h("div",{class:"hoct",text:"Hierarchy of control"}),
-    h("p",{class:"hocsub",text:"Most effective at the top. Only move down when the level above isn't practical, and use more than one control where you can."}),
-    HOC.map(function(l,i){ return h("div",{class:"lvlwrap"},
-      h("div",{class:"lvl "+l.c,style:"width:"+(100-i*8)+"%"},h("b",{text:(i+1)+"  "+l.n}),h("span",{text:l.s})),
-      h("div",{class:"lvlex",text:l.e})); }));
-  var btn=h("button",{type:"button",class:"hocbtn","aria-label":"Show the hierarchy of control","aria-expanded":"false","aria-controls":"hocPop"},ic("info"));
-  function show(){ clearTimeout(timer); pop.hidden=false; pop.classList.remove("fading"); btn.setAttribute("aria-expanded","true"); }
-  function hide(now){
-    clearTimeout(timer); btn.setAttribute("aria-expanded","false");
-    if(now||pop.hidden){ pop.hidden=true; pop.classList.remove("fading"); return; }
-    pop.classList.add("fading"); timer=setTimeout(function(){ pop.hidden=true; pop.classList.remove("fading"); },2050);
-  }
-  var canHover=window.matchMedia&&matchMedia("(hover:hover)").matches;
-  var wrap=h("div",{class:"hoc",id:"hoc"},
-    h("p",{html:"<b>Hierarchy of control.</b> Pick controls from the top down: get rid of it, swap it, separate people from it, engineer it, set work rules, then PPE last."}),
-    btn, pop);
-  if(canHover){ btn.addEventListener("mouseenter",show); pop.addEventListener("mouseenter",show); wrap.addEventListener("mouseleave",function(){ if(!pop.hidden) hide(false); }); }
-  btn.addEventListener("click",function(e){ e.stopPropagation(); if(pop.hidden||pop.classList.contains("fading")) show(); else hide(true); });
+    h("p",{class:"hocsub",text:"Start at the top. Use more than one where you can."}),
+    HOC.map(function(l,i){ return h("div",{class:"lvl "+l.c,style:"width:"+(100-i*7)+"%"},h("b",{text:(i+1)+" "+l.n}),h("span",{text:l.s})); }));
+  pop.addEventListener("mouseenter",function(){ clearTimeout(hocTimer); pop.classList.remove("fading"); });
+  pop.addEventListener("mouseleave",function(){ hideHoc(false); });
   pop.addEventListener("click",function(e){ e.stopPropagation(); });
-  wrap._hide=hide;
-  return wrap;
+  document.body.appendChild(pop); return pop;
 }
-document.addEventListener("click",function(){ var w=$("#hoc"); if(w&&w._hide) w._hide(true); });
-document.addEventListener("keydown",function(e){ if(e.key==="Escape"){ var w=$("#hoc"); if(w&&w._hide) w._hide(true); } });
+function showHoc(btn){
+  var pop=hocPanel(); clearTimeout(hocTimer); hocFrom=btn;
+  pop.hidden=false; pop.classList.remove("fading");
+  var r=btn.getBoundingClientRect(), w=pop.offsetWidth, hgt=pop.offsetHeight, vw=document.documentElement.clientWidth, vh=window.innerHeight;
+  var left=Math.min(Math.max(8,r.right-w),vw-w-8), top=r.bottom+6; if(top+hgt>vh-8) top=Math.max(8,r.top-hgt-6);
+  pop.style.left=left+"px"; pop.style.top=top+"px";
+}
+function hideHoc(now){
+  var pop=$("#hocPop"); if(!pop||pop.hidden) return; clearTimeout(hocTimer);
+  if(now){ pop.hidden=true; pop.classList.remove("fading"); return; }
+  pop.classList.add("fading"); hocTimer=setTimeout(function(){ pop.hidden=true; pop.classList.remove("fading"); },2050);
+}
+function hocIcon(){
+  var btn=h("button",{type:"button",class:"hocbtn","aria-label":"Hierarchy of control: how to pick controls"},h("span",{text:"Hierarchy of control"}),ic("info"));
+  var canHover=window.matchMedia&&matchMedia("(hover:hover)").matches;
+  if(canHover){ btn.addEventListener("mouseenter",function(){ showHoc(btn); }); btn.addEventListener("mouseleave",function(){ hideHoc(false); }); }
+  btn.addEventListener("click",function(e){ e.stopPropagation(); var pop=$("#hocPop"); if(pop&&!pop.hidden&&hocFrom===btn&&!pop.classList.contains("fading")) hideHoc(true); else showHoc(btn); });
+  btn.addEventListener("focus",function(){ showHoc(btn); }); btn.addEventListener("blur",function(){ hideHoc(false); });
+  return h("div",{class:"hocrow"},btn);
+}
+document.addEventListener("click",function(){ hideHoc(true); });
+document.addEventListener("keydown",function(e){ if(e.key==="Escape") hideHoc(true); });
+window.addEventListener("scroll",function(){ hideHoc(true); },{passive:true});
+
+/* ---------- My hazards: each user's own custom rows, learnt from their JSAs ---------- */
+var STOP=("the and for with from into onto over under this that job site work works working install installing installation new old "+
+  "replace replacement repair repairs remove removal fit fitting fix fixing make build building house home unit level storey single double "+
+  "area areas room rooms all some any per via use using are was were will have has had our your their its out off up down").split(" ");
+function jobWords(t){ var out=[]; String(t||"").toLowerCase().replace(/[^a-z0-9 ]+/g," ").split(/\s+/).forEach(function(w){ if(w.length>=3&&STOP.indexOf(w)<0&&out.indexOf(w)<0) out.push(w); }); return out; }
+function mineKey(r){ return (String(r.step||"").trim()+"|"+String(r.hazard||"").trim()).toLowerCase().replace(/\s+/g," "); }
+var harvesting=false;
+async function harvestMine(){
+  var j=S.jsa; if(!j||j.example||harvesting) return;
+  var words=jobWords(j.task), changed=false, now=nowLocal();
+  j.harvested=j.harvested||[];
+  j.hazards.forEach(function(r){
+    if(!(r.src==="own"||String(r.src||"").indexOf("mine:")===0)) return;
+    if(!String(r.hazard||"").trim()||!String(r.controls||"").trim()) return;
+    var k=mineKey(r), x=S.mine.find(function(m){ return m.k===k; });
+    if(!x){ x={k:k,first:now,uses:0,words:[]}; S.mine.push(x); changed=true; }
+    var snap=JSON.stringify(x);
+    x.step=r.step||""; x.hazard=r.hazard||""; x.controls=r.controls||""; x.who=r.who||"";
+    x.b=r.b&&r.b.l!=null?{l:r.b.l,c:r.b.c}:null; x.a=r.a&&r.a.l!=null?{l:r.a.l,c:r.a.c}:null;
+    x.trade=x.trade||openTrade();
+    words.forEach(function(w){ if(x.words.indexOf(w)<0) x.words.push(w); }); if(x.words.length>40) x.words=x.words.slice(-40);
+    if(j.harvested.indexOf(k)<0){ j.harvested.push(k); x.uses=(x.uses||0)+1; x.last=now; }
+    if(JSON.stringify(x)!==snap) changed=true;
+  });
+  if(!changed) return;
+  if(S.mine.length>300){ S.mine.sort(function(a,b){ return String(b.last||"").localeCompare(String(a.last||"")); }); S.mine=S.mine.slice(0,300); }
+  harvesting=true;
+  try{ await Store.putMine(S.mine); }catch(e){}
+  harvesting=false;
+}
+function mineMatches(j){
+  var words=jobWords(j.task); if(!words.length) return [];
+  var onJob=j.hazards.map(mineKey);
+  return S.mine.map(function(x){
+      var bag=(x.words||[]).concat(jobWords(x.step+" "+x.hazard));
+      var score=words.filter(function(w){ return bag.indexOf(w)>-1; }).length;
+      return {x:x,score:score};
+    }).filter(function(o){ return o.score>0&&onJob.indexOf(o.x.k)<0; })
+    .sort(function(a,b){ return b.score-a.score||(b.x.uses||0)-(a.x.uses||0); }).slice(0,8).map(function(o){ return o.x; });
+}
+function addMine(x){
+  var r={id:uid("h"),src:"mine:"+x.k,step:x.step,hazard:x.hazard,b:x.b?{l:x.b.l,c:x.b.c}:{l:null,c:null},controls:x.controls,a:x.a?{l:x.a.l,c:x.a.c}:{l:null,c:null},who:x.who||""};
+  S.jsa.hazards.push(r); return r;
+}
+function drawMineSugg(){
+  var host=$("#mineSugg"); if(!host) return; host.innerHTML="";
+  var list=(S.mineSugg||[]).filter(function(x){ return S.jsa.hazards.map(mineKey).indexOf(x.k)<0; });
+  if(!list.length) return;
+  var chips=h("div",{class:"chips"});
+  list.forEach(function(x){
+    chips.appendChild(h("button",{type:"button",class:"chip sugg",title:x.controls,onclick:function(){ var r=addMine(x); touch(); renderSheet(); flashRows([r.id]); toast("Added from your past JSAs."); }},
+      ic("plus"),(x.step?x.step+" · ":"")+x.hazard,h("span",{class:"mute",text:"  ×"+(x.uses||1)})));
+  });
+  host.appendChild(h("div",{class:"minebox"},
+    h("div",{class:"row",style:"justify-content:space-between"},h("b",{text:"From your past JSAs"}),
+      h("button",{type:"button",class:"btn sm",text:"Add all "+list.length,onclick:function(){ var ids=list.map(function(x){ return addMine(x).id; }); touch(); renderSheet(); flashRows(ids); toast(ids.length+" added from your past JSAs."); }})),
+    h("p",{class:"small mute",style:"margin:2px 0 8px",text:"Hazards you've written yourself on similar jobs. Tap to add. ×2 means used on 2 JSAs."}),
+    chips));
+}
+function mineCsv(){
+  function q(v){ v=String(v==null?"":v); return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }
+  function rr(r){ var k=rate(r); return k?(RATING_NAME[k]+" ("+LIKE[r.l]+" / "+CONS[r.c]+")"):""; }
+  var head=["Job step","Hazard","Controls","Risk before","Risk after","Who is responsible","Job words","Trade","Times used","First used","Last used"];
+  var rows=S.mine.map(function(x){ return [x.step,x.hazard,x.controls,rr(x.b),rr(x.a),x.who,(x.words||[]).join(" "),(TRADE_BY_KEY[x.trade]||{}).label||"",x.uses||1,fmtDT(x.first),fmtDT(x.last)].map(q).join(","); });
+  return "\ufeff"+head.join(",")+"\r\n"+rows.join("\r\n")+"\r\n";
+}
+function minePanel(){
+  var box=h("div",{class:"minelist"});
+  function draw(){
+    box.innerHTML="";
+    if(!S.mine.length){ box.appendChild(h("p",{class:"note",text:"None yet. Any hazard you write yourself on a JSA is saved here and offered back on similar jobs."})); return; }
+    var items=S.mine.slice().sort(function(a,b){ return (b.uses||0)-(a.uses||0); });
+    items.forEach(function(x){
+      box.appendChild(h("div",{class:"mineitem"},
+        h("div",{style:"flex:1;min-width:0"},h("div",{class:"t",text:(x.step?x.step+" · ":"")+x.hazard}),h("div",{class:"m",text:"Used on "+(x.uses||1)+" JSA"+((x.uses||1)===1?"":"s")+(x.words&&x.words.length?("  ·  "+x.words.slice(0,6).join(", ")):"")})),
+        h("button",{type:"button",class:"ib del","aria-label":"Forget this hazard",title:"Forget",onclick:async function(){ S.mine=S.mine.filter(function(m){ return m.k!==x.k; }); draw(); try{ await Store.putMine(S.mine); }catch(e){ toast("Couldn't save just now."); } }},ic("x"))));
+    });
+    box.appendChild(h("div",{class:"row",style:"margin-top:8px"},h("button",{type:"button",class:"btn sm",onclick:async function(){
+      try{ await saveFile("My hazards "+todayISO()+".csv",mineCsv()); toast("Saved"); }catch(e){ if(!(e&&e.code==="declined")) toast("Couldn't save the file just now."); }
+    }},"Download as spreadsheet (CSV)")));
+  }
+  draw();
+  return box;
+}
 
 /* ---------- Trades and work types ---------- */
 /* Your trades (business profile). First one is your main trade. Empty = show every trade. */
@@ -1497,10 +1729,14 @@ function matrixGrid(sel,countFn,onPick){
 document.addEventListener("input",function(e){
   var t=e.target; if(!S.jsa||!$("#sheet").contains(t)) return;
   var j=S.jsa;
+  if(t.dataset.k==="no"){ var a=autoNo(j); j.no=t.value; j.noCustom=t.value.trim()!==a; var rb=$("#noReset"); if(rb){ rb.hidden=!j.noCustom||!a; rb.textContent="Use "+(a||"automatic number"); } touch(); renderLive(); return; }
   if(t.dataset.k){ j[t.dataset.k]=t.value; touch(); if(t.dataset.k==="date") renderLive(); return; }
   if(t.dataset.row&&t.dataset.f){ var r=j.hazards.find(function(x){return x.id===t.dataset.row;}); if(r){ r[t.dataset.f]=t.value; touch(); } return; }
   if(t.dataset.crew!=null&&t.dataset.cf){ var c=j.crew[+t.dataset.crew]; if(c){ c[t.dataset.cf]=t.value; touch("crew"); } return; }
   if(t.dataset.sign){ j[t.dataset.sign][t.dataset.sf]=t.value; touch("review"); var pd=$("#"+t.dataset.sign+"Pad"); if(pd) pd.classList.toggle("off",!t.value.trim()); return; }
+});
+document.addEventListener("focusout",function(e){
+  if(e.target.id==="f-no"&&S.jsa&&!String(S.jsa.no||"").trim()){ var a=autoNo(S.jsa)||nextNo(); S.jsa.no=a; S.jsa.noCustom=false; e.target.value=a; var rb=$("#noReset"); if(rb) rb.hidden=true; touch(); renderLive(); }
 });
 document.addEventListener("change",function(e){
   if(e.target.id==="approvalOk"||e.target.id==="reviewOk"){
@@ -1514,16 +1750,19 @@ document.addEventListener("change",function(e){
 });
 
 function suggest(){
-  var j=S.jsa, found=matchGroups(j.task), add=found.filter(function(k){return j.groups.indexOf(k)<0;});
+  var j=S.jsa, found=matchGroups(j.task,openTrade()), add=found.filter(function(k){return j.groups.indexOf(k)<0;});
   var msg=$("#matchMsg");
   if(!String(j.task||"").trim()){ msg.textContent="Type the job first, e.g. \"cut and fix decking boards\"."; return; }
-  if(!found.length){ msg.textContent="No match yet. Pick work types below or add your own hazards."; return; }
-  if(!add.length){ msg.textContent="Those work types are already on this JSA."; return; }
+  S.mineSugg=mineMatches(j); drawMineSugg();
+  var mineN=S.mineSugg.length, mineTxt=mineN?(" "+mineN+" of your own hazards match too, below."):"";
+  if(!found.length){ msg.textContent=(mineN?"No built-in work types matched.":"No match yet. Pick work types below or add your own hazards.")+mineTxt; return; }
+  if(!add.length){ msg.textContent="Those work types are already on this JSA."+mineTxt; return; }
   var before=j.hazards.length;
   j.groupTrade=j.groupTrade||{};
   add.forEach(function(k){ j.groups.push(k); j.groupTrade[k]=homeTrade(k,openTrade()); }); applyGroups(j,add);
   touch(); renderSheet();
-  $("#matchMsg").textContent="Added "+(j.hazards.length-before)+" hazards for "+add.map(function(k){return GROUP_BY_KEY[k].label.toLowerCase();}).join(", ")+".";
+  S.mineSugg=mineMatches(j); drawMineSugg();
+  $("#matchMsg").textContent="Added "+(j.hazards.length-before)+" hazards for "+add.map(function(k){return GROUP_BY_KEY[k].label.toLowerCase();}).join(", ")+"."+(S.mineSugg.length?(" "+S.mineSugg.length+" of your own hazards match too, below."):"");
   flashRows(j.hazards.slice(before).map(function(r){return r.id;}));
 }
 function toggleGroup(key){
@@ -1657,8 +1896,8 @@ async function newRevision(x){
   toast(n.no+" Rev "+n.rev+" ready. Rev "+x.rev+" moved to the archive.");
 }
 async function copyForNewJob(x){
-  var n=JSON.parse(JSON.stringify(x)); n.id=uid("j"); n.no=nextNo(); n.rev=1; n.archived=false; n.example=false; n.created=n.updated=Date.now();
-  n.job=""; n.site=""; n.client=""; n.date=todayISO(); n.crew=[{name:"",company:""}]; n.review={ok:false,by:"",at:""}; n.approval={ok:false,by:"",at:""}; delete n.prevId; delete n.hrcwAck; delete n.hrcwDeclined;
+  var n=JSON.parse(JSON.stringify(x)); n.id=uid("j"); assignNo(n); n.rev=1; n.archived=false; n.example=false; n.created=n.updated=Date.now();
+  n.job=""; n.site=""; n.client=""; n.date=todayISO(); n.crew=[{name:"",company:""}]; n.review={ok:false,by:"",at:""}; n.approval={ok:false,by:"",at:""}; delete n.prevId; delete n.hrcwAck; delete n.hrcwDeclined; delete n.harvested;
   applyProfileDefaults(n);
   if(!(await safePut(n))) return;
   S.jsa=n; lsSet(LS_LAST,n.id); closeOverlays(); renderSheet(); updBankCount();
@@ -1667,7 +1906,7 @@ async function copyForNewJob(x){
 function applyProfileDefaults(j){ var p=S.profile||{}; if(!j.trade&&myTrades().length) j.trade=mainTrade(); ["prepared","supervisor","supPhone","firstAid"].forEach(function(k){ if(!j[k]&&p[k]) j[k]=p[k]; }); if(p.ppe&&p.ppe.length){ p.ppe.forEach(function(q){ if(j.ppe.indexOf(q)<0) j.ppe.push(q); }); } }
 async function startNew(silent){
   if(S.jsa&&!S.jsa.example) await saveNow();
-  var j=blankJsa(nextNo()); applyProfileDefaults(j); S.jsa=j;
+  var j=blankJsa(); assignNo(j); applyProfileDefaults(j); S.jsa=j;
   renderSheet(); setSaved("New JSA. Saves when you start typing");
   if(!silent){ window.scrollTo({top:0,behavior:"smooth"}); var t=$("#f-task"); if(t) t.focus(); }
 }
@@ -1696,6 +1935,7 @@ function openProfile(){
     tradePicker(p),
     f("approver","Approving manager"), h("label",{class:"f"},h("span",{text:"Manager's saved signature"}),sprev,sfile), f("prepared","Prepared by"), f("supervisor","Site supervisor"), f("supPhone","Supervisor phone","tel"), f("firstAid","First aider"),
     h("div",{class:"chiplab",text:"PPE you always wear"}), ppe,
+    h("div",{class:"chiplab",text:"My hazards ("+S.mine.length+")"}), minePanel(),
     h("div",{class:"row",style:"margin-top:8px"},h("button",{type:"button",class:"btn primary",text:"Save profile",onclick:async function(){
       try{ await Store.putProfile(p); S.profile=p; if(S.jsa&&!S.jsa.example) applyProfileDefaults(S.jsa); closeOverlays(); renderSheet(); toast("Profile saved"); }
       catch(e){ toast("Couldn't save the profile just now."); }
@@ -1730,21 +1970,23 @@ $("#pdfBtn").addEventListener("click",function(){
   }
   makePdf();
 });
-async function makePdf(){
-  if(!window.jspdf||!window.jspdf.jsPDF){ toast("The PDF maker didn't load. Check your connection and refresh."); return; }
+/* Save a file: inside Claude use the downloads capability; on the website use a normal browser download. */
+async function saveFile(filename,data){
   var dl=S.downloads;
   if(!dl&&window.claude&&window.claude.use){ try{ dl=await window.claude.use("downloads"); S.downloads=dl; }catch(e){} }
-  if(!dl){
-    // On the crnrstone-co.com site there is no Claude save dialog, so the browser downloads the PDF directly
-    try{ var d2=buildPdf(window.jspdf.jsPDF,S.jsa,S.profile); var n2=(S.jsa.no+" Rev "+S.jsa.rev+" "+(S.jsa.job||S.jsa.task||"JSA")).replace(/[\\\/:*?"<>|]+/g," ").replace(/\s+/g," ").trim().slice(0,90)+".pdf"; d2.save(n2); toast("PDF saved"); }
-    catch(e){ toast("Couldn't make the PDF just now."); }
-    return;
-  }
+  if(dl){ await dl.save({filename:filename,data:data}); return; }
+  var blob=data instanceof Blob?data:new Blob([data],{type:/\.csv$/i.test(filename)?"text/csv":"application/octet-stream"});
+  var url=URL.createObjectURL(blob), a=document.createElement("a");
+  a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(url); },4000);
+}
+async function makePdf(){
+  if(!window.jspdf||!window.jspdf.jsPDF){ toast("The PDF maker didn't load. Check your connection and refresh."); return; }
   var btn=$("#pdfBtn"); btn.disabled=true;
   try{
     var doc=buildPdf(window.jspdf.jsPDF,S.jsa,S.profile);
     var name=(S.jsa.no+" Rev "+S.jsa.rev+" "+(S.jsa.job||S.jsa.task||"JSA")).replace(/[\\\/:*?"<>|]+/g," ").replace(/\s+/g," ").trim().slice(0,90)+".pdf";
-    await dl.save({filename:name,data:doc.output("blob")});
+    await saveFile(name,doc.output("blob"));
     toast("PDF saved");
   }catch(e){
     var c=e&&e.code;
@@ -1763,6 +2005,7 @@ async function boot(){
   S.list=lsGet(LS_LIST,[]); S.profile=lsGet(LS_PROF,{});
   var last=lsGet(LS_LAST,null), found=S.list.find(function(x){return x.id===last;});
   S.jsa=found?JSON.parse(JSON.stringify(found)):exampleJsa();
+  S.mine=lsGet(LS_MINE,[]);
   renderSheet(); updBankCount();
   if(found) setSaved("Saved on this device");
   // Switch to account storage when signed in
@@ -1774,6 +2017,9 @@ async function boot(){
     if(!db||!id) return;
     S.dbRef=db.doc("data/users/"+id+"/profile"); S.mode="account";
     S.list=await Store.list(); S.profile=await Store.getProfile();
+    try{ var acctMine=await Store.getMine(); var devMine=S.mine||[];
+      devMine.forEach(function(x){ if(!acctMine.some(function(y){ return y.k===x.k; })) acctMine.push(x); });
+      S.mine=acctMine; if(devMine.length) await Store.putMine(S.mine); }catch(e){}
     var cur=S.jsa;
     if(cur&&!cur.example){
       // Bring the JSA on screen across to the account so nothing is lost
@@ -1787,6 +2033,31 @@ async function boot(){
   }catch(e){ S.mode="device"; S.dbRef=null; }
 }
 boot();
+})();
+
+/* ===== Site navigation kit v1 script ===== */
+/* Top menus: one open at a time; close on outside tap or Escape */
+(function () {
+  var dds = document.querySelectorAll('details.dd, details.rp');
+  dds.forEach(function (d) {
+    d.addEventListener('toggle', function () { if (d.open) dds.forEach(function (o) { if (o !== d) o.open = false; }); });
+  });
+  document.addEventListener('click', function (e) { dds.forEach(function (d) { if (d.open && !d.contains(e.target)) d.open = false; }); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') dds.forEach(function (d) { if (d.open) { d.open = false; d.querySelector('summary').focus(); } }); });
+})();
+/* Side rail Night/Day button works the same as the top-bar one */
+(function () {
+  var rb = document.getElementById('rail-theme'), main = document.getElementById('theme');
+  if (!rb || !main) return;
+  function sync() {
+    var dark = main.getAttribute('aria-label') === 'Switch to day mode';
+    document.getElementById('rail-theme-t').textContent = dark ? 'Day' : 'Night';
+    rb.setAttribute('aria-label', main.getAttribute('aria-label'));
+    document.getElementById('rail-theme-ic').innerHTML = document.getElementById('theme-ic').innerHTML;
+  }
+  rb.addEventListener('click', function () { main.click(); sync(); });
+  main.addEventListener('click', function () { setTimeout(sync, 0); });
+  sync();
 })();
 </script>
 

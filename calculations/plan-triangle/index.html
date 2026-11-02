@@ -83,6 +83,12 @@ h2 { font: 700 13px var(--font-body); letter-spacing: .12em; text-transform: upp
 }
 .u { color: var(--mute); font-size: 14px; min-width: 2ch; }
 .row.entered .ctl input { border-color: var(--accent); }
+.ctl select { width: 100%; min-width: 0; font: 500 17px var(--font-body); padding: 8px 8px; }
+.creepers { display: flex; flex-direction: column; gap: 8px; }
+.cnote { margin: 0; font-size: 14px; color: var(--mute); }
+#creepers td:first-child, #creepers th { white-space: nowrap; }
+#creepers th, #creepers td { padding: 9px 8px; }
+.halo { paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; }
 input:focus-visible, button:focus-visible, select:focus-visible, .chip:focus-within, .seg label:focus-within { outline: 3px solid var(--accent); outline-offset: 2px; }
 .bar { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; justify-content: flex-end; flex-wrap: nowrap; }
 .bar .status { flex: 1; min-width: 0; font-size: 14px; line-height: 1.3; }
@@ -93,7 +99,7 @@ button.reset { font: 600 16px var(--font-body); color: var(--accent-ink); backgr
 button.reset:hover { filter: brightness(1.08); }
 
 .diagram { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
-.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
 .chip { display: inline-flex; align-items: center; gap: 8px; border: 1.5px solid var(--line); border-radius: 999px; padding: 6px 12px; font-weight: 600; font-size: 14px; cursor: pointer; user-select: none; }
 .chip input { position: absolute; opacity: 0; pointer-events: none; }
 .chip .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--c); border: 2px solid var(--c); }
@@ -107,6 +113,11 @@ button.reset:hover { filter: brightness(1.08); }
 .seg label:has(input:checked) { background: var(--accent); color: var(--accent-ink); }
 .seg label:has(input:disabled) { opacity: .4; cursor: default; }
 .seg label + label { border-left: 1px solid var(--line); }
+.ctrlrow { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center; }
+.flips { display: inline-flex; gap: 6px; }
+.flipbtn { display: inline-flex; align-items: center; gap: 6px; font: 600 14px var(--font-body); color: var(--mute); background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+.flipbtn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.flipbtn[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 svg { display: block; width: 100%; height: auto; max-width: 100%; }
 .lbl { font: 600 12px var(--font-body); fill: var(--ink); }
 .ang { font: 700 12px var(--font-body); }
@@ -186,6 +197,10 @@ details p { margin: 10px 0 0; font-size: 14px; color: var(--mute); }
       <label for="a-eave"><span class="nm">Eave width</span><span class="sub">overhang, added to the half span</span></label>
       <div class="ctl"><input id="a-eave" type="text" inputmode="decimal" autocomplete="off" placeholder="optional"><span class="u" data-unit>mm</span></div>
     </div>
+    <div class="row">
+      <label for="spacing"><span class="nm">Rafter spacing</span><span class="sub">for the creeper rafters</span></label>
+      <div class="ctl"><select id="spacing"><option value="450">450</option><option value="600" selected>600</option><option value="900">900</option><option value="1200">1200</option></select><span class="u">mm</span></div>
+    </div>
   </div>
 
   <div class="diagram">
@@ -193,16 +208,22 @@ details p { margin: 10px 0 0; font-size: 14px; color: var(--mute); }
       <label class="chip" style="--c: var(--plan)"><input type="checkbox" id="t-plan" checked><span class="dot"></span>Plan</label>
       <label class="chip" style="--c: var(--g)"><input type="checkbox" id="t-rafter" checked><span class="dot"></span>Rafter</label>
       <label class="chip" style="--c: var(--b)"><input type="checkbox" id="t-hip" checked><span class="dot"></span>Hip / Valley</label>
-      <span class="chip off" style="--c: var(--r)" title="Coming next"><span class="dot"></span>Creeper (coming next)</span>
+      <label class="chip" style="--c: var(--r)"><input type="checkbox" id="t-creeper"><span class="dot"></span>Creeper</label>
     </div>
-    <div class="seg" id="seg" role="radiogroup" aria-label="Part of the roof to draw">
-      <label><input type="radio" name="part" value="main" id="p-main" checked>Main</label>
-      <label><input type="radio" name="part" value="eave" id="p-eave">Eave</label>
-      <label><input type="radio" name="part" value="total" id="p-total">Total</label>
-    </div>
-    <div class="seg" id="seg2" role="radiogroup" aria-label="What the drawing labels show">
-      <label><input type="radio" name="lab" value="nums" id="l-nums" checked>Numbers</label>
-      <label><input type="radio" name="lab" value="names" id="l-names">Names</label>
+    <div class="ctrlrow">
+      <div class="seg" id="seg" role="radiogroup" aria-label="Part of the roof to draw">
+        <label><input type="radio" name="part" value="main" id="p-main" checked>Main</label>
+        <label><input type="radio" name="part" value="eave" id="p-eave">Eave</label>
+        <label><input type="radio" name="part" value="total" id="p-total">Total</label>
+      </div>
+      <div class="seg" id="seg2" role="radiogroup" aria-label="What the drawing labels show">
+        <label><input type="radio" name="lab" value="nums" id="l-nums" checked>Numbers</label>
+        <label><input type="radio" name="lab" value="names" id="l-names">Names</label>
+      </div>
+      <div class="flips" role="group" aria-label="Flip the drawing">
+        <button type="button" class="flipbtn" id="flip-x" aria-pressed="false" aria-label="Flip the drawing left to right"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l-4 5 4 5M17 7l4 5-4 5M3 12h18"/></svg>Flip</button>
+        <button type="button" class="flipbtn" id="flip-y" aria-pressed="false" aria-label="Flip the drawing upside down"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l5-4 5 4M7 17l5 4 5-4M12 3v18"/></svg>Flip</button>
+      </div>
     </div>
     <div class="canvas" id="canvas">
       <svg id="svg" viewBox="0 0 400 420" role="img" aria-label="Plan, rafter and hip triangles"></svg>
@@ -218,6 +239,12 @@ details p { margin: 10px 0 0; font-size: 14px; color: var(--mute); }
   <h2>Lengths</h2>
   <div class="scroll"><table id="lengths"></table></div>
 
+  <div class="creepers" id="creeper-box" hidden>
+    <h2>Creeper lengths</h2>
+    <p class="cnote" id="creeper-note"></p>
+    <div class="scroll"><table id="creepers"></table></div>
+  </div>
+
   <h2>Angles</h2>
   <div class="scroll"><table id="angles"></table></div>
 
@@ -230,6 +257,8 @@ details p { margin: 10px 0 0; font-size: 14px; color: var(--mute); }
       <li>Hip / Valley length = √ (Hip run² + Height²)</li>
       <li>Hip / Valley seat angle = tan⁻¹ (Height ÷ Hip run)</li>
       <li>Plumb angle = 90° − Seat</li>
+      <li>Creeper reduction = Rafter spacing ÷ cos (Seat)</li>
+      <li>Creeper length = Rafter length − (Creeper number × Creeper reduction)</li>
     </ul>
     <p>These assume a square-cornered roof with the same pitch on both sides, so the hip sits at 45° in plan. Rafter run is the half span for the main roof and the eave width for the eave.</p>
   </details>
@@ -258,14 +287,25 @@ const TIPS = [
   'The hip runs at 45° to the common rafters in plan, which is why the hip run is the rafter run × 1.414.',
   'The rafter triangle and the hip triangle share the same height. Change the pitch and watch both move together.',
   'The hip seat angle is always flatter than the pitch. The hip has further to travel for the same rise.',
-  'Add the eave to the half span and you get the total rafter length, because every length scales with the run.'
+  'Add the eave to the half span and you get the total rafter length, because every length scales with the run.',
+  'Every creeper is shorter than the one before by the same amount. Work out the creeper reduction once and you have them all.'
 ];
 
 const el = id => document.getElementById(id);
+
+// Creepers sit along the half span at each rafter spacing, starting from the common rafter.
+// Each one is shorter than the one before by the same reduction: spacing ÷ cos (pitch).
+function creepers(g, spacing) {
+  const red = spacing * g.rafter / g.run, list = [];
+  for (let i = 1; i * spacing < g.run - 1e-9; i++) list.push({ i, at: i * spacing, len: g.rafter - i * red });
+  return { red, list };
+}
+const TO_MM = { mm: 1, cm: 10, m: 1000 };
+const spacingRun = () => Number(el('spacing').value) / TO_MM[el('units').value];
 let tipIdx = 0, showExample = true;
 const PITCH_MIN = 10, PITCH_MAX = 45;
 let ackPitch = null;
-const DEC = { mm: 1, cm: 2, m: 3 };
+const DEC = { mm: 2, cm: 2, m: 3 };
 
 function num(id) {
   const raw = el(id).value.replace(',', '.').trim();
@@ -306,7 +346,23 @@ function render() {
   if (avail.length && !avail.includes(part)) { part = avail[0]; el('p-' + part).checked = true; }
 
   renderTables(res, avail, dec);
+  renderCreepers(res, part, dec);
   renderSvg(res && res[part] ? res[part] : null, part, p.v, dec);
+}
+
+function renderCreepers(res, part, dec) {
+  const show = el('t-creeper').checked && res && res[part];
+  el('creeper-box').hidden = !show;
+  if (!show) return;
+  const g = res[part], c = creepers(g, spacingRun());
+  const where = { main: 'Main roof', eave: 'Eave', total: 'Total (half span + eave)' }[part];
+  el('creeper-note').textContent = where + ', ' + el('spacing').value + ' mm rafter spacing. Distance is measured along the half span from the common rafter.';
+  const R = 'var(--r)';
+  let h = '<thead><tr><th>Creeper</th><th>Distance</th><th>Length</th></tr></thead><tbody>';
+  h += '<tr><td>' + dots([R]) + 'Reduction each</td><td></td><td class="total">' + c.red.toFixed(dec) + '</td></tr>';
+  if (!c.list.length) h += '<tr><td colspan="3">No creepers fit in this run at this spacing.</td></tr>';
+  for (const k of c.list) h += '<tr><td>Creeper ' + k.i + '</td><td>' + k.at.toFixed(dec) + '</td><td>' + k.len.toFixed(dec) + '</td></tr>';
+  el('creepers').innerHTML = h + '</tbody>';
 }
 
 function dots(cols) { return '<span class="dots">' + cols.map(c => '<i style="background:' + c + '"></i>').join('') + '</span>'; }
@@ -338,7 +394,7 @@ function renderTables(res, avail, dec) {
     ['Hip / Valley seat angle', g.hipSeat, [B]],
     ['Hip / Valley plumb angle', g.hipPlumb, [B]]
   ];
-  el('angles').innerHTML = '<tbody>' + arows.map(r => '<tr><td>' + dots(r[2]) + r[0] + '</td><td>' + r[1].toFixed(1) + '°</td></tr>').join('') + '</tbody>';
+  el('angles').innerHTML = '<tbody>' + arows.map(r => '<tr><td>' + dots(r[2]) + r[0] + '</td><td>' + r[1].toFixed(2) + '°</td></tr>').join('') + '</tbody>';
 }
 
 // Diagram. Model coordinates: y points down. O is the plan corner, T the top of the rafter run.
@@ -349,51 +405,84 @@ function modelPts(R, H) {
 const TRIS = {
   plan: { pts: ['T', 'O', 'Hs'], right: 'O', color: 'var(--plan)', id: 't-plan' },
   rafter: { pts: ['Pt', 'T', 'O'], right: 'T', color: 'var(--g)', id: 't-rafter' },
-  hip: { pts: ['T', 'Q', 'Hs'], right: 'T', color: 'var(--b)', id: 't-hip' }
+  hip: { pts: ['T', 'Q', 'Hs'], right: 'T', color: 'var(--b)', id: 't-hip' },
+  creeper: { pts: ['O', 'Hs', 'Cb'], right: 'O', color: 'var(--r)', id: 't-creeper' }
 };
+
+let flipX = false, flipY = false;
 
 function renderSvg(g, part, pitch, dec) {
   const svg = el('svg');
   const vw = 400, padX = 84, padY = 46;
   const mode = g ? document.querySelector('input[name=lab]:checked').value : 'names';
   const R = g ? g.run : 1, H = g ? g.height : Math.tan(22.5 * DEG);
+  const on = {};
+  for (const [k, t] of Object.entries(TRIS)) on[k] = el(t.id).checked;
   const m = modelPts(R, H);
+  // Creeper triangle hangs below the half span: its upright side is the rafter length, its sloping side the hip length.
+  if (on.creeper) m.Cb = { x: 0, y: g ? g.rafter : 1 / Math.cos(22.5 * DEG) };
   const all = Object.values(m);
   const minX = Math.min(...all.map(p => p.x)), maxX = Math.max(...all.map(p => p.x));
   const minY = Math.min(...all.map(p => p.y)), maxY = Math.max(...all.map(p => p.y));
-  const sc = Math.min((vw - 2 * padX) / (maxX - minX), 340 / (maxY - minY));
-  const vh = (maxY - minY) * sc + 2 * padY + 64;
+  const sc = Math.min((vw - 2 * padX) / (maxX - minX), (on.creeper ? 520 : 340) / (maxY - minY));
+  const drawH = (maxY - minY) * sc;
+  const vh = drawH + 2 * padY + 64;
   svg.setAttribute('viewBox', '0 0 ' + vw + ' ' + Math.round(vh));
   el('canvas').style.aspectRatio = vw + ' / ' + Math.round(vh);
   const ox = (vw - (maxX - minX) * sc) / 2 - minX * sc;
   const oy = padY - minY * sc;
   const P = {};
   for (const [k, p] of Object.entries(m)) P[k] = { x: ox + p.x * sc, y: oy + p.y * sc };
-  const on = {};
-  for (const [k, t] of Object.entries(TRIS)) on[k] = el(t.id).checked;
   const cen = k => { const a = TRIS[k].pts.map(n => P[n]); return { x: (a[0].x + a[1].x + a[2].x) / 3, y: (a[0].y + a[1].y + a[2].y) / 3 }; };
 
-  let out = '<g' + (g ? '' : ' opacity="0.45"') + '>';
-  for (const k of ['plan', 'rafter', 'hip']) {
+  // Flip: the shapes are mirrored as one group. Each label moves to its mirrored spot but stays the right way round to read.
+  const fx = x => flipX ? vw - x : x;
+  const fy = y => flipY ? 2 * padY + drawH - y : y;
+  const labels = [];
+  const txt = (x, y, anchor, rot, cls, fill, lines) => {
+    const n = lines.length, cy = fy(y + (n - 1) * 7) - (n - 1) * 7, X = fx(x);
+    const A = flipX ? ({ start: 'end', end: 'start' }[anchor] || anchor) : anchor;
+    const r = flipX !== flipY ? -rot : rot;
+    labels.push('<text class="' + cls + '"' + (fill ? ' fill="' + fill + '"' : '') + ' x="' + X.toFixed(1) + '" y="' + cy.toFixed(1) + '" text-anchor="' + A + '" dominant-baseline="middle"' + (r ? ' transform="rotate(' + r.toFixed(1) + ' ' + X.toFixed(1) + ' ' + cy.toFixed(1) + ')"' : '') + '>' + lines.map((t, i) => '<tspan x="' + X.toFixed(1) + '" dy="' + (i ? 14 : 0) + '">' + t + '</tspan>').join('') + '</text>');
+  };
+
+  let shapes = '';
+  for (const k of ['plan', 'rafter', 'hip', 'creeper']) {
     if (!on[k]) continue;
     const t = TRIS[k], a = t.pts.map(n => P[n]);
-    out += '<polygon points="' + a.map(p => p.x.toFixed(1) + ',' + p.y.toFixed(1)).join(' ') + '" fill="' + t.color + '" fill-opacity="0.10" stroke="' + t.color + '" stroke-width="2.5" stroke-linejoin="round"/>';
+    shapes += '<polygon points="' + a.map(p => p.x.toFixed(1) + ',' + p.y.toFixed(1)).join(' ') + '" fill="' + t.color + '" fill-opacity="0.10" stroke="' + t.color + '" stroke-width="2.5" stroke-linejoin="round"/>';
     // right-angle square
     const c = P[t.right], others = t.pts.filter(n => n !== t.right).map(n => P[n]);
     const u = unit(c, others[0]), v = unit(c, others[1]), z = 11;
-    out += '<path d="M' + (c.x + u.x * z) + ',' + (c.y + u.y * z) + ' L' + (c.x + (u.x + v.x) * z) + ',' + (c.y + (u.y + v.y) * z) + ' L' + (c.x + v.x * z) + ',' + (c.y + v.y * z) + '" fill="none" stroke="' + t.color + '" stroke-width="1.5"/>';
+    shapes += '<path d="M' + (c.x + u.x * z) + ',' + (c.y + u.y * z) + ' L' + (c.x + (u.x + v.x) * z) + ',' + (c.y + (u.y + v.y) * z) + ' L' + (c.x + v.x * z) + ',' + (c.y + v.y * z) + '" fill="none" stroke="' + t.color + '" stroke-width="1.5"/>';
   }
   const spanName = part === 'eave' ? 'Eave width' : part === 'total' ? 'Half span + eave' : 'Half span';
   // inward = label sits inside its triangle.
   const edges = [
     ['T', 'O', 'Rafter run', ['plan', 'rafter'], 'run', true],
-    ['O', 'Hs', spanName, ['plan'], 'run', false],
+    ['O', 'Hs', spanName, ['plan', 'creeper'], 'run', false],
     ['T', 'Hs', 'Hip / Valley run', ['plan', 'hip'], 'hipRun', true],
     ['Pt', 'T', 'Height', ['rafter'], 'height', false],
     ['Pt', 'O', 'Rafter length', ['rafter'], 'rafter', false],
     ['T', 'Q', 'Height', ['hip'], 'height', false],
-    ['Q', 'Hs', 'Hip / Valley length', ['hip'], 'hipLen', false]
+    ['Q', 'Hs', 'Hip / Valley length', ['hip'], 'hipLen', false],
+    ['O', 'Cb', 'Rafter reduction', ['creeper'], 'rafter', false],
+    ['Cb', 'Hs', 'Hip / Valley reduction', ['creeper'], 'hipLen', false]
   ];
+  // Creeper rafters: dotted lines dropping from the half span to the hip at each rafter spacing.
+  let spPx = 0;
+  if (on.creeper && g) {
+    const c = creepers(g, spacingRun());
+    spPx = spacingRun() * sc;
+    for (const k of c.list) {
+      const x = P.O.x + k.at * sc, y2 = P.O.y + k.len * sc;
+      shapes += '<line x1="' + x.toFixed(1) + '" y1="' + P.O.y.toFixed(1) + '" x2="' + x.toFixed(1) + '" y2="' + y2.toFixed(1) + '" stroke="var(--r)" stroke-width="2" stroke-dasharray="3 4" stroke-linecap="round"/>';
+    }
+  }
+  const raw = (text, key) => mode === 'names' ? text : g[key].toFixed(dec);
+  // On flat roofs the two Height labels meet at the top corner. Where the hip's Height label sits, so the rafter's can move clear of it.
+  const hipH = on.hip ? edgeLabel(P.T, P.Q, cen('hip'), false, 0) : null;
+  const hipHalf = hipH ? raw('Height', 'height').length * 6.6 * 0.36 + 6 : 0;
   for (const [a, b, text, owners, key, inward] of edges) {
     const own = owners.find(o => on[o]);
     if (!own) continue;
@@ -402,10 +491,15 @@ function renderSvg(g, part, pitch, dec) {
     const steep = g && g.pitch >= 23 && a === 'T';
     const slide = (steep && b === 'O') ? 16 : 0;
     const inw = (steep && b === 'Hs') ? false : inward;
-    out += edgeLabel(P[a], P[b], label, cen(own), inw, slide);
+    const L = edgeLabel(P[a], P[b], cen(own), inw, slide);
+    if (a === 'Pt' && b === 'T' && hipH && Math.abs(L.y - hipH.y) < 24) {
+      const half = raw(text, key).length * 3.3;
+      L.x = Math.max(4 + half, Math.min(L.x, hipH.x - hipHalf - 6 - half));
+    }
+    txt(L.x, L.y, 'middle', L.ang, on.creeper ? 'lbl halo' : 'lbl', '', [label]);
   }
   // out = true puts the label outside the triangle, beside the vertex, so thin triangles stay readable
-  const ang = (name, v) => (mode === 'names' ? name : v.toFixed(1) + '°');
+  const ang = (name, v) => (mode === 'names' ? name : v.toFixed(2) + '°');
   const verts = [
     ['T', '45°', 'plan', 'var(--plan)', false], ['Hs', '45°', 'plan', 'var(--plan)', false],
     ['Pt', ang('Rafter plumb', g ? g.plumb : 0), 'rafter', 'var(--g)', true], ['O', ang('Rafter seat angle|(pitch)', g ? g.pitch : 0), 'rafter', 'var(--g)', true],
@@ -454,17 +548,23 @@ function renderSvg(g, part, pitch, dec) {
     const w = Math.max(...text.split('|').map(t => t.length)) * 6.6;
     if (anchor === 'start') lx = Math.min(lx, vw - 4 - w);
     if (anchor === 'end') lx = Math.max(lx, 4 + w);
-    out += '<text class="ang" fill="' + col + '" x="' + lx.toFixed(1) + '" y="' + ly.toFixed(1) + '" text-anchor="' + anchor + '" dominant-baseline="middle">' + text.split('|').map((t, i) => '<tspan x="' + lx.toFixed(1) + '" dy="' + (i ? 14 : 0) + '">' + t + '</tspan>').join('') + '</text>';
+    txt(lx, ly, anchor, 0, 'ang', col, text.split('|'));
   }
-  if (on.hip) out += '<text class="ang" fill="var(--b)" x="' + (P.Hs.x + 8) + '" y="' + (P.Hs.y - 12) + '" text-anchor="start" dominant-baseline="middle">' + ang('Hip seat', g ? g.hipSeat : 0) + '</text>';
-  out += '</g>';
-  svg.innerHTML = out;
-  svg.setAttribute('aria-label', g ? 'Triangles drawn for the ' + part + ' roof at ' + pitch + ' degrees' : 'Example triangles');
+  if (on.hip) txt(P.Hs.x + 8, P.Hs.y - 12, 'start', 0, 'ang', 'var(--b)', [ang('Hip seat', g ? g.hipSeat : 0)]);
+  // Rafter spacing reads down the first gap, below the half span label, as in the hand drawing.
+  if (on.creeper && g && spPx >= 14) {
+    const t = mode === 'names' ? 'Rafter spacing' : spacingRun().toFixed(dec);
+    txt(P.O.x + spPx / 2, P.O.y + 30 + t.length * 3.3, 'middle', 90, 'ang halo', 'var(--r)', [t]);
+  }
+  const mx = 'matrix(' + (flipX ? -1 : 1) + ' 0 0 ' + (flipY ? -1 : 1) + ' ' + (flipX ? vw : 0) + ' ' + (flipY ? (2 * padY + drawH).toFixed(1) : 0) + ')';
+  svg.innerHTML = '<g' + (g ? '' : ' opacity="0.45"') + '><g transform="' + mx + '">' + shapes + '</g>' + labels.join('') + '</g>';
+  svg.setAttribute('aria-label', g ? 'Triangles drawn for the ' + part + ' roof at ' + pitch + ' degrees' + (flipX || flipY ? ', flipped' : '') : 'Example triangles');
 }
 
 function unit(a, b) { const dx = b.x - a.x, dy = b.y - a.y, l = Math.hypot(dx, dy) || 1; return { x: dx / l, y: dy / l }; }
 
-function edgeLabel(a, b, text, inside, inward, shift) {
+// Where an edge's label goes: beside the middle of the edge (slid along it by shift), turned to run along it.
+function edgeLabel(a, b, inside, inward, shift) {
   const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy) || 1;
   const mx = (a.x + b.x) / 2 + dx / len * (shift || 0), my = (a.y + b.y) / 2 + dy / len * (shift || 0);
   let nx = -dy / len, ny = dx / len;
@@ -472,8 +572,7 @@ function edgeLabel(a, b, text, inside, inward, shift) {
   if (inward ? !toward : toward) { nx = -nx; ny = -ny; }
   let ang = Math.atan2(dy, dx) / DEG;
   if (ang > 90 || ang < -90) ang += 180;
-  const x = mx + nx * 12, y = my + ny * 12;
-  return '<text class="lbl" x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" text-anchor="middle" dominant-baseline="middle" transform="rotate(' + ang.toFixed(1) + ' ' + x.toFixed(1) + ' ' + y.toFixed(1) + ')">' + text + '</text>';
+  return { x: mx + nx * 12, y: my + ny * 12, ang };
 }
 
 function setTip() { el('tip').innerHTML = '<strong>Did you know</strong>' + TIPS[tipIdx % TIPS.length]; }
@@ -527,7 +626,9 @@ el('units').addEventListener('change', () => {
 el('warn-go').addEventListener('click', () => { const v = num('i-pitch'); if (v.v != null) ackPitch = v.v; render(); });
 el('warn-no').addEventListener('click', () => { el('i-pitch').value = ''; el('a-pitch').value = ''; ackPitch = null; render(); el('a-pitch').focus(); });
 el('reset').addEventListener('click', startAgain);
-['t-plan', 't-rafter', 't-hip', 'p-main', 'p-eave', 'p-total', 'l-nums', 'l-names'].forEach(i => el(i).addEventListener('change', () => render()));
+el('flip-x').addEventListener('click', () => { flipX = !flipX; el('flip-x').setAttribute('aria-pressed', flipX); render(); });
+el('flip-y').addEventListener('click', () => { flipY = !flipY; el('flip-y').setAttribute('aria-pressed', flipY); render(); });
+['t-plan', 't-rafter', 't-hip', 't-creeper', 'spacing', 'p-main', 'p-eave', 'p-total', 'l-nums', 'l-names'].forEach(i => el(i).addEventListener('change', () => render()));
 setTip();
 // Example on open: 3500 mm half span, 22.5° pitch, 600 mm eave. Start again clears it.
 [['span', '3500'], ['pitch', '22.5'], ['eave', '600']].forEach(([k, v]) => { el('a-' + k).value = v; el('i-' + k).value = v; });

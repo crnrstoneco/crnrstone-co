@@ -21,22 +21,22 @@
   --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
   --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
 }
-.brand .logo .dash{color:var(--logo-accent);margin:0 .15em}
-.brand .logo .co{color:var(--muted)}
+[hidden]{display:none!important}
 html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);overflow:hidden}
-canvas{display:block;position:fixed;inset:0;width:100%;height:100%;touch-action:none}
+/* no site rail on this page (Eric, 2 Nov 2026): the viewer keeps the full width; the logo links home */
+:root{--rail:0px}
+canvas{display:block;position:fixed;top:0;bottom:0;right:0;left:var(--rail);width:calc(100% - var(--rail));height:100%;touch-action:none}
 
-.bar{position:fixed;top:0;left:0;right:0;z-index:5;display:flex;flex-direction:column;gap:8px;
+.bar{position:fixed;top:0;left:var(--rail);right:0;z-index:5;display:flex;flex-direction:column;gap:8px;
   padding-top:calc(10px + env(safe-area-inset-top,0px));padding-bottom:10px;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
   background:linear-gradient(var(--bg) 55%,transparent);pointer-events:none}
 .bar>*{pointer-events:auto}
-.brand{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-family:var(--f-display)}
-.brand b{font-size:18px;font-weight:700;letter-spacing:.02em}
-.brand .page{font-size:18px;font-weight:600;color:var(--ink)}
-.brand .sep{color:var(--muted)}
-.brand small{font-family:var(--f-body);font-size:12px;color:var(--muted);flex-basis:100%}
+.brandrow{position:relative;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-family:var(--f-display)}
+.brandrow .page{font-size:18px;font-weight:600;color:var(--ink)}
+.brandrow .sep{color:var(--muted)}
+.brandrow small{font-family:var(--f-body);font-size:12px;color:var(--muted);flex-basis:100%}
 .ctrls{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
 .seg{display:flex;align-items:center;width:max-content;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:3px;gap:0;max-width:100%;overflow-x:auto;scrollbar-width:none;cursor:pointer}
 .seg::-webkit-scrollbar{display:none}
@@ -58,7 +58,7 @@ canvas{display:block;position:fixed;inset:0;width:100%;height:100%;touch-action:
 @media (prefers-reduced-motion:reduce){.seg button,.seg button:not([aria-pressed="true"]),.seg .lbl::after{transition:opacity .3s ease 1.5s}}
 .seg button:disabled{color:var(--muted);cursor:not-allowed}
 .seg button:disabled:hover{background:none}
-.sheet{position:fixed;inset:0;z-index:4;background:var(--bg);display:flex;box-sizing:border-box;
+.sheet{position:fixed;inset:0;left:var(--rail);z-index:4;background:var(--bg);display:flex;box-sizing:border-box;
   padding-top:calc(128px + env(safe-area-inset-top,0px));padding-bottom:calc(104px + env(safe-area-inset-bottom,0px));
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 #paper{flex:1;min-width:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab;border-radius:4px}
@@ -69,6 +69,8 @@ canvas{display:block;position:fixed;inset:0;width:100%;height:100%;touch-action:
   display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:5px 10px}
 .zs input{width:90px;accent-color:var(--accent)}
 @media (max-width:520px){.zs{font-size:0;gap:0;padding:4px 8px}.zs input{width:70px}}
+/* small phones: the logo and the zoom slider share the top row, so the page title steps aside */
+@media (max-width:480px){.brandrow .sep,.brandrow .page{display:none}}
 .dim{position:fixed;z-index:3;left:0;top:0;transform:translate(-50%,-50%);font:600 12px var(--f-display);letter-spacing:.02em;background:var(--panel);border:1px solid var(--accent);color:var(--ink);padding:2px 6px;border-radius:4px;pointer-events:none;white-space:nowrap;font-variant-numeric:tabular-nums}
 .zoom{display:flex;gap:6px;pointer-events:auto}
 .zoom button{font:600 14px var(--f-body);color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;min-width:32px;padding:5px 9px;cursor:pointer}
@@ -77,7 +79,7 @@ canvas{display:block;position:fixed;inset:0;width:100%;height:100%;touch-action:
 .seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);font-weight:600}
 .seg.main button{font-size:14px;padding:7px 12px}
 
-.chips{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;
+.chips{position:fixed;left:var(--rail);right:0;bottom:0;z-index:5;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;
   padding-top:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
   background:linear-gradient(transparent,var(--bg) 45%)}
@@ -87,7 +89,7 @@ canvas{display:block;position:fixed;inset:0;width:100%;height:100%;touch-action:
 .chips button[aria-pressed="true"]{border-color:var(--ink);background:var(--panel-solid)}
 .chips i{width:10px;height:10px;border-radius:50%;flex:none}
 
-.card{position:fixed;z-index:6;left:max(16px,env(safe-area-inset-left,0px));bottom:calc(64px + env(safe-area-inset-bottom,0px));
+.card{position:fixed;z-index:6;left:calc(var(--rail) + max(16px,env(safe-area-inset-left,0px)));bottom:calc(64px + env(safe-area-inset-bottom,0px));
   width:min(380px,calc(100% - 32px));background:var(--panel);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:10px;
   padding:14px 44px 14px 16px;transform:translateY(16px);opacity:0;visibility:hidden;transition:transform .25s ease,opacity .25s ease,visibility .25s}
 .card.on{transform:none;opacity:1;visibility:visible}
@@ -100,7 +102,7 @@ canvas{display:block;position:fixed;inset:0;width:100%;height:100%;touch-action:
 #close{position:absolute;top:8px;right:8px;width:32px;height:32px;background:none;border:0;color:var(--ink);font-size:22px;line-height:1;cursor:pointer;border-radius:6px}
 #close:hover{background:rgba(232,236,240,.08)}
 
-.foot{position:fixed;z-index:4;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));bottom:calc(66px + env(safe-area-inset-bottom,0px));
+.foot{position:fixed;z-index:4;left:calc(var(--rail) + max(16px,env(safe-area-inset-left,0px)));right:max(16px,env(safe-area-inset-right,0px));bottom:calc(66px + env(safe-area-inset-bottom,0px));
   display:flex;justify-content:space-between;align-items:flex-end;gap:12px;font-size:12px;color:var(--muted);pointer-events:none}
 .foot{justify-content:flex-end}
 .help{position:relative;display:flex}
@@ -114,15 +116,23 @@ canvas{display:block;position:fixed;inset:0;width:100%;height:100%;touch-action:
 @media (prefers-reduced-motion:reduce){.help .helptext{transform:none}}
 #reset{font:500 12px var(--f-body)!important}
 button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-@media (max-width:520px){.brand small{display:none}.seg .lbl{min-width:0}}
+@media (max-width:520px){.brandrow small{display:none}.seg .lbl{min-width:0}}
+/* ---------- Logo link home (from navigation kit v1). This page has no side rail or menus (Eric, 2 Nov 2026). ---------- */
+.brand{color:inherit;text-decoration:none;white-space:nowrap}
+.brand .mark{display:inline-block;width:28px;height:28px;vertical-align:-5px;margin-right:9px}
+.brand .word{color:inherit}
+.brand .dash{color:var(--logo-accent,var(--accent));margin:0 .15em}
+@media (max-width:420px){.brand .mark{width:22px;height:22px;vertical-align:-4px;margin-right:7px}}
+.brandrow a.brand{font:700 21px "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:.01em;color:var(--ink);--logo-accent:#E3A857}
+.brandrow a.brand:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
 </style>
 
 <div class="sheet" id="sheet" hidden><svg id="paper" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 297" preserveAspectRatio="xMidYMid meet" role="img" aria-label="S-101 slab and footing plan. Tap an item to identify it."></svg></div>
 <canvas id="c" aria-label="3D floor model. Drag to orbit, pinch or scroll to zoom, tap a member to identify it."></canvas>
 
 <header class="bar">
-  <div class="brand">
-    <b class="logo">crnrstone<span class="dash">-</span><span class="co">co</span></b><span class="sep">/</span><span class="page">Floor systems</span>
+  <div class="brandrow">
+    <a class="brand" href="https://crnrstone-co.com/" aria-label="crnrstone-co home"><svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="8,8 92,8 92,34 34,34 34,60 8,60" fill="currentColor"/><rect x="40" y="66" width="52" height="26" fill="currentColor"/><rect x="8" y="66" width="26" height="26" fill="#E3A857"/></svg><span class="word">crnrstone<span class="dash">-</span>co</span></a><span class="sep">/</span><span class="page">Floor systems</span>
     <small>Template design #1</small>
   </div>
   <div class="ctrls">
@@ -813,7 +823,7 @@ const pv=new THREE.Vector3();
 function placeDims(){
   for(const l of dimLabels){pv.copy(l.v).project(cam);
     const off=pv.z>1||Math.abs(pv.x)>1.2||Math.abs(pv.y)>1.2;l.el.style.visibility=off?'hidden':'visible';
-    l.el.style.transform='translate('+((pv.x+1)/2*innerWidth)+'px,'+((1-pv.y)/2*innerHeight)+'px) translate(-50%,-50%)'}
+    const cr=canvas.getBoundingClientRect();l.el.style.transform='translate('+(cr.left+(pv.x+1)/2*cr.width)+'px,'+(cr.top+(1-pv.y)/2*cr.height)+'px) translate(-50%,-50%)'}
 }
 function select(k){
   state.sel=k;
@@ -882,7 +892,7 @@ const onPlans=()=>state.show==='plans';
 $('zin').onclick=()=>{if(onPlans())return zoomPaper(1/1.25);touched=true;distT=clampD(distT/1.25)};
 $('zout').onclick=()=>{if(onPlans())return zoomPaper(1.25);touched=true;distT=clampD(distT*1.25)};
 $('reset').onclick=()=>{if(onPlans()){vb={x:0,y:0,w:420,h:297};return setVB()}({yaw,pitch,dist}=HOME);distT=dist;tgt.set(CX,.25,CZ)};
-function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
+function resize(){const w=canvas.clientWidth||innerWidth,h=canvas.clientHeight||innerHeight;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
 addEventListener('resize',resize);resize();
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 (function tick(){
