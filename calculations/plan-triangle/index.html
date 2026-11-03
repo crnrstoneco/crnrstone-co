@@ -86,6 +86,24 @@ h2 { font: 700 13px var(--font-body); letter-spacing: .12em; text-transform: upp
 .ctl select { width: 100%; min-width: 0; font: 500 17px var(--font-body); padding: 8px 8px; }
 .creepers { display: flex; flex-direction: column; gap: 8px; }
 .cnote { margin: 0; font-size: 14px; color: var(--mute); }
+.howcard { display: flex; align-items: center; justify-content: space-between; gap: 14px; background: var(--surface); border: 1px solid var(--line); border-left: 6px solid var(--accent); border-radius: 8px; padding: 12px 14px; }
+.howtxt { min-width: 0; }
+.howq { margin: 0; font: 700 24px/1.1 var(--font-display); letter-spacing: .01em; color: var(--ink); }
+.hows { margin: 2px 0 0; font-size: 14px; color: var(--mute); }
+.howbtn { display: inline-flex; align-items: center; gap: 8px; flex: none; padding: 11px 20px; }
+.howbtn svg { width: 16px; height: 16px; fill: currentColor; }
+.btnrow { flex-wrap: wrap; gap: 10px; }
+.ghostbtn { display: inline-flex; align-items: center; gap: 8px; font: 600 16px var(--font-body); color: var(--ink); background: var(--surface); border: 1.5px solid var(--accent); border-radius: 6px; padding: 10px 18px; cursor: pointer; }
+.ghostbtn:hover { background: var(--bg); }
+.ghostbtn svg { width: 14px; height: 14px; fill: var(--accent); }
+.howdlg { width: min(560px, calc(100vw - 32px)); max-height: calc(100vh - 32px); padding: 12px; border: 1px solid var(--line); border-top: 4px solid var(--accent); border-radius: 10px; background: var(--surface); color: var(--ink); }
+.howdlg::backdrop { background: rgba(10, 18, 32, .72); }
+.howhead { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.howx { width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; border: 1.5px solid var(--line); border-radius: 999px; background: transparent; color: var(--ink); cursor: pointer; }
+.howx:hover { border-color: var(--mute); }
+.howx svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }
+.howdlg video { display: block; width: 100%; height: auto; max-height: calc(100vh - 140px); aspect-ratio: 1 / 1; border-radius: 6px; background: #EDF0F5; }
+.vidnote { margin: 8px 0 0; font-size: 14px; color: var(--mute); text-align: center; }
 #creepers td:first-child, #creepers th { white-space: nowrap; }
 #creepers th, #creepers td { padding: 9px 8px; }
 .halo { paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; }
@@ -234,7 +252,7 @@ details p { margin: 10px 0 0; font-size: 14px; color: var(--mute); }
       </div>
     </div>
   </div>
-  <div class="centre"><button class="reset" id="reset" type="button">Start again</button></div>
+  <div class="centre btnrow"><button class="reset" id="reset" type="button">Start again</button><button class="ghostbtn" id="how-open2" type="button" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg>How does it work?</button></div>
 
   <h2>Lengths</h2>
   <div class="scroll"><table id="lengths"></table></div>
@@ -263,9 +281,28 @@ details p { margin: 10px 0 0; font-size: 14px; color: var(--mute); }
     <p>These assume a square-cornered roof with the same pitch on both sides, so the hip sits at 45° in plan. Rafter run is the half span for the main roof and the eave width for the eave.</p>
   </details>
 
+  <div class="howcard">
+    <div class="howtxt">
+      <p class="howq">How does it work?</p>
+      <p class="hows">See these triangles fold out of a real hip roof and back again.</p>
+    </div>
+    <button class="reset howbtn" id="how-open" type="button" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg>Watch</button>
+  </div>
+
   <div class="tip" id="tip"></div>
   <p class="foot">Prototype. Check answers against your own working.</p>
 </div>
+
+<dialog class="howdlg" id="how-dlg" aria-labelledby="how-title">
+  <div class="howhead">
+    <p class="howq" id="how-title">How does it work?</p>
+    <button class="howx" id="how-close" type="button" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <video id="fold-video" controls playsinline preload="none" poster="plan-triangle-fold.jpg" aria-label="Animation: the plan, rafter, hip and creeper triangles fold out of a hip end roof into the Plan Triangle drawing, then fold back up">
+    <source src="plan-triangle-fold.mp4" type="video/mp4">
+  </video>
+  <p class="vidnote">Drag the slider to stop at any point.</p>
+</dialog>
 
 <script>
 const DEG = Math.PI / 180;
@@ -626,6 +663,22 @@ el('units').addEventListener('change', () => {
 el('warn-go').addEventListener('click', () => { const v = num('i-pitch'); if (v.v != null) ackPitch = v.v; render(); });
 el('warn-no').addEventListener('click', () => { el('i-pitch').value = ''; el('a-pitch').value = ''; ackPitch = null; render(); el('a-pitch').focus(); });
 el('reset').addEventListener('click', startAgain);
+// "How does it work?" opens the fold-out video in an overlay and starts it. Closing pauses it.
+(function () {
+  const dlg = el('how-dlg'), vid = el('fold-video');
+  let opener = null;
+  const open = e => {
+    opener = e.currentTarget;
+    try { dlg.showModal(); } catch (err) { dlg.setAttribute('open', ''); }
+    try { vid.currentTime = 0; const p = vid.play(); if (p && p.catch) p.catch(() => {}); } catch (err) {}
+  };
+  el('how-open').addEventListener('click', open);
+  el('how-open2').addEventListener('click', open);   // the same video from beside Start again
+  const shut = () => { try { vid.pause(); } catch (e) {} if (dlg.open) dlg.close(); };
+  el('how-close').addEventListener('click', shut);
+  dlg.addEventListener('close', () => { try { vid.pause(); } catch (e) {} (opener || el('how-open')).focus(); });
+  dlg.addEventListener('click', e => { if (e.target === dlg) shut(); });   // tap outside the box to close
+})();
 el('flip-x').addEventListener('click', () => { flipX = !flipX; el('flip-x').setAttribute('aria-pressed', flipX); render(); });
 el('flip-y').addEventListener('click', () => { flipY = !flipY; el('flip-y').setAttribute('aria-pressed', flipY); render(); });
 ['t-plan', 't-rafter', 't-hip', 't-creeper', 'spacing', 'p-main', 'p-eave', 'p-total', 'l-nums', 'l-names'].forEach(i => el(i).addEventListener('change', () => render()));
