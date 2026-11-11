@@ -1,0 +1,977 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Tool Registry</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230E1A2E'/%3E%3Cg transform='translate(14 14) scale(.72)'%3E%3Cpolygon points='8,8 92,8 92,34 34,34 34,60 8,60' fill='%23EAF0F8'/%3E%3Crect x='40' y='66' width='52' height='26' fill='%23EAF0F8'/%3E%3Crect x='8' y='66' width='26' height='26' fill='%23E3A857'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap">
+<style>
+/* Layout: one column on the drafting grid. Tools / Locations views; tiles filter; side panel holds the add steps, the tool file and stocktakes. Colours from the Design Brief, plus safety yellow and orange for due dates and statuses (exception to record). */
+:root{
+  --bg:#EDF0F5;--surface:#FFFFFF;--ink:#0E1A2E;--mute:#56657A;--line:#D0D7E1;
+  --accent:#E3A857;--accent-ink:#0E1A2E;--logo-accent:#E3A857;
+  --g:#1E9E5A;--r:#D93636;--plan:#C4821F;
+  --yel:#F5C400;--yel-ink:#111111;--org:#E0662C;--on-col:#FFFFFF;
+  --gridline:rgba(14,26,46,.055);--gridmajor:rgba(14,26,46,.09);
+  --shade:rgba(10,18,32,.45);
+  --display:"Barlow Condensed","Arial Narrow",sans-serif;
+  --body:Barlow,"Segoe UI",Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0A1220;--surface:#111C30;--ink:#E6ECF5;--mute:#8FA0B8;--line:#22324A;
+  --g:#2E9E62;--r:#C83A3A;--plan:#E3A857;--org:#D7612A;
+  --gridline:rgba(230,236,245,.035);--gridmajor:rgba(230,236,245,.07);--shade:rgba(10,18,32,.72);color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0A1220;--surface:#111C30;--ink:#E6ECF5;--mute:#8FA0B8;--line:#22324A;
+  --g:#2E9E62;--r:#C83A3A;--plan:#E3A857;--org:#D7612A;
+  --gridline:rgba(230,236,245,.035);--gridmajor:rgba(230,236,245,.07);--shade:rgba(10,18,32,.72);color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{background:var(--bg);color:var(--ink)}
+body{font:16px/1.5 var(--body);position:relative;min-height:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+.grid{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+  background-image:linear-gradient(var(--gridmajor) 1px,transparent 1px),linear-gradient(90deg,var(--gridmajor) 1px,transparent 1px),linear-gradient(var(--gridline) 1px,transparent 1px),linear-gradient(90deg,var(--gridline) 1px,transparent 1px);
+  background-size:120px 120px,120px 120px,24px 24px,24px 24px;
+  -webkit-mask-image:radial-gradient(ellipse 34% 22% at 8% 10%,#000 30%,transparent 72%),radial-gradient(ellipse 30% 20% at 94% 30%,#000 25%,transparent 72%),radial-gradient(ellipse 26% 16% at 4% 58%,#000 25%,transparent 72%),radial-gradient(ellipse 32% 18% at 92% 80%,#000 25%,transparent 72%),radial-gradient(ellipse 22% 12% at 30% 96%,#000 20%,transparent 72%),linear-gradient(118deg,transparent 46%,rgba(0,0,0,.55) 50%,transparent 54%);
+  mask-image:radial-gradient(ellipse 34% 22% at 8% 10%,#000 30%,transparent 72%),radial-gradient(ellipse 30% 20% at 94% 30%,#000 25%,transparent 72%),radial-gradient(ellipse 26% 16% at 4% 58%,#000 25%,transparent 72%),radial-gradient(ellipse 32% 18% at 92% 80%,#000 25%,transparent 72%),radial-gradient(ellipse 22% 12% at 30% 96%,#000 20%,transparent 72%),linear-gradient(118deg,transparent 46%,rgba(0,0,0,.55) 50%,transparent 54%)}
+.wrap{position:relative;z-index:1;max-width:1080px;margin:0 auto;padding-block:16px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px}
+.toprow{position:relative;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{font:700 24px var(--display);letter-spacing:.01em}
+.tgl{height:40px;min-width:40px;padding:0 12px;border-radius:6px;border:1.5px solid var(--line);background:var(--surface);display:inline-flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;font-weight:600}
+.tgl svg{width:20px;height:20px}
+.tgl:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media (max-width:720px){.tgl .lbl{display:none}.tgl{padding:0 9px}}
+.head{display:flex;flex-direction:column;gap:6px}
+.eyebrow{font:700 13px var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+h1{margin:0;font:700 clamp(32px,6vw,46px)/1 var(--display);text-wrap:balance}
+.lead{margin:0;max-width:62ch;color:var(--mute)}
+.mode{align-self:flex-start;display:inline-flex;align-items:center;gap:8px;font-size:14px;color:var(--mute);border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:3px 12px 3px 10px}
+.mode i{width:8px;height:8px;border-radius:50%;background:var(--mute);flex:none}
+.mode.shared i{background:var(--g)}
+/* View switch */
+.views{display:inline-flex;align-self:flex-start;border:1.5px solid var(--line);border-radius:8px;background:var(--surface);padding:3px;gap:3px}
+.views button{border:0;background:none;border-radius:6px;padding:7px 18px;font-weight:600;cursor:pointer;color:var(--mute)}
+.views button.on{background:var(--accent);color:var(--accent-ink)}
+.views button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+/* Tiles */
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) 2px repeat(2,minmax(0,1fr));gap:10px}
+.tdiv{background:var(--line);border-radius:2px;width:2px;justify-self:center;margin:4px 0}
+.tile{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px 14px;border-radius:8px;border:1.5px solid var(--line);background:var(--surface);cursor:pointer;text-align:left}
+.tile b{font:700 30px/1 var(--display);font-variant-numeric:tabular-nums}
+.tile span{font-size:14px;color:var(--mute);line-height:1.25}
+.tile.on{border-color:var(--accent);box-shadow:inset 0 0 0 1.5px var(--accent)}
+.tile.c-org b{color:var(--org)}.tile.c-r b{color:var(--r)}
+.tile:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media (max-width:720px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.tdiv{grid-column:1/-1;width:auto;height:2px;justify-self:stretch;margin:2px 0}.tiles .tile:first-child{grid-column:1/-1;flex-direction:row;align-items:baseline;gap:10px}}
+/* Filters */
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.search{flex:1 1 240px;min-width:0;position:relative}
+.search input{width:100%;height:44px;border-radius:6px;border:1.5px solid var(--line);background:var(--surface);padding:0 12px 0 38px}
+.search svg{position:absolute;left:12px;top:12px;width:20px;height:20px;color:var(--mute)}
+.sel{flex:1 1 160px;min-width:0;display:flex;flex-direction:column;gap:2px}
+.sel span{font:700 11px var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+.sel select{height:44px;border-radius:6px;border:1.5px solid var(--line);background:var(--surface);padding:0 10px;width:100%}
+.sel select.filled{border-color:var(--accent)}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
+.btn{min-height:44px;padding:0 16px;border-radius:6px;border:1.5px solid var(--line);background:var(--surface);font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;text-decoration:none}
+.btn.main{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:transparent}
+.btn.danger{border-color:var(--r);color:var(--r);background:transparent}
+.btn.sm{min-height:36px;padding:0 12px;font-size:15px}
+.btn.big{min-height:52px;font-size:19px;font-weight:700}
+.btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn:disabled{opacity:.5;cursor:default}
+.linkbtn{border:0;background:none;padding:0;color:var(--ink);text-decoration:underline;text-underline-offset:3px;cursor:pointer;font-weight:600}
+.msg{font-size:14px;color:var(--mute);margin-top:-6px}.msg:empty{display:none}
+.msg.err{color:var(--r)}
+.filternote{font-size:14px;color:var(--mute);margin-top:-6px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.filternote:empty{display:none}
+/* Status icon */
+.si{width:30px;height:30px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:none;color:var(--on-col)}
+.si svg{width:17px;height:17px}
+.s-active{background:var(--g)}.s-repair,.s-service{background:var(--yel);color:var(--yel-ink)}.s-missing{background:var(--org)}.s-stolen,.s-decommissioned{background:var(--r)}.s-sold{background:var(--mute)}
+/* Tick boxes */
+.tick{display:inline-flex;flex-direction:column;align-items:center;gap:2px;min-width:56px}
+.tick i{width:24px;height:24px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;font-style:normal;font-weight:700;font-size:15px;line-height:1;border:2px solid transparent}
+.tick .tl{display:none}
+.tick small{font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums;white-space:nowrap}
+.t-ok i{background:var(--g);color:var(--on-col)}
+.t-60 i{background:var(--yel);color:var(--yel-ink)}
+.t-30 i{background:var(--org);color:var(--on-col)}
+.t-over i{background:var(--r);color:var(--on-col)}
+.t-na i{border-color:var(--line);color:var(--mute)}
+/* List */
+.list{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.lh,.row{display:grid;grid-template-columns:34px minmax(0,1.7fr) minmax(0,1fr) minmax(0,1.3fr) 64px 64px;gap:12px;align-items:center;padding:12px 16px}
+.lh{font:700 12px var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--mute);border-bottom:1px solid var(--line);padding-block:10px}
+.lh span:nth-child(5),.lh span:nth-child(6){text-align:center}
+.row{border:0;border-top:1px solid var(--line);background:none;text-align:left;cursor:pointer;width:100%}
+.lh+.row{border-top:0}
+.row:hover{background:color-mix(in srgb,var(--bg) 70%,transparent)}
+.row:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
+.row.ex{cursor:default;background:repeating-linear-gradient(135deg,transparent 0 10px,color-mix(in srgb,var(--line) 35%,transparent) 10px 11px)}
+.row.retired{opacity:.72}
+.nm,.loc,.ser{display:flex;flex-direction:column;min-width:0}
+.nm b,.loc b{font-weight:600;overflow-wrap:anywhere}
+.nm small,.loc small{color:var(--mute);font-size:14px;overflow-wrap:anywhere}
+.ser{font-variant-numeric:tabular-nums;font-size:15px;overflow-wrap:anywhere}
+.loc .late{color:var(--r);font-weight:600}
+.row .tick{justify-self:center}
+.extag{font:700 11px var(--body);letter-spacing:.08em;text-transform:uppercase;border:1.5px dashed var(--mute);color:var(--mute);border-radius:99px;padding:0 7px;margin-left:6px}
+.empty{padding:28px 16px;text-align:center;color:var(--mute)}
+.lbl-m{display:none}
+@media (max-width:760px){
+  .lh{display:none}
+  .row{grid-template-columns:34px minmax(0,1fr) minmax(0,1fr);grid-template-areas:"st nm nm" ". ser loc" ". tk1 tk2";row-gap:8px;padding:14px}
+  .row>.si{grid-area:st}.row>.nm{grid-area:nm}.row>.ser{grid-area:ser}.row>.loc{grid-area:loc}
+  .row .tick .tl{display:inline;color:var(--ink);font-weight:600}
+  .row .tk1{grid-area:tk1}.row .tk2{grid-area:tk2}
+  .row .tick{justify-self:start;flex-direction:row;gap:8px;min-width:0}
+  .row .tick small{font-size:13px;white-space:normal;min-width:0}
+  .row .tick{align-items:flex-start}
+  .lbl-m{display:block;font:700 11px var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+}
+.exnote{font-size:14px;color:var(--mute);padding:12px 14px;border:1.5px dashed var(--line);border-radius:8px;background:var(--surface)}
+.key{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:13px;color:var(--mute);align-items:center}
+.key .tick{flex-direction:row;min-width:0;gap:6px}.key .tick i{width:18px;height:18px;font-size:12px;border-radius:4px}
+/* Locations */
+.locs{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.lc{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.lc h3{margin:0;font:700 22px/1.1 var(--display);overflow-wrap:anywhere}
+.lc .nums{display:flex;gap:16px;flex-wrap:wrap;font-size:14px;color:var(--mute)}
+.lc .nums b{font:700 22px var(--display);color:var(--ink);font-variant-numeric:tabular-nums;margin-right:4px}
+.lc .nums .warn b{color:var(--org)}
+.lc .last{font-size:14px;color:var(--mute)}
+.lc .btns{display:flex;gap:8px;flex-wrap:wrap}.lc .btns .btn{flex:1 1 auto}
+.tip{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:14px 16px}
+.tip h2{margin:0 0 4px;font:700 18px var(--display);letter-spacing:.02em;text-transform:uppercase}
+.tip p{margin:0}
+footer{font-size:14px;color:var(--mute);text-align:center}
+/* Panel */
+.shade{position:fixed;inset:0;background:var(--shade);z-index:40}
+.panel{position:fixed;z-index:41;top:0;right:0;bottom:0;width:min(480px,100%);background:var(--surface);border-left:1px solid var(--line);display:flex;flex-direction:column;box-shadow:-12px 0 32px rgba(10,18,32,.25);
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);padding-right:env(safe-area-inset-right,0px)}
+.panel.anim{animation:slide .22s ease-out}
+@keyframes slide{from{transform:translateX(24px);opacity:.4}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.panel.anim{animation:none}}
+@media (max-width:899px){.panel{width:100%}}
+.ph{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:16px 18px 12px;border-bottom:1px solid var(--line);border-top:4px solid var(--accent)}
+.ph .tt{display:flex;gap:12px;align-items:flex-start;min-width:0}
+.ph h2{margin:0;font:700 26px/1.1 var(--display);overflow-wrap:anywhere}
+.ph small{display:block;color:var(--mute);font-weight:600;font-variant-numeric:tabular-nums}
+.x{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--line);background:var(--surface);cursor:pointer;font-size:22px;line-height:1;flex:none}
+.x:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.pb:focus{outline:none}
+.pb{flex:1;overflow-y:auto;padding:16px 18px 24px;display:flex;flex-direction:column;gap:18px}
+.sect{display:flex;flex-direction:column;gap:10px}
+.sect h3{margin:0;font:700 13px var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.card{border:1px solid var(--line);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:10px;background:var(--bg)}
+.card.out{border-color:var(--accent)}
+.now{font-size:17px}.now b{font-weight:700}
+.dim{color:var(--mute);font-size:14px}
+.f{display:flex;flex-direction:column;gap:4px;min-width:0}
+.f label,.f .lab{font-weight:600;font-size:15px}
+.f label i,.f .lab i{font-style:normal;font-weight:400;color:var(--mute)}
+.f input,.f select,.f textarea{width:100%;min-height:44px;border-radius:6px;border:1.5px solid var(--line);background:var(--surface);padding:8px 10px}
+.f textarea{min-height:72px;resize:vertical}
+.f .filled{border-color:var(--accent)}
+.f .scanned{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--surface))}
+.f .hint{font-size:13px;color:var(--mute)}
+.f.bad input,.f.bad select{border-color:var(--r)}.f.bad label,.f.bad .lab{color:var(--r)}
+.f .note{font-size:13px;color:var(--r)}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.opts{display:flex;flex-direction:column;gap:6px}
+.opts.row2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.opt{min-height:46px;border-radius:8px;border:1.5px solid var(--line);background:var(--surface);text-align:left;padding:8px 14px;cursor:pointer;font-weight:600}
+.opt small{display:block;font-weight:400;color:var(--mute);font-size:13px}
+.opt.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}.opt.on small{color:var(--accent-ink)}
+.opt:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1.5px solid var(--line);background:var(--surface);border-radius:99px;padding:4px 12px;font-size:14px;font-weight:600;cursor:pointer}
+.chip:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.check{display:flex;gap:10px;align-items:center;font-weight:600;cursor:pointer}
+.check input{width:22px;height:22px;accent-color:var(--accent)}
+.steps{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--mute);font-weight:600}
+.steps i{width:22px;height:5px;border-radius:3px;background:var(--line)}
+.steps i.on{background:var(--accent)}
+.shot{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;padding:22px 14px;border:2px dashed var(--line);border-radius:10px}
+.shot svg{width:48px;height:48px;color:var(--mute)}
+.shot img,.scanimg{max-width:100%;max-height:260px;border-radius:8px;border:1px solid var(--line)}
+.reading{display:flex;gap:10px;align-items:center;font-weight:600}
+.spin{width:18px;height:18px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--accent);animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.big{font:700 54px/1 var(--display);letter-spacing:.02em;text-align:center;font-variant-numeric:tabular-nums}
+.cpdrop{position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:6;background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--accent);border-radius:8px;box-shadow:0 14px 32px rgba(10,18,32,.28);padding:6px;display:flex;flex-direction:column;gap:4px;max-height:340px;overflow-y:auto}
+.cpdrop .dim{padding:8px 10px}
+.dtw{position:relative;display:flex;gap:8px;min-width:0}
+.dtw .dt{flex:1;min-width:0;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.calbtn{width:44px;min-height:44px;flex:none;border:1.5px solid var(--line);border-radius:6px;background:var(--surface);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:var(--mute)}
+.calbtn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.f .dtnative{position:absolute;right:0;bottom:0;width:1px!important;height:1px!important;min-height:0!important;padding:0!important;border:0!important;opacity:0;pointer-events:none}
+.qty{font-weight:700;color:var(--mute);font-size:.88em;white-space:nowrap}
+.qgrid{display:flex;flex-wrap:wrap;gap:8px}
+.qchip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:99px;padding:3px 12px 3px 4px;background:var(--surface);font-weight:600;font-size:14px}
+.qmove{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.qmove input,.qmove select{min-height:44px;border-radius:6px;border:1.5px solid var(--line);background:var(--surface);padding:0 8px}
+.qmove input{width:72px}
+.qcount{width:56px;height:44px;border-radius:8px;border:2px solid var(--line);background:var(--surface);text-align:center;font-weight:700;font-size:17px}
+.sechd{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;width:100%;text-align:left;border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:12px 14px;cursor:pointer;color:var(--ink)}
+.sechd:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.sechd.open{border-color:var(--accent);border-bottom-left-radius:0;border-bottom-right-radius:0}
+.sechd .sht{font:700 13px var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.sechd .shs{grid-column:1;display:flex;align-items:center;gap:8px;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.sechd .shs .tick{flex-direction:row;min-width:0}.sechd .shs .tick small{display:none}
+.sechd .sha{grid-column:1;font-size:14px;font-weight:600;color:var(--ink);text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:3px}
+.sechd .chev{grid-column:2;grid-row:1/4;align-self:center;color:var(--mute);transition:transform .2s}
+.sechd.open .chev{transform:rotate(180deg)}
+.secbody{border-top:0;border-top-left-radius:0;border-top-right-radius:0;margin-top:-10px;border-color:var(--accent)}
+.statgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.stbtn{overflow-wrap:anywhere;text-align:center;line-height:1.15;min-width:0;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;border-radius:8px;border:1.5px solid var(--line);background:var(--surface);cursor:pointer;font-size:13px;font-weight:600}
+.stbtn.on{border-color:var(--accent);box-shadow:inset 0 0 0 1.5px var(--accent)}
+.stbtn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.stbtn .si{width:28px;height:28px}
+@media (max-width:380px){.statgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.duebox{display:flex;align-items:center;gap:12px}
+.duebox .tick{min-width:0}
+dl.facts{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 14px;margin:0;font-size:15px}
+dl.facts dt{color:var(--mute)}
+dl.facts dd{margin:0;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.log{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:14px}
+.log li{display:grid;grid-template-columns:96px minmax(0,1fr);line-height:1.35;gap:8px}
+.log time{color:var(--mute);font-variant-numeric:tabular-nums}
+.confirm{border:1.5px solid var(--r);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.btns{display:flex;gap:8px;flex-wrap:wrap}.btns .btn{flex:1 1 auto}
+.pf{border-top:1px solid var(--line);padding:12px 18px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pf .btn{flex:1 1 auto}
+.stk{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.sk{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center;padding:10px 12px;border-top:1px solid var(--line)}
+.sk:first-child{border-top:0}
+.sk .here{width:44px;height:44px;border-radius:8px;border:2px solid var(--line);background:var(--surface);cursor:pointer;font-size:20px;font-weight:700;color:transparent}
+.sk .here.on{background:var(--g);border-color:var(--g);color:var(--on-col)}
+.sk .here:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.sk .nm small{font-size:13px}
+.sk .ctl{grid-column:2;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.sk select{height:36px;border-radius:6px;border:1.5px solid var(--line);background:var(--surface);padding:0 8px;font-size:14px}
+</style>
+
+<div class="grid" aria-hidden="true"></div>
+
+<aside class="rail" aria-label="Site menu">
+  <a class="mark" href="https://crnrstone-co.com/" aria-label="crnrstone-co home"><svg class="rmark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="8,8 92,8 92,34 34,34 34,60 8,60" fill="currentColor"/><rect x="40" y="66" width="52" height="26" fill="currentColor"/><rect x="8" y="66" width="26" height="26" fill="#E3A857"/></svg></a>
+  <a class="ri" href="https://crnrstone-co.com/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>Home</a>
+  <details class="rp"><summary class="ri"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 12h2M14 12h2M8 16h2M14 16h2"/></svg>Tools</summary><div class="menu"><a href="https://crnrstone-co.com/calculations/calculator/"><b>Calculator</b><small>Basic and scientific, with GST keys and a history log</small></a><a href="https://crnrstone-co.com/calculations/plan-triangle/"><b>Plan triangle</b><small>Rafter and hip or valley lengths and angles</small></a><a href="https://crnrstone-co.com/calculations/trig-solver/"><b>Trig solver</b><small>Any right-angle triangle from two values</small></a><a href="https://crnrstone-co.com/learn/floor-model/"><b>3D floor model</b><small>See how slab and timber floors go together</small></a><div class="soon"><b>Job calculators and quotes</b><small>Materials for a job, straight into a quote</small></div></div></details>
+  <details class="rp"><summary class="ri on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>Vault</summary><div class="menu"><div class="mh">Safety and documents</div><div class="soon"><b>JSA Builder</b><small>Job safety analysis with a risk matrix and crew sign-on</small></div><div class="soon"><b>SWMS Builder</b><small>Safe work method statements for high risk work</small></div><div class="soon"><b>SDS register</b><small>Safety data sheets, PPE at a glance and review dates</small></div><div class="soon"><b>Installation guides</b><small>Manufacturers’ guides and specs on your phone</small></div><div class="soon"><b>Tool registry</b><small>Tools and equipment, who has them, test and tag dates</small></div></div></details>
+  <a class="ri" href="https://crnrstone-co.com/learn/floor-model/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>Learn</a>
+  <div class="spacer"></div>
+  <a class="ri" href="https://crnrstone-co.com/#updates"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>Join</a>
+  <div class="rule"></div>
+  <button class="ri" type="button" id="rail-theme" aria-label="Switch to night mode"><svg id="rail-theme-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><span id="rail-theme-t">Night</span></button>
+</aside>
+
+<div class="wrap">
+  <div class="toprow">
+    <a class="brand" href="https://crnrstone-co.com/" aria-label="crnrstone-co home"><svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="8,8 92,8 92,34 34,34 34,60 8,60" fill="currentColor"/><rect x="40" y="66" width="52" height="26" fill="currentColor"/><rect x="8" y="66" width="26" height="26" fill="#E3A857"/></svg><span class="word">crnrstone<span class="dash">-</span>co</span></a>
+    <div class="navr">
+      <details class="dd tools"><summary>Tools</summary><div class="menu"><a href="https://crnrstone-co.com/calculations/calculator/"><b>Calculator</b><small>Basic and scientific, with GST keys and a history log</small></a><a href="https://crnrstone-co.com/calculations/plan-triangle/"><b>Plan triangle</b><small>Rafter and hip or valley lengths and angles</small></a><a href="https://crnrstone-co.com/calculations/trig-solver/"><b>Trig solver</b><small>Any right-angle triangle from two values</small></a><a href="https://crnrstone-co.com/learn/floor-model/"><b>3D floor model</b><small>See how slab and timber floors go together</small></a><div class="soon"><b>Job calculators and quotes</b><small>Materials for a job, straight into a quote</small></div></div></details><details class="dd vault"><summary><span class="the">The</span>Vault</summary><div class="menu"><div class="mh">Safety and documents</div><div class="soon"><b>JSA Builder</b><small>Job safety analysis with a risk matrix and crew sign-on</small></div><div class="soon"><b>SWMS Builder</b><small>Safe work method statements for high risk work</small></div><div class="soon"><b>SDS register</b><small>Safety data sheets, PPE at a glance and review dates</small></div><div class="soon"><b>Installation guides</b><small>Manufacturers’ guides and specs on your phone</small></div><div class="soon"><b>Tool registry</b><small>Tools and equipment, who has them, test and tag dates</small></div></div></details>
+      <button class="tgl" type="button" id="theme" aria-label="Switch to night mode"><svg id="theme-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><span class="lbl" id="theme-t">Night</span></button>
+    </div>
+  </div>
+
+  <header class="head">
+    <div class="eyebrow">The Vault</div>
+    <h1>Tool registry</h1>
+    <p class="lead">Snap a tool to log it. See who has it, where it lives, and when its test and tag or service is due.</p>
+    <div class="mode" id="mode"><i></i><span id="mode-t">Opening the registry…</span></div>
+  </header>
+
+  <div class="tiles" id="tiles" role="group" aria-label="Filter the list">
+    <button class="tile on" type="button" data-f="all"><b id="n-all">0</b><span>Tools in use</span></button>
+    <button class="tile c-org" type="button" data-f="attn"><b id="n-attn">0</b><span>Missing, in repair or in service</span></button>
+    <button class="tile" type="button" data-f="out"><b id="n-out">0</b><span>Out with someone</span></button>
+    <div class="tdiv" aria-hidden="true"></div>
+    <button class="tile c-org" type="button" data-f="soon"><b id="n-soon">0</b><span>Due in the next 60 days</span></button>
+    <button class="tile c-r" type="button" data-f="over"><b id="n-over">0</b><span>Overdue for test and tag or service</span></button>
+  </div>
+
+  <div class="actions">
+    <button class="btn main" type="button" id="add"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Scan or add a tool</button>
+    <button class="btn" type="button" id="csv"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Export list</button>
+  </div>
+  <div class="msg" id="msg" role="status"></div>
+
+  <div class="views" role="tablist" aria-label="View">
+    <button type="button" role="tab" id="v-tools" class="on" aria-selected="true">Tools</button>
+    <button type="button" role="tab" id="v-locs" aria-selected="false">Locations</button>
+  </div>
+
+  <section id="tools-view" style="display:flex;flex-direction:column;gap:14px">
+    <div class="bar">
+      <label class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="q" type="search" placeholder="Search name, model, serial or asset" aria-label="Search"></label>
+      <label class="sel"><span>Location</span><select id="f-loc"><option value="">All locations</option></select></label>
+      <label class="sel"><span>Category</span><select id="f-cat"><option value="">All categories</option></select></label>
+      <label class="sel"><span>Status</span><select id="f-stat"><option value="">All in use</option><optgroup label="In use"><option value="active">Active</option><option value="missing">Missing</option><option value="repair">Repair</option><option value="service">Service</option></optgroup><optgroup label="Retired"><option value="retired">All retired</option><option value="stolen">Stolen</option><option value="decommissioned">Decommissioned</option><option value="sold">Sold</option></optgroup><option value="every">Everything</option></select></label>
+    </div>
+    <div class="filternote" id="fnote"></div>
+    <div id="exnote" class="exnote" hidden>These are examples to show how the registry works. They disappear when you add your first tool.</div>
+    <div class="list" id="list" role="list"></div>
+    <div class="key" aria-label="Key"><span>Service and test and tag:</span><span class="tick t-ok"><i>✓</i>More than 60 days</span><span class="tick t-60"><i>✓</i>Within 60 days</span><span class="tick t-30"><i>✓</i>Within 30 days</span><span class="tick t-over"><i>!</i>Overdue</span><span class="tick t-na"><i>–</i>Not needed</span></div>
+  </section>
+
+  <section id="locs-view" hidden style="flex-direction:column;gap:14px">
+    <p class="lead" style="margin:0">Each place your tools live. Open one to see its list, or start a stocktake to tick off what’s there.</p>
+    <div class="locs" id="locs"></div>
+  </section>
+
+  <section class="tip">
+    <h2>Did you know</h2>
+    <p id="tip"></p>
+  </section>
+</div>
+
+<input type="file" id="cam" accept="image/*" capture="environment" hidden>
+<div id="panel-root"></div>
+
+<style>
+/* Site navigation kit v1 (claude/site-nav-kit.md) */
+.dd{position:relative}
+.dd>summary{list-style:none;display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 14px;border-radius:6px;font:600 16px Barlow,sans-serif;cursor:pointer;user-select:none;border:1.5px solid transparent}
+.dd>summary::-webkit-details-marker{display:none}
+.dd>summary::after{content:"";width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:translateY(-2px) rotate(45deg);transition:transform .2s}
+.dd[open]>summary::after{transform:translateY(1px) rotate(-135deg)}
+.dd>summary{background:var(--accent);color:var(--accent-ink)}
+.dd>summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.menu{position:absolute;right:0;top:calc(100% + 8px);z-index:20;width:min(300px,calc(100vw - 32px));background:var(--surface);color:var(--ink);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:8px;padding:8px;box-shadow:0 12px 32px rgba(10,18,32,.28);display:flex;flex-direction:column;gap:2px}
+.menu .mh{font:700 12px Barlow,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);padding:8px 10px 4px}
+.menu a,.menu .soon{display:flex;flex-direction:column;gap:1px;padding:8px 10px;border-radius:6px;text-decoration:none}
+.menu a:hover,.menu a:focus-visible{background:var(--bg);outline:none}
+.menu b{font:600 16px Barlow,sans-serif}
+.menu small{font-size:13px;color:var(--mute);line-height:1.35}
+.menu .soon{opacity:.75}
+.menu .soon b::after{content:"Coming soon";margin-left:8px;font:600 11px Barlow,sans-serif;letter-spacing:.06em;text-transform:uppercase;border:1.5px solid var(--line);color:var(--mute);border-radius:99px;padding:1px 7px;vertical-align:2px}
+@media (max-width:720px){.dd{position:static}.dd>summary{height:36px;padding:0 9px;font-size:15px;gap:5px}.menu{left:0;right:0;width:auto}}
+@media (max-width:420px){.dd>summary::after{display:none}.dd>summary{padding:0 10px}}
+.navr{display:flex;align-items:center;gap:8px}
+.menu a{color:var(--ink)}
+@media (max-width:440px){.dd.vault .the{display:none}}
+.brand{color:inherit;text-decoration:none;white-space:nowrap}
+.brand .mark{display:inline-block;width:28px;height:28px;vertical-align:-5px;margin-right:9px}
+.brand .word{color:inherit}
+.brand .dash{color:var(--logo-accent,var(--accent));margin:0 .15em}
+@media (max-width:420px){.brand{font-size:19px}.brand .mark{width:22px;height:22px;vertical-align:-4px;margin-right:7px}}
+@media (max-width:374px){.brand .word{display:none}}
+.rail{display:none}
+@media (min-width:900px){
+  body{padding-left:88px}
+  .rail{display:flex;flex-direction:column;align-items:stretch;gap:4px;position:fixed;z-index:30;top:0;bottom:0;left:0;width:88px;
+    padding:14px 8px calc(14px + env(safe-area-inset-bottom,0px));background:#0E1A2E;border-right:1px solid rgba(234,240,248,.08)}
+  .rail .mark{display:block;text-align:center;line-height:44px;height:44px;white-space:nowrap;margin-bottom:10px;font:700 18px "Barlow Condensed",sans-serif;color:#EAF0F8;text-decoration:none;letter-spacing:.02em}
+  .rail .mark .rmark{width:34px;height:34px;vertical-align:middle;color:#EAF0F8}
+  .ri{display:flex;flex-direction:column;align-items:center;gap:4px;width:100%;padding:10px 4px;border-radius:8px;border:0;background:none;color:#B8C4D6;font:600 12px Barlow,sans-serif;text-decoration:none;cursor:pointer;list-style:none;text-align:center}
+  .ri::-webkit-details-marker{display:none}
+  .ri svg{width:22px;height:22px;flex:none}
+  .ri:hover{color:#EAF0F8;background:rgba(234,240,248,.07)}
+  .ri.on{background:var(--accent);color:var(--accent-ink)}
+  .rp[open]>.ri{background:rgba(234,240,248,.14);color:#EAF0F8}
+  .ri:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  .rp{position:relative}
+  .rp>.menu{position:absolute;left:calc(100% + 14px);top:0;right:auto;width:300px}
+  .rail .spacer{flex:1}
+  .rail .rule{height:1px;background:rgba(234,240,248,.12);margin:6px 8px}
+  .dd,.tgl{display:none}
+}
+</style>
+
+<script>
+(function(){
+"use strict";
+/* ---------- Night / Day ---------- */
+var MOON='<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>';
+var SUN='<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>';
+var root=document.documentElement, themeBtn=document.getElementById('theme');
+function isDark(){var t=root.getAttribute('data-theme');if(t)return t==='dark';return window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches;}
+function showTheme(){var d=isDark();themeBtn.setAttribute('aria-label',d?'Switch to day mode':'Switch to night mode');document.getElementById('theme-ic').innerHTML=d?SUN:MOON;document.getElementById('theme-t').textContent=d?'Day':'Night';}
+try{var saved=localStorage.getItem('crnrstone-theme');if(saved==='dark'||saved==='light')root.setAttribute('data-theme',saved);}catch(e){}
+themeBtn.addEventListener('click',function(){var next=isDark()?'light':'dark';root.setAttribute('data-theme',next);try{localStorage.setItem('crnrstone-theme',next);}catch(e){}showTheme();});
+showTheme();
+
+/* ---------- Helpers ---------- */
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function pad(n){return(n<10?'0':'')+n;}
+function iso(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function today(){var d=new Date();d.setHours(0,0,0,0);return d;}
+function parse(s){if(!s||!/^\d{4}-\d{2}-\d{2}$/.test(s))return null;var p=s.split('-');return new Date(+p[0],p[1]-1,+p[2]);}
+function addMonths(d,m){var r=new Date(d);var day=r.getDate();r.setDate(1);r.setMonth(r.getMonth()+m);var last=new Date(r.getFullYear(),r.getMonth()+1,0).getDate();r.setDate(Math.min(day,last));return r;}
+function addDays(d,n){var r=new Date(d);r.setDate(r.getDate()+n);return r;}
+function nice(s){var d=parse(s);return d?d.toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'}):'';}
+function short(s){var d=parse(s);return d?d.toLocaleDateString('en-AU',{day:'numeric',month:'short'})+' '+String(d.getFullYear()).slice(2):'';}
+function daysBetween(a,b){return Math.round((b-a)/86400000);}
+function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+function lsSet(k,v){try{localStorage.setItem(k,v);return true;}catch(e){return false;}}
+
+var CATS=['Battery Power Tools','Corded Power Tools','Pneumatic Tools','Explosive Tools','Hand Tools','Accessories','Equipment','Plant / Machinery'];
+var BRANDS=['Makita', 'DeWalt', 'Milwaukee', 'Bosch', 'Hilti', 'Festool', 'Metabo', 'HiKOKI', 'Hitachi', 'Ryobi', 'AEG', 'Ozito', 'Black+Decker', 'Stanley', 'Paslode', 'Ramset', 'Senco', 'Bostitch', 'Max', 'Fein', 'Flex', 'Mafell', 'Trend', 'Stihl', 'Husqvarna', 'Honda', 'Kubota', 'Wacker Neuson', 'Atlas Copco', 'Bailey', 'Gorilla', 'Branach', 'HPM', 'Clipsal', 'Arlec', 'Fluke', 'Leica', 'Topcon', 'Sidchrome', 'Kincrome', 'Irwin', 'Estwing', 'Knipex', 'Wera', 'Bahco', 'Klein Tools', 'Snap-on', 'Tajima', 'Empire', 'Sutton Tools'];
+var CAT_POWER={'Battery Power Tools':'battery','Corded Power Tools':'240v','Pneumatic Tools':'air','Explosive Tools':'cartridge','Hand Tools':'none'};
+var OLD_CAT={'Lead or RCD':'Accessories','Hand tool':'Hand Tools','Ladder or access':'Accessories','Plant and machinery':'Plant / Machinery','Test equipment':'Equipment','Safety gear':'Accessories','Other':'Accessories'};
+var POWER=[['240v','240V corded','Plugs into the mains'],['lead','Lead, board or RCD','Extension leads, power boards, RCDs'],['battery','Battery','Cordless tools and chargers'],['petrol','Petrol or diesel','Engines, generators'],['air','Air','Nailers, compressors'],['cartridge','Explosive cartridge','Powder-actuated tools'],['none','No power','Hand tools, ladders']];
+function powerName(k){var p=POWER.find(function(x){return x[0]===k;});return p?p[1]:'';}
+var ST={
+  active:{n:'Active',ic:'<circle cx="12" cy="12" r="8"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/>'},
+  repair:{n:'Repair',ic:'<path d="M14.5 5.5a4 4 0 0 0-5 5L4 16l4 4 5.5-5.5a4 4 0 0 0 5-5L16 12l-3-1-1-3z"/>'},
+  service:{n:'Service',ic:'<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>'},
+  missing:{n:'Missing',ic:'<path d="M9.2 9a3 3 0 1 1 4.3 2.7c-.9.4-1.5 1.1-1.5 2v.6"/><path d="M12 18h.01"/>'},
+  stolen:{n:'Stolen',ic:'<path d="M12 4l9 16H3z"/><path d="M12 10v4.5M12 17.5h.01"/>'},
+  decommissioned:{n:'Decommissioned',ic:'<path d="M4 5h16v4H4zM6 9v10h12V9M10 13h4"/>'},
+  sold:{n:'Sold',ic:'<path d="M4 12V4h8l8 8-8 8z"/><circle cx="8.5" cy="8.5" r="1.3"/>'}};
+var IN_USE=['active','repair','service','missing'], RETIRED=['stolen','decommissioned','sold'];
+function icon(s,size){var st=ST[s]||ST.active;return'<span class="si s-'+(ST[s]?s:'active')+'"'+(size?' style="width:'+size+'px;height:'+size+'px"':'')+' role="img" aria-label="'+st.n+'" title="'+st.n+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+st.ic+'</svg></span>';}
+function isRetired(t){return RETIRED.indexOf(t.status)>=0;}
+var QTY_CATS=['Hand Tools'];
+function isMulti(t){return!!t.counts;}
+function cnt(t,s){return t.counts?(+t.counts[s]||0):(t.status===s?1:0);}
+function inUseQty(t){return IN_USE.reduce(function(a,s){return a+cnt(t,s);},0);}
+function deriveStatus(c){var u=IN_USE.filter(function(s){return+c[s]>0;});if(u.length)return(+c.active>0)?'active':u.sort(function(a,b){return c[b]-c[a];})[0];var r=RETIRED.filter(function(s){return+c[s]>0;}).sort(function(a,b){return c[b]-c[a];});return r[0]||'active';}
+function breakdown(t){return IN_USE.concat(RETIRED).filter(function(s){return cnt(t,s)>0;}).map(function(s){return cnt(t,s)+' '+ST[s].n.toLowerCase();}).join(' · ');}
+function attnQty(t){return['missing','repair','service'].reduce(function(a,s){return a+cnt(t,s);},0);}
+
+/* ---------- Due dates ---------- */
+function tagDue(t){if(!t.tagNeeded)return null;var d=parse(t.tagDate);return d?iso(addMonths(d,+t.tagEvery||3)):'';}
+function svcDue(t){if(!(+t.serviceEvery>0))return null;return t.serviceDue||'';}
+/* states: na (not needed), over, 30, 60, ok */
+function state(due){if(due===null)return'na';if(due==='')return'over';var n=daysBetween(today(),parse(due));if(n<0)return'over';if(n<=30)return'30';if(n<=60)return'60';return'ok';}
+function tickHTML(due,label,cls){var s=state(due),mark=s==='over'?'!':s==='na'?'–':'✓';
+  var words=s==='na'?'Not needed':due===''?'No date':s==='over'?'Overdue '+nice(due):'Due '+nice(due);
+  var sm=s==='na'?'n/a':due===''?'No date':short(due);
+  return'<span class="tick t-'+s+(cls?' '+cls:'')+'" aria-label="'+label+': '+words+'" title="'+label+': '+words+'"><i aria-hidden="true">'+mark+'</i><small><b class="tl">'+(label==='Service'?'Service':'Tag')+' </b>'+sm+'</small></span>';}
+function worst(t){var a=state(tagDue(t)),b=state(svcDue(t));if(a==='over'||b==='over')return'over';if(a==='30'||b==='30'||a==='60'||b==='60')return'soon';return'ok';}
+function outDays(t){var d=parse(t.outSince);return d?daysBetween(d,today()):0;}
+function isOut(t){return !!(t.holder&&t.holder.trim());}
+var LATE_DAYS=30;
+function isLate(t){return isOut(t)&&outDays(t)>=LATE_DAYS;}
+function title(t){return(t.model?t.model+' - ':'')+(t.name||'Unnamed tool');}
+
+/* ---------- Data shape (also tidies v1 entries) ---------- */
+function norm(t){
+  t.category=t.category||t.type||'';if(CATS.indexOf(t.category)<0){t.category=t.category==='Power tool'?({battery:'Battery Power Tools',air:'Pneumatic Tools'}[t.power]||'Corded Power Tools'):(OLD_CAT[t.category]||'Accessories');}t.brand=t.brand||t.make||'';t.status=ST[t.status]?t.status:'active';
+  t.tagEvery=+t.tagEvery||+t.tagMonths||3;
+  if(t.tagNeeded==null)t.tagNeeded=!!(t.tagDate||t.tagDue)||t.power==='240v'||t.power==='lead';
+  if(!t.tagDate&&t.tagDue){var d=parse(t.tagDue);if(d)t.tagDate=iso(addMonths(d,-t.tagEvery));}
+  if(t.serviceEvery==null)t.serviceEvery=t.serviceDue?(+t.serviceMonths||12):0;
+  if(t.counts){var c={};IN_USE.concat(RETIRED).forEach(function(k){var v=+t.counts[k]||0;if(v>0)c[k]=v;});t.counts=c;t.status=deriveStatus(c);}
+  t.log=Array.isArray(t.log)?t.log:[];return t;}
+
+/* ---------- Storage: shared in Claude, this device on the website ---------- */
+var KEY='crnrstone-tools', KEY_ST='crnrstone-stocktakes', KEY_ME='crnrstone-tools-me';
+var tools=[], stocks=[], ready=false, store=null, canWrite=true, sampleFn=null, imagesOK=false, assetsNS=null;
+var localStore={kind:'local',
+  load:function(){var a=[],b=[];try{a=JSON.parse(lsGet(KEY)||'[]');}catch(e){}try{b=JSON.parse(lsGet(KEY_ST)||'[]');}catch(e){}
+    tools=(Array.isArray(a)?a:[]).map(norm);stocks=Array.isArray(b)?b:[];ready=true;renderAll();},
+  put:function(col,o){var arr=col==='tools'?tools:stocks,i=arr.findIndex(function(x){return x.id===o.id;});if(i<0)arr.push(o);else arr[i]=o;
+    var ok=lsSet(col==='tools'?KEY:KEY_ST,JSON.stringify(arr));return ok?Promise.resolve():Promise.reject({message:'This device is out of storage space. Download a CSV, then remove old photos.'});},
+  remove:function(col,id){if(col==='tools')tools=tools.filter(function(x){return x.id!==id;});lsSet(KEY,JSON.stringify(tools));return Promise.resolve();}};
+function dbStore(db){
+  function strip(o){var r={};for(var k in o)if(k!=='id'&&o[k]!==undefined)r[k]=o[k];return r;}
+  return{kind:'shared',
+    load:function(){var got=0,t2=setTimeout(function(){if(!ready){ready=true;renderAll();say('The registry is slow to load. Check your connection.',true);}},10000);
+      function one(){got++;if(got>=2){clearTimeout(t2);ready=true;}renderAll();refreshPanel();}
+      db.collection('tools').onSnapshot(function(s){tools=s.docs.map(function(d){var o=d.data()||{};o.id=d.id;return norm(o);});one();},function(e){clearTimeout(t2);ready=true;renderAll();say('Could not load the registry. '+(e&&e.message||''),true);});
+      db.collection('stocktakes').onSnapshot(function(s){stocks=s.docs.map(function(d){var o=d.data()||{};o.id=d.id;return o;});one();},function(){one();});},
+    put:function(col,o){return db.collection(col).doc(o.id).set(strip(o));},
+    remove:function(col,id){return db.collection(col).doc(id).delete();}};
+}
+function setMode(shared,text){$('mode').className='mode'+(shared?' shared':'');$('mode-t').textContent=text;}
+function useLocal(note){store=localStore;setMode(false,note||'Saved on this device only. Download a CSV to keep a copy.');store.load();}
+function start(){
+  if(!window.claude||typeof window.claude.use!=='function'){useLocal();return;}
+  var done=false,timer=setTimeout(function(){if(!done){done=true;useLocal();}},10000);
+  window.claude.use('db').then(function(db){
+    if(done)return;done=true;clearTimeout(timer);
+    if(!db){useLocal('Saved in this browser only. Sign in to Claude to share it.');return;}
+    store=dbStore(db);setMode(true,'Shared with everyone you share this page with');store.load();
+    window.claude.use('user').then(function(u){if(u&&u.can){try{if(u.can('data.write')===false){canWrite=false;renderAll();}}catch(e){}}});
+  },function(){if(!done){done=true;clearTimeout(timer);useLocal();}});
+  window.claude.use('sample').then(function(s){if(!s)return;sampleFn=s;s.limits().then(function(l){imagesOK=!!(l&&l.images);},function(){});});
+  window.claude.use('assets').then(function(a){assetsNS=a;});
+}
+
+/* ---------- Examples (only while empty) ---------- */
+function examples(){var t=today();return[
+  {id:'ex1',asset:'TR-EX1',name:'Hammer drill',model:'DHP486',brand:'Makita',category:'Battery Power Tools',power:'battery',serial:'1234567Y',where:'Workshop 3',holder:'',status:'active',tagNeeded:false,serviceEvery:12,serviceDue:iso(addDays(t,210))},
+  {id:'ex2',asset:'TR-EX2',name:'Drop saw 254mm',model:'LS1019',brand:'Makita',category:'Corded Power Tools',power:'240v',serial:'45021',where:'Tool bay 4',holder:'Jake',outSince:iso(addDays(t,-3)),status:'active',tagNeeded:true,tagEvery:3,tagDate:iso(addDays(t,-70)),serviceEvery:12,serviceDue:iso(addDays(t,44))},
+  {id:'ex3',asset:'TR-EX3',name:'Extension lead 20m',model:'',brand:'HPM',category:'Accessories',power:'lead',serial:'',where:'Van 1',holder:'',status:'active',tagNeeded:true,tagEvery:3,tagDate:iso(addDays(t,-100)),serviceEvery:0},
+  {id:'ex4',asset:'TR-EX4',name:'Framing nailer',model:'F350S',brand:'Paslode',category:'Pneumatic Tools',power:'air',serial:'P88213',where:'Tool bay 4',holder:'',status:'repair',tagNeeded:false,serviceEvery:6,serviceDue:iso(addDays(t,18))},
+  {id:'ex5',asset:'TR-EX5',name:'Hand plane',model:'No. 4',brand:'Stanley',category:'Hand Tools',power:'none',serial:'',where:'Workshop 3',holder:'',status:'missing',tagNeeded:false,serviceEvery:0}].map(norm);}
+function src(){return ready&&tools.length===0?examples():tools;}
+function showingEx(){return ready&&tools.length===0;}
+
+/* ---------- Tools view ---------- */
+var filter='all', view='tools';
+function matchQ(t,q){if(!q)return true;var s=[t.asset,t.name,t.model,t.brand,t.serial,t.category,t.holder,t.where,t.supplier,t.notes].join(' ').toLowerCase();return q.split(/\s+/).every(function(w){return s.indexOf(w)>=0;});}
+function passTile(t){if(filter==='out')return isOut(t);if(filter==='soon')return worst(t)==='soon';if(filter==='over')return worst(t)==='over';if(filter==='attn')return attnQty(t)>0;return true;}
+function passStat(t){var v=$('f-stat').value;if(v==='every')return true;if(v==='retired')return RETIRED.some(function(k){return cnt(t,k)>0;});if(ST[v])return cnt(t,v)>0;return!isRetired(t);}
+function rank(t){if(isRetired(t))return 9;var w=worst(t);return w==='over'?0:t.status==='missing'?1:w==='soon'?2:isLate(t)?3:4;}
+function assetNum(a){var m=/^TR-(\d+)$/.exec(a||'');return m?+m[1]:0;}
+function locName(t){return(t.where||'').trim()||'No location set';}
+function uniq(list){var s={};list.forEach(function(v){if(v)s[v]=1;});return Object.keys(s).sort(function(a,b){return a.localeCompare(b);});}
+function fillSelect(id,values,allText){var el=$(id),cur=el.value;el.innerHTML='<option value="">'+allText+'</option>'+values.map(function(v){return'<option'+(v===cur?' selected':'')+'>'+esc(v)+'</option>';}).join('');if(cur&&values.indexOf(cur)<0)el.value='';el.classList.toggle('filled',!!el.value);}
+function rowHTML(t,ex){
+  var where=locName(t), sub=isOut(t)?(isLate(t)?'<span class="late">With '+esc(t.holder)+', '+outDays(t)+' days</span>':'With '+esc(t.holder)):(isMulti(t)?(attnQty(t)?esc(breakdown(t)):'All '+inUseQty(t)+' in place'):t.status!=='active'?ST[t.status].n:'In place');
+  return'<'+(ex?'div':'button type="button"')+' class="row'+(ex?' ex':'')+(isRetired(t)?' retired':'')+'" role="listitem" data-id="'+esc(t.id)+'">'+
+    icon(t.status)+
+    '<span class="nm"><b>'+esc(title(t))+(isMulti(t)?' <span class="qty">×'+inUseQty(t)+'</span>':'')+'</b><small>'+esc([t.asset,t.brand].filter(Boolean).join(' · '))+(ex?'<span class="extag">Example</span>':'')+'</small></span>'+
+    '<span class="ser"><span class="lbl-m">Serial</span>'+esc(t.serial||'—')+'</span>'+
+    '<span class="loc"><span class="lbl-m">Location</span><b>'+esc(where)+'</b><small>'+sub+'</small></span>'+
+    tickHTML(svcDue(t),'Service','tk1')+tickHTML(tagDue(t),'Test and tag','tk2')+
+  '</'+(ex?'div':'button')+'>';}
+var shown=[],shownLabel='';
+function renderTools(){
+  var all=src(), inuse=all.filter(function(t){return!isRetired(t);});
+  $('n-all').textContent=inuse.reduce(function(a,t){return a+inUseQty(t);},0);
+  $('n-out').textContent=inuse.filter(isOut).length;
+  $('n-soon').textContent=inuse.filter(function(t){return worst(t)==='soon';}).length;
+  $('n-over').textContent=inuse.filter(function(t){return worst(t)==='over';}).length;
+  $('n-attn').textContent=inuse.reduce(function(a,t){return a+attnQty(t);},0);
+  fillSelect('f-loc',uniq(all.map(locName)),'All locations');
+  fillSelect('f-cat',uniq(all.map(function(t){return t.category;})),'All categories');
+  $('f-stat').classList.toggle('filled',!!$('f-stat').value);
+  $('exnote').hidden=!showingEx();
+  $('add').disabled=!canWrite;
+  var q=$('q').value.trim().toLowerCase(), loc=$('f-loc').value, cat=$('f-cat').value;
+  var rows=all.filter(function(t){return passStat(t)&&passTile(t)&&matchQ(t,q)&&(!loc||locName(t)===loc)&&(!cat||t.category===cat);})
+    .sort(function(a,b){return rank(a)-rank(b)||assetNum(a.asset)-assetNum(b.asset)||String(a.name).localeCompare(b.name);});
+  shown=showingEx()?[]:rows;
+  var parts=[];if(loc)parts.push(loc);if(cat)parts.push(cat);if($('f-stat').value)parts.push($('f-stat').options[$('f-stat').selectedIndex].text);if(q)parts.push('“'+q+'”');
+  shownLabel=parts.join(' · ');
+  $('fnote').innerHTML=parts.length?'<span>Showing '+rows.length+' in '+esc(parts.join(' · '))+'</span><button type="button" class="linkbtn" id="clearf">Clear filters</button>':'';
+  var head='<div class="lh" aria-hidden="true"><span></span><span>Tool</span><span>Serial</span><span>Location</span><span>Service</span><span>Tag</span></div>';
+  var body=!ready?'<div class="empty">Opening the registry…</div>':!rows.length?'<div class="empty">Nothing matches these filters.</div>':rows.map(function(t){return rowHTML(t,showingEx());}).join('');
+  $('list').innerHTML=head+body;
+}
+$('fnote').addEventListener('click',function(e){if(e.target.id!=='clearf')return;$('q').value='';$('f-loc').value='';$('f-cat').value='';$('f-stat').value='';setTile('all');renderTools();});
+['q','f-loc','f-cat','f-stat'].forEach(function(id){$(id).addEventListener(id==='q'?'input':'change',renderTools);});
+$('list').addEventListener('click',function(e){var r=e.target.closest('button.row');if(r)openTool(r.getAttribute('data-id'));});
+function setTile(f){filter=f;document.querySelectorAll('.tile').forEach(function(x){x.classList.toggle('on',x.getAttribute('data-f')===filter);});}
+$('tiles').addEventListener('click',function(e){var b=e.target.closest('.tile');if(!b)return;var f=b.getAttribute('data-f');setTile(filter===f&&f!=='all'?'all':f);if(view!=='tools')setView('tools');renderTools();});
+
+/* ---------- Locations view ---------- */
+function lastStock(where){var l=stocks.filter(function(s){return s.where===where;}).sort(function(a,b){return String(b.date).localeCompare(a.date);});return l[0]||null;}
+function renderLocs(){
+  var all=src().filter(function(t){return!isRetired(t);}), names=uniq(all.map(locName));
+  if(!ready){$('locs').innerHTML='<div class="empty">Opening the registry…</div>';return;}
+  if(!names.length){$('locs').innerHTML='<div class="empty">No locations yet. Add a tool and say where it lives.</div>';return;}
+  $('locs').innerHTML=names.map(function(n){var here=all.filter(function(t){return locName(t)===n;}),out=here.filter(isOut).length,
+    attn=here.filter(function(t){return worst(t)==='over'||['missing','repair','service'].indexOf(t.status)>=0;}).length,ls=lastStock(n);
+    return'<div class="lc"><h3>'+esc(n)+'</h3><div class="nums"><span><b>'+here.length+'</b>tools</span><span><b>'+out+'</b>out</span><span class="'+(attn?'warn':'')+'"><b>'+attn+'</b>need attention</span></div>'+
+      '<div class="last">'+(ls?'Last stocktake '+esc(nice(ls.date))+' by '+esc(ls.by||'someone')+': '+ls.seen+' of '+ls.total+' ticked':'No stocktake yet')+'</div>'+
+      '<div class="btns"><button class="btn sm" type="button" data-loc="'+esc(n)+'" data-a="list">See the list</button><button class="btn sm main" type="button" data-loc="'+esc(n)+'" data-a="stock"'+(showingEx()||!canWrite?' disabled':'')+'>Start stocktake</button></div></div>';}).join('');
+}
+$('locs').addEventListener('click',function(e){var b=e.target.closest('[data-loc]');if(!b||b.disabled)return;var n=b.getAttribute('data-loc');
+  if(b.getAttribute('data-a')==='list'){$('f-loc').value=n;setTile('all');setView('tools');renderTools();$('list').scrollIntoView({behavior:'smooth',block:'start'});}
+  else openStock(n);});
+function setView(v){view=v;$('v-tools').classList.toggle('on',v==='tools');$('v-locs').classList.toggle('on',v==='locs');$('v-tools').setAttribute('aria-selected',v==='tools');$('v-locs').setAttribute('aria-selected',v==='locs');
+  $('tools-view').hidden=v!=='tools';$('locs-view').hidden=v!=='locs';$('locs-view').style.display=v==='locs'?'flex':'';renderAll();}
+$('v-tools').addEventListener('click',function(){setView('tools');});
+$('v-locs').addEventListener('click',function(){setView('locs');});
+function renderAll(){renderTools();if(view==='locs')renderLocs();}
+var msgTimer;
+function say(t,err){var m=$('msg');m.textContent=t;m.className='msg'+(err?' err':'');clearTimeout(msgTimer);if(!err)msgTimer=setTimeout(function(){m.textContent='';},4500);}
+
+/* ---------- Saving ---------- */
+function uid(p){return(p||'t')+Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+function nextAsset(){var m=0;tools.forEach(function(t){m=Math.max(m,assetNum(t.asset));});var n=m+1;return'TR-'+(n<10?'00':n<100?'0':'')+n;}
+function nowTime(){var d=new Date();return pad(d.getHours())+':'+pad(d.getMinutes());}
+function niceTime(hm){if(!hm)return'';var p=hm.split(':'),h=+p[0];return(h%12||12)+':'+p[1]+(h<12?'am':'pm');}
+function fmtLog(x){x=String(x||'');var m;
+  if((m=/^(Tag renewed|Serviced) by ([^(]+?) \(([^)]*)\)\. (.*)$/.exec(x)))return m[1]+' ('+m[2]+').\n'+(m[1]==='Serviced'?'Serviced '+m[3]:m[3].charAt(0).toUpperCase()+m[3].slice(1))+'. '+m[4];
+  x=x.replace(/^(Added to the registry|Seen in stocktake at .+?) by (.+)$/,'$1 ($2).');
+  x=x.replace(/\(by ([^)]+)\)\. /,'($1).\n').replace(/\(by ([^)]+)\)\.?$/,'($1).');return x;}
+function logged(t,text,who){var l=(t.log||[]).slice();l.push({d:iso(today()),tm:nowTime(),t:text,who:who||''});return l.slice(-15);}
+function saveTool(t,okMsg){t.updated=new Date().toISOString();
+  if(store.kind!=='local'){var i=tools.findIndex(function(x){return x.id===t.id;});if(i<0)tools.push(t);else tools[i]=t;}
+  var p=store.put('tools',t);renderAll();
+  return p.then(function(){if(okMsg)say(okMsg);},function(e){say('That didn’t save. '+(e&&e.message?e.message:'You may only have view access to this page.'),true);throw e;});}
+function find(id){return tools.find(function(t){return t.id===id;});}
+function me(){return lsGet(KEY_ME)||'';}
+function knownPlaces(){return uniq(tools.filter(function(t){return!isRetired(t);}).map(function(t){return(t.where||'').trim();}));}
+function knownNames(){var a=[];tools.forEach(function(t){a.push(t.holder,t.loggedBy);(t.log||[]).forEach(function(l){a.push(l.who);});});stocks.forEach(function(s){a.push(s.by);});return uniq(a);}
+function copyResults(q){q=(q||'').trim().toLowerCase();var seen={},out=[];
+  tools.slice().sort(function(a,b){return String(b.updated||'').localeCompare(a.updated||'');}).forEach(function(t){var k=[t.name,t.model,t.brand].join('|').toLowerCase();if(seen[k])return;
+    if(q&&!q.split(/\s+/).every(function(w){return[t.name,t.model,t.brand,t.category].join(' ').toLowerCase().indexOf(w)>=0;}))return;seen[k]=1;out.push(t);});
+  if(!out.length)return'<span class="dim">No match. Use Manual entry instead.</span>';
+  return out.slice(0,6).map(function(t){return'<button type="button" class="opt" data-copy="'+esc(t.id)+'">'+esc(title(t))+'<small>'+esc([t.brand,t.category].filter(Boolean).join(' · '))+'</small></button>';}).join('');}
+function knownSuppliers(){return uniq(tools.map(function(t){return t.supplier;}));}
+
+/* ---------- Panel shell ---------- */
+var P=null, lastFocus=null, animNext=false;
+function openPanel(state){if(!P)lastFocus=document.activeElement;animNext=!$('panel-root').firstChild;P=state;drawPanel(true);}
+function closePanel(){P=null;$('panel-root').innerHTML='';document.body.style.overflow='';if(lastFocus&&lastFocus.focus)try{lastFocus.focus();}catch(e){}}
+function shell(head,body,foot){$('panel-root').innerHTML='<div class="shade" data-a="close"></div><div class="panel'+(animNext?' anim':'')+'" role="dialog" aria-modal="true">'+'<div class="ph">'+head+'<button class="x" type="button" data-a="close" aria-label="Close">×</button></div><div class="pb" id="pb">'+body+'</div>'+(foot?'<div class="pf">'+foot+'</div>':'')+'</div>';animNext=false;document.body.style.overflow='hidden';}
+function drawPanel(focus){if(!P)return;if(P.kind==='add'||P.kind==='edit')drawForm();else if(P.kind==='tool')drawTool();else if(P.kind==='stock')drawStock();else if(P.kind==='export')drawExport();
+  var pr=$('panel-root');
+  pr.querySelectorAll('.f input,.f textarea').forEach(function(i){i.addEventListener('input',function(){i.classList.toggle('filled',!!i.value.trim());i.classList.remove('scanned');var w=i.closest('.f');if(w&&i.value.trim()){w.classList.remove('bad');var n=w.querySelector('.note');if(n)n.remove();}});});
+  if(focus){var f=pr.querySelector('[data-focus]');if(!f){f=pr.querySelector('.pb');if(f)f.setAttribute('tabindex','-1');}if(f)try{f.focus({preventScroll:true});}catch(e){}}}
+function refreshPanel(){if(!P||P.kind!=='tool')return;if(!find(P.id)){closePanel();return;}var ae=document.activeElement;if(ae&&ae.closest&&ae.closest('.panel')&&/INPUT|TEXTAREA|SELECT/.test(ae.tagName))return;drawPanel(false);}
+function mark(id,note){var el=$(id),w=el&&el.closest('.f');if(!w)return;w.classList.add('bad');if(!w.querySelector('.note')){var n=document.createElement('div');n.className='note';n.textContent=note;w.appendChild(n);}el.focus();}
+function fmtD(s){var d=parse(s);return d?pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear():'';}
+function readD(t){t=(t||'').trim().replace(/[.,\- ]+/g,'/');var m=/^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})$/.exec(t)||/^(\d{2})(\d{2})(\d{2}|\d{4})$/.exec(t);if(!m)return'';if(m[3].length===2)m[3]='20'+m[3];var d=new Date(+m[3],m[2]-1,+m[1]);if(d.getMonth()!==m[2]-1||d.getDate()!==+m[1])return'';return iso(d);}
+function dv(id){var e=$(id);if(!e)return undefined;return e.classList.contains('dt')?readD(e.value):e.value.trim();}
+function dateBox(id,val,extra,o){o=o||{};var cls=o.scanned?' scanned':val?' filled':'';
+  return'<div class="dtw"><input id="'+id+'" type="text" class="dt'+cls+'" inputmode="decimal" placeholder="dd/mm/yyyy" autocomplete="off" maxlength="10" value="'+fmtD(val)+'"'+(o.focus?' data-focus':'')+'><button type="button" class="calbtn" data-cal="'+id+'" aria-label="Pick a date from the calendar"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></button><input type="date" class="dtnative" tabindex="-1" aria-hidden="true">'+(extra||'')+'</div>';}
+function inp(id,label,val,o){o=o||{};var cls=o.scanned?'scanned':val?'filled':'';
+  if(o.type==='date')return'<div class="f"><label for="'+id+'">'+label+'</label>'+dateBox(id,val,'',o)+(o.hint?'<span class="hint">'+o.hint+'</span>':'')+'</div>';
+  return'<div class="f"><label for="'+id+'">'+label+'</label><input id="'+id+'" type="'+(o.type||'text')+'" value="'+esc(val==null?'':val)+'"'+(cls?' class="'+cls+'"':'')+(o.list?' list="'+o.list+'"':'')+(o.attr||'')+(o.focus?' data-focus':'')+'>'+(o.hint?'<span class="hint">'+o.hint+'</span>':'')+'</div>';}
+function dl(id,vals){return'<datalist id="'+id+'">'+vals.map(function(v){return'<option value="'+esc(v)+'"></option>';}).join('')+'</datalist>';}
+function chips(vals,target){return vals.length?'<div class="chips">'+vals.slice(0,8).map(function(v){return'<button type="button" class="chip" data-fill="'+target+'" data-v="'+esc(v)+'">'+esc(v)+'</button>';}).join('')+'</div>':'';}
+
+/* ---------- Add (step by step) and Edit (all on one page) ---------- */
+var STEPS=['Scan','What is it?','Power','Where','Service','Finish'];
+function newDraft(){return{id:uid(),asset:nextAsset(),name:'',category:'',brand:'',model:'',serial:'',power:'',tagNeeded:false,tagDate:'',tagEvery:3,where:'',supplier:'',serviceEvery:0,serviceDue:'',purchased:'',price:'',warranty:'',notes:'',loggedBy:me(),loggedOn:iso(today()),status:'active',holder:'',outSince:'',log:[],scanned:{}}; }
+function openAdd(){if(!canWrite)return;openPanel({kind:'add',step:0,d:newDraft(),reading:false,newPlace:false});}
+function stepBody(i,d,all){var S=d.scanned||{},h='';
+  if(i===1){h+=(all?'':'<p class="dim" style="margin:0">'+(d.copiedFrom?'Copied from '+esc(d.copiedFrom)+'. Add this tool’s serial number and check the rest.':Object.keys(S).length?'Check what the scan read. Fix anything that’s wrong.':'Tell us what it is.')+'</p>')+
+    inp('d-name','Description',d.name,{scanned:S.name,hint:'For example: Hammer drill, Drop saw 254mm',focus:!all})+
+    '<div class="f"><label for="d-cat">Category</label><select id="d-cat"'+(d.category?' class="'+(S.category?'scanned':'filled')+'"':'')+'><option value="">Choose a category</option>'+CATS.map(function(c){return'<option'+(c===d.category?' selected':'')+'>'+c+'</option>';}).join('')+'</select></div>'+
+    '<div class="two">'+inp('d-brand','Brand',d.brand,{scanned:S.brand,list:'dl-brands',attr:' autocomplete="off"'})+dl('dl-brands',uniq(BRANDS.concat(tools.map(function(x){return x.brand;}))))+inp('d-model','Model number',d.model,{scanned:S.model,attr:' autocapitalize="characters" style="text-transform:uppercase"'})+'</div>'+
+    '<div class="two">'+inp('d-serial','Serial number',d.serial,{scanned:S.serial,attr:' autocapitalize="characters" style="text-transform:uppercase"'})+inp('d-asset','Asset number',d.asset,{hint:'Write this on the tool'})+'</div>'+
+    (QTY_CATS.indexOf(d.category)>=0||d.counts?inp('d-qty','Quantity',d.qty||1,{attr:' inputmode="numeric" type="number" min="1"',hint:'Same tool kept together, e.g. 10 handsaws in one truck. One entry covers them all.'}):'')+
+    (d.barcode&&!all?'<div class="card"><span class="dim">Barcode on the label: <b style="color:var(--ink)">'+esc(d.barcode)+'</b></span><button type="button" class="btn sm" data-a="usebarcode">Use it as the serial number</button></div>':'');}
+  if(i===2){h+=(all?'<div class="lab" style="font-weight:600">Power source</div>':'<p class="dim" style="margin:0">How is it powered? Corded tools and leads need test and tag.</p>')+
+    '<div class="opts'+(all?' row2':'')+'" role="radiogroup" aria-label="Power source">'+POWER.map(function(p,k){return'<button type="button" class="opt'+(d.power===p[0]?' on':'')+'" role="radio" aria-checked="'+(d.power===p[0])+'" data-power="'+p[0]+'"'+(k===0&&!all&&!d.power?' data-focus':'')+'>'+p[1]+(all?'':'<small>'+p[2]+'</small>')+'</button>';}).join('')+'</div>'+
+    '<label class="check"><input type="checkbox" id="d-tagneed"'+(d.tagNeeded?' checked':'')+'> Needs test and tag</label>'+
+    (d.tagNeeded?'<div class="two">'+inp('d-tagdate','Date on the current tag',d.tagDate,{type:'date',hint:'Leave blank if it has no tag yet'})+
+      '<div class="f"><label for="d-tagevery">Tag every</label><select id="d-tagevery" class="filled">'+[1,3,6,12].map(function(m){return'<option value="'+m+'"'+(+d.tagEvery===m?' selected':'')+'>'+m+(m===1?' month':' months')+'</option>';}).join('')+'</select></div></div>':'');}
+  if(i===3){var pl=knownPlaces(),sp=knownSuppliers();
+    var isNew=P.newPlace||!pl.length||(d.where&&pl.indexOf(d.where)<0);
+    h+=(pl.length?'<div class="f"><label for="d-wsel">Where is it stored?</label><select id="d-wsel"'+(d.where||isNew?' class="filled"':'')+(!all?' data-focus':'')+'><option value="">Choose a location</option>'+pl.map(function(p){return'<option'+(p===d.where&&!isNew?' selected':'')+'>'+esc(p)+'</option>';}).join('')+'<option value="__new"'+(isNew&&pl.length?' selected':'')+'>+ New location</option></select></div>':'')+
+       (isNew?inp('d-where',pl.length?'New location name':'Where is it stored?',pl.indexOf(d.where)<0?d.where:'',{hint:all?'':'Tool bay, workshop, van or site',focus:!all&&(!pl.length||P.newPlace)}):'')+
+       inp('d-supplier','Supplier <i>(optional)</i>',d.supplier,{list:'dl-sup'})+dl('dl-sup',sp);}
+  if(i===4){h+=(all?'<div class="lab" style="font-weight:600">Service</div>':'<p class="dim" style="margin:0">How often does it need a service? You’ll see it turn yellow 60 days out and orange at 30.</p>')+
+    '<div class="opts row2" role="radiogroup" aria-label="Service frequency">'+[[0,'No service'],[3,'Every 3 months'],[6,'Every 6 months'],[12,'Every 12 months'],[24,'Every 2 years']].map(function(o,k){return'<button type="button" class="opt'+(+d.serviceEvery===o[0]?' on':'')+'" role="radio" aria-checked="'+(+d.serviceEvery===o[0])+'" data-svc="'+o[0]+'"'+''+'>'+o[1]+'</button>';}).join('')+'</div>'+
+    (+d.serviceEvery>0?inp('d-svcdue','Next service due',d.serviceDue||iso(addMonths(parse(d.loggedOn)||today(),+d.serviceEvery)),{type:'date'}):'');}
+  if(i===5){h+=(all?'':'<p class="dim" style="margin:0">Last step. The rest is optional and can be added later.</p>')+
+    '<div class="two">'+inp('d-by','Logged by',d.loggedBy,{list:'dl-names',focus:!all&&!d.loggedBy})+inp('d-on','Date logged',d.loggedOn,{type:'date'})+'</div>'+dl('dl-names',knownNames())+
+    '<div class="two">'+inp('d-bought','Purchase date <i>(optional)</i>',d.purchased,{type:'date'})+inp('d-price','Price $ <i>(optional)</i>',d.price,{attr:' inputmode="decimal"'})+'</div>'+
+    inp('d-warranty','Warranty until <i>(optional)</i>',d.warranty,{type:'date'})+
+    '<div class="f"><label for="d-notes">Notes <i>(optional)</i></label><textarea id="d-notes"'+(d.notes?' class="filled"':'')+'>'+esc(d.notes||'')+'</textarea></div>';}
+  return h;}
+function collect(i,d){function v(id){return dv(id);}function set(k,id){var x=v(id);if(x!==undefined)d[k]=x;}
+  if(i===1){set('name','d-name');set('category','d-cat');set('brand','d-brand');set('model','d-model');set('serial','d-serial');if(d.model)d.model=d.model.toUpperCase();if(d.serial)d.serial=d.serial.toUpperCase();set('asset','d-asset');var qv=v('d-qty');if(qv!==undefined)d.qty=Math.max(1,parseInt(qv,10)||1);}
+  if(i===2){var c=$('d-tagneed');if(c)d.tagNeeded=c.checked;set('tagDate','d-tagdate');var te=v('d-tagevery');if(te)d.tagEvery=+te;}
+  if(i===3){var ws=$('d-wsel');if(ws&&ws.value&&ws.value!=='__new')d.where=ws.value;else if($('d-where'))set('where','d-where');else if(ws)d.where='';set('supplier','d-supplier');}
+  if(i===4){set('serviceDue','d-svcdue');}
+  if(i===5){set('loggedBy','d-by');set('loggedOn','d-on');set('purchased','d-bought');set('price','d-price');set('warranty','d-warranty');set('notes','d-notes');}}
+function check(i,d){if(i===1){if(!d.name){mark('d-name','Add a short description.');return false;}if(!d.category){mark('d-cat','Choose a category.');return false;}}
+  if(i===3&&!d.where){mark($('d-where')?'d-where':'d-wsel',$('d-where')?'Add the location name.':'Choose where it’s stored.');return false;}
+  if(i===5&&!d.loggedOn){d.loggedOn=iso(today());}return true;}
+function drawForm(){var d=P.d;
+  if(P.kind==='edit'){
+    shell('<div class="tt"><div><small>'+esc(d.asset)+'</small><h2>Edit details</h2></div></div>',
+      [1,2,3,4,5].map(function(i){return'<div class="sect" data-step="'+i+'"><h3>'+STEPS[i]+'</h3>'+stepBody(i,d,true)+'</div>';}).join('')+
+      (P.confirmDel?'<div class="confirm"><b>Delete this entry for good?</b><span class="dim">Only for tools added by mistake. Lost, stolen or sold tools should be retired instead, so their history stays.</span><div class="btns"><button class="btn ghost" type="button" data-a="nodel">Keep it</button><button class="btn danger" type="button" data-a="del">Delete for good</button></div></div>':
+      '<button class="linkbtn" type="button" data-a="askdel" style="align-self:flex-start;color:var(--r)">Added by mistake? Delete this entry</button>'),
+      '<button class="btn ghost" type="button" data-a="toTool">Cancel</button><button class="btn main" type="button" data-a="saveEdit">Save changes</button>');return;}
+  var i=P.step, dots='<div class="steps" aria-label="Step '+(i+1)+' of 6">'+STEPS.map(function(_,k){return'<i class="'+(k<=i?'on':'')+'"></i>';}).join('')+'<span style="margin-left:6px">Step '+(i+1)+' of 6</span></div>';
+  var head='<div class="tt"><div><small>'+esc(d.asset)+'</small><h2>'+(i===6?'Added':STEPS[i])+'</h2>'+(i<6?dots:'')+'</div></div>', body='', foot='';
+  if(i===0){
+    var canAI=sampleFn&&imagesOK;
+    if(P.reading)body='<div class="shot">'+(d._preview?'<img src="'+d._preview+'" alt="Your photo">':'')+'<div class="reading"><span class="spin"></span>'+(canAI?'Reading the label…':'Saving the photo…')+'</div></div>';
+    else if(d._preview)body='<div class="shot"><img src="'+d._preview+'" alt="Your photo"><span>'+esc(P.scanMsg||'')+'</span><button type="button" class="btn sm" data-a="retake">Take it again</button></div>';
+    else body='<div class="shot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><b>Snap the nameplate or sticker</b><span class="dim">'+(canAI?'Get the brand, model and serial number in the shot. We’ll read them for you.':'The photo is kept with the tool. Automatic label reading is coming soon, so you’ll type the details on the next step.')+'</span><button type="button" class="btn main" data-a="snap" data-focus>Take a photo</button></div>';
+    if(!d._preview&&!P.reading){var shotBox=body;body='<button class="btn main big" type="button" data-a="skip">Manual entry</button>';
+      body+='<div class="sect"><h3>Search for similar tools</h3><span class="dim">Got another one the same? Search your registry and its details fill in for you. Serial number, asset number, dates and notes are left blank.</span><div class="f" style="position:relative"><input id="cp-q" type="search" placeholder="Search model, name or brand" aria-label="Search for similar tools" autocomplete="off" aria-controls="cp-res"'+(tools.length?'':' disabled')+'>'+(tools.length?'<div class="cpdrop" id="cp-res" hidden></div>':'<span class="hint">Tools you add will show here, ready to copy for the next one.</span>')+'</div></div><div class="sect" style="border-top:1px solid var(--line);padding-top:16px"><h3>Or scan it</h3>'+shotBox+'</div>';}
+    foot=(d._preview&&!P.reading)?'<button class="btn main" type="button" data-a="next">Next</button>':'';
+  }else if(i<6){
+    body=stepBody(i,d,false);
+    foot='<button class="btn ghost" type="button" data-a="back">Back</button><button class="btn main" type="button" data-a="'+(i===5?'saveNew':'next')+'">'+(i===5?'Add to the registry':'Next')+'</button>';
+  }else{
+    body='<div class="sect" style="align-items:center;text-align:center;gap:14px;padding-top:12px">'+icon('active',44)+'<b style="font-size:20px">'+esc(title(d))+' is in the registry</b><span class="dim">Write this number on the tool with a paint pen or label:</span><div class="big">'+esc(d.asset)+'</div><span class="dim">Stored at '+esc(d.where)+'</span></div>';
+    foot='<button class="btn" type="button" data-a="openNew">Open the tool</button><button class="btn main" type="button" data-a="another">Add another</button>';
+  }
+  shell(head,body,foot);}
+
+/* ---------- Scan ---------- */
+function loadImg(file){return new Promise(function(res,rej){var u=URL.createObjectURL(file),im=new Image();im.onload=function(){res(im);};im.onerror=function(){rej();};im.src=u;});}
+function shrink(im,max,q,type){var s=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight)),c=document.createElement('canvas');c.width=Math.round(im.naturalWidth*s);c.height=Math.round(im.naturalHeight*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+  return{url:c.toDataURL(type||'image/jpeg',q),blob:function(){return new Promise(function(r){c.toBlob(r,type||'image/jpeg',q);});},canvas:c};}
+$('cam').addEventListener('change',function(){var f=this.files&&this.files[0];this.value='';if(!f||!P||P.kind!=='add')return;handlePhoto(f);});
+function handlePhoto(file){var d=P.d;P.reading=true;drawPanel(false);
+  loadImg(file).then(function(im){
+    var small=shrink(im,480,.62), big=shrink(im,1400,.85);d._preview=small.url;drawPanel(false);
+    var jobs=[];
+    // keep the photo: Claude file store when allowed, else a small copy inside the record
+    if(store.kind==='shared'&&assetsNS){jobs.push(small.blob().then(function(b){return assetsNS.upload(b);}).then(function(r){d.photoId=r.id;d.photo='';},function(){d.photo=small.url;}));}
+    else d.photo=small.url;
+    if('BarcodeDetector' in window){try{jobs.push(new window.BarcodeDetector().detect(big.canvas).then(function(c){if(c&&c[0])d.barcode=c[0].rawValue;},function(){}));}catch(e){}}
+    if(sampleFn&&imagesOK){jobs.push(big.blob().then(function(b){return sampleFn.json(
+      'The photo shows a tool or piece of equipment, or its nameplate, label or sticker, from an Australian building site. Read it and reply with JSON only: '+
+      '{"name":"short plain description such as Hammer drill or Extension lead 20m","category":"one of: '+CATS.join(', ')+'","brand":"","model":"model number exactly as printed","serial":"serial number exactly as printed","power":"one of: 240v, lead, battery, petrol, air, none, unknown","barcode":"barcode or QR text if printed as numbers","other":"any other useful label text, under 120 characters"}. '+
+      'Use an empty string for anything you can’t read clearly. Never guess a serial or model number.',{images:[b],modelTier:'default'});})
+      .then(function(r){r=r||{};var S={};function take(k,v){v=(v||'').toString().trim();if(v&&v.toLowerCase()!=='unknown'){d[k]=v;S[k]=1;}}
+        take('name',r.name);if(CATS.indexOf(r.category)>=0){d.category=r.category;S.category=1;}take('brand',r.brand);take('model',(r.model||'').toUpperCase());take('serial',(r.serial||'').toUpperCase());
+        if(POWER.some(function(p){return p[0]===r.power;})){d.power=r.power;d.tagNeeded=r.power==='240v'||r.power==='lead';}
+        if(r.barcode&&!d.barcode)d.barcode=String(r.barcode).trim();
+        d.scanText=[r.brand,r.model,r.serial,r.other].filter(Boolean).join(' · ');d.scanned=S;
+        P.scanMsg=Object.keys(S).length?'Read '+Object.keys(S).length+' details from the label. You’ll check them next.':'Couldn’t read the label clearly. You can type the details next, or take it again closer.';},
+      function(e){P.scanMsg=e&&e.code==='not_granted'?'Reading the label is switched off. Type the details next.':'Couldn’t read the label this time. Type the details next.';}));}
+    else P.scanMsg='Photo kept with the tool.';
+    return Promise.all(jobs);
+  }).then(function(){if(!P)return;P.reading=false;d.scanDate=iso(today());if(d.barcode&&!(sampleFn&&imagesOK))P.scanMsg='Photo kept. Found a barcode, shown on the next step.';drawPanel(false);},
+         function(){if(!P)return;P.reading=false;P.scanMsg='That photo couldn’t be opened. Try again.';drawPanel(false);});}
+
+/* ---------- Tool file ---------- */
+function secHead(key,title,summary,action){var o=!!(P.open&&P.open[key]);return'<button type="button" class="sechd'+(o?' open':'')+'" data-tog="'+key+'" aria-expanded="'+o+'"><span class="sht">'+title+'</span><span class="shs">'+summary+'</span>'+(action?'<span class="sha">'+action+'</span>':'')+'<span class="chev"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span></button>';}
+function openTool(id){openPanel({kind:'tool',id:id,open:{}});}
+function photoSrc(t){return t.photoId?'/_blob/'+t.photoId:t.photo||'';}
+function drawTool(){var t=find(P.id);if(!t){closePanel();return;}P.open=P.open||{};
+  var out=isOut(t),retired=isRetired(t),td=tagDue(t),sd=svcDue(t);
+  var head='<div class="tt">'+icon(t.status,34)+'<div><small>'+esc([t.asset,t.serial?'Serial '+t.serial:''].filter(Boolean).join(' · '))+'</small><h2>'+esc(title(t))+'</h2><small>'+esc([ST[t.status].n,t.brand,t.category].filter(Boolean).join(' · '))+'</small></div></div>';
+  var b='';
+  if(isMulti(t)){var have=IN_USE.concat(RETIRED).filter(function(k){return cnt(t,k)>0;});
+    b+='<div class="sect"><h3>Quantity</h3><div class="card"><div class="qgrid">'+have.map(function(k){return'<span class="qchip">'+icon(k,24)+cnt(t,k)+' '+ST[k].n.toLowerCase()+'</span>';}).join('')+'</div>'+
+      '<b style="margin-top:4px">Move some</b><div class="qmove"><input id="qm-n" type="number" min="1" value="1" inputmode="numeric" aria-label="How many"><span>from</span><select id="qm-from" aria-label="From">'+have.map(function(k){return'<option value="'+k+'"'+(k==='active'?' selected':'')+'>'+ST[k].n+' ('+cnt(t,k)+')</option>';}).join('')+'</select><span>to</span><select id="qm-to" aria-label="To">'+IN_USE.concat(RETIRED).map(function(k){return'<option value="'+k+'"'+(k==='missing'?' selected':'')+'>'+ST[k].n+'</option>';}).join('')+'</select></div>'+
+      inp('qm-who','Your name',me(),{list:'dl-qmwho'})+dl('dl-qmwho',knownNames())+inp('qm-note','Why <i>(optional)</i>','',{hint:'For example: 2 left at the Smith St job. Date and time are recorded automatically.'})+'<button class="btn main" type="button" data-a="qmove">Update quantity</button></div></div>';}
+  else b+='<div class="sect"><h3>Status</h3><div class="statgrid">'+IN_USE.concat(RETIRED).map(function(s){return'<button type="button" class="stbtn'+(t.status===s?' on':'')+'" data-st="'+s+'" aria-pressed="'+(t.status===s)+'">'+icon(s)+ST[s].n.replace('Decommissioned','Decom\u00ADmissioned')+'</button>';}).join('')+'</div>'+
+     (P.retire?(function(){var r=P.retire,ret=RETIRED.indexOf(r)>=0,back=r==='active';
+       return'<div class="confirm" style="border-color:'+(ret?'var(--r)':'var(--accent)')+'"><b>'+(back?'Back in service':'Change to '+ST[r].n.toLowerCase())+'</b>'+(ret?'<span class="dim">It leaves the main list but stays in the records. Choose Active any time to bring it back.</span>':'')+
+       inp('st-who','Your name',me(),{list:'dl-stwho',focus:!me()})+dl('dl-stwho',knownNames())+inp('st-note',(back?'What was done':ret?'Note':'Why is it out of action')+' <i>(optional)</i>','',{hint:({active:'For example: new switch fitted, passed test and tag',repair:'What’s wrong with it',service:'Where it’s gone and what for',missing:'Where it was last seen',stolen:'Police report number, where it was taken',decommissioned:'Why it was retired',sold:'Who bought it and the price'})[r],focus:!!me()})+
+       '<span class="dim">The date and time are recorded automatically.</span><div class="btns"><button class="btn ghost" type="button" data-a="noretire">Cancel</button><button class="btn '+(ret?'danger':'main')+'" type="button" data-a="retire">'+(back?'Mark back in service':'Mark '+ST[r].n.toLowerCase())+'</button></div></div>';})():'')+
+     (t.statusNote?'<span class="dim">'+esc(ST[t.status].n)+(t.statusDate?' since '+esc(nice(t.statusDate))+(t.statusTime?' '+esc(niceTime(t.statusTime)):''):'')+(t.statusBy?', by '+esc(t.statusBy):'')+': '+esc(t.statusNote)+'</span>':'')+'</div>';
+  if(!retired){
+    b+='<div class="sect">'+secHead('who','Who has it?',out?(isLate(t)?'<span style="color:var(--r)">With '+esc(t.holder)+', '+outDays(t)+' days</span>':'With '+esc(t.holder)+(t.holderAt?' at '+esc(t.holderAt):'')):esc(locName(t)),out?'Bring it back?':'Moving this tool to a new area?')+(!P.open.who?'</div>':'<div class="card secbody'+(out?' out':'')+'">'+
+      (out?'<div class="now"><b>'+esc(t.holder)+'</b>'+(t.holderAt?' at '+esc(t.holderAt):'')+'</div><div class="dim">Out since '+esc(nice(t.outSince))+(isLate(t)?' · <b style="color:var(--r)">'+outDays(t)+' days, check it’s not lost</b>':'')+'</div><button class="btn main" type="button" data-a="checkin">Back to '+esc(locName(t))+'</button>'
+          :'<div class="now"><b>'+esc(locName(t))+'</b></div><div class="two">'+inp('co-who','Who’s taking it?','',{list:'dl-names'})+inp('co-at','Where to? <i>(optional)</i>','',{})+'</div>'+dl('dl-names',knownNames())+'<button class="btn main" type="button" data-a="checkout">Check out</button>')+
+    '</div></div>');}
+  b+='<div class="sect">'+secHead('tag','Test and tag',tickHTML(td,'Test and tag')+'<span>'+(td===null?'Not needed':td===''?'No tag date':'Due '+esc(nice(td)))+'</span>',t.tagNeeded&&!retired?'Update details':'')+(!P.open.tag?'</div>':'<div class="card secbody"><div class="duebox">'+'<span>'+(td===null?'Not needed'+(t.power?' ('+esc(powerName(t.power).toLowerCase())+')':''):td===''?'<b>No tag date recorded</b>':'Tagged '+esc(nice(t.tagDate))+'. Next due <b>'+esc(nice(td))+'</b>')+'</span></div>'+
+    (t.tagNeeded&&!retired?'<div class="sect" style="gap:8px;border-top:1px solid var(--line);padding-top:10px"><b>Renew tag</b><div class="f"><label for="rt-date">Date tagged</label>'+dateBox('rt-date','','<button type="button" class="btn" data-a="rtToday">Today</button>')+'<span class="hint">Next due is worked out from this date, every '+(+t.tagEvery||3)+' months.</span></div>'+inp('rt-by','Tagged by',me(),{list:'dl-tagby',hint:'Saved in the history log.'})+dl('dl-tagby',knownNames())+'<button class="btn main" type="button" data-a="tagged">Renew tag</button></div>':'')+'</div></div>');
+  b+='<div class="sect">'+secHead('svc','Service info',tickHTML(sd,'Service')+'<span>'+(sd===null?'No regular service':sd===''?'No service date':'Due '+esc(nice(sd)))+'</span>',+t.serviceEvery>0&&!retired?'Update details':'')+(!P.open.svc?'</div>':'<div class="card secbody"><div class="duebox">'+'<span>'+(sd===null?'No regular service':sd===''?'<b>No service date</b>':'Every '+t.serviceEvery+' months. Next due <b>'+esc(nice(sd))+'</b>')+'</span></div>'+
+    (+t.serviceEvery>0&&!retired?'<div class="sect" style="gap:8px;border-top:1px solid var(--line);padding-top:10px"><b>Record a service</b><div class="f"><label for="rs-date">Date serviced</label>'+dateBox('rs-date','','<button type="button" class="btn" data-a="rsToday">Today</button>')+'<span class="hint">Next due is worked out from this date, every '+t.serviceEvery+' months.</span></div>'+inp('rs-by','Serviced by',me(),{list:'dl-svcby',hint:'Saved in the history log.'})+dl('dl-svcby',knownNames())+'<button class="btn main" type="button" data-a="serviced">Record service</button></div>':'')+'</div></div>');
+  var w=t.warranty?(daysBetween(today(),parse(t.warranty))<0?'Ended '+nice(t.warranty):'Until '+nice(t.warranty)):'';
+  var facts=[['Description',t.name],['Category',t.category],['Brand',t.brand],['Model',t.model],['Serial',t.serial],['Asset',t.asset],['Power',powerName(t.power)],['Stored at',t.where],['Supplier',t.supplier],['Purchased',nice(t.purchased)],['Price',t.price?'$'+t.price:''],['Warranty',w],['Logged by',t.loggedBy],['Date logged',nice(t.loggedOn)],['Last seen',t.lastSeen?nice(t.lastSeen)+(t.lastSeenAt?' in stocktake at '+t.lastSeenAt:''):'']].filter(function(f){return f[1];});
+  b+='<div class="sect"><h3>Details</h3><dl class="facts">'+facts.map(function(f){return'<dt>'+f[0]+'</dt><dd>'+esc(f[1])+'</dd>';}).join('')+'</dl></div>';
+  if(t.notes)b+='<div class="sect"><h3>Notes</h3><p style="margin:0;white-space:pre-wrap">'+esc(t.notes)+'</p></div>';
+  if(photoSrc(t)||t.scanText)b+='<div class="sect"><h3>Scan</h3>'+(P.showScan?'<img class="scanimg" src="'+esc(photoSrc(t))+'" alt="Scan of '+esc(t.name)+'">'+(t.scanText?'<span class="dim">Read from the label'+(t.scanDate?' on '+esc(nice(t.scanDate)):'')+': '+esc(t.scanText)+'</span>':'')+'<button class="linkbtn" type="button" data-a="hidescan" style="align-self:flex-start">Hide the scan</button>':'<button class="btn sm" type="button" data-a="showscan" style="align-self:flex-start">View the scan'+(t.scanDate?' from '+esc(nice(t.scanDate)):'')+'</button>')+'</div>';
+  b+='<div class="sect"><h3>History</h3>'+(t.log.length?'<ul class="log">'+t.log.slice().reverse().map(function(l){return'<li><time>'+esc(nice(l.d))+(l.tm?'<br>'+esc(niceTime(l.tm)):'')+'</time><span style="white-space:pre-line">'+esc(fmtLog(l.t))+'</span></li>';}).join('')+'</ul>':'<span class="dim">Nothing yet.</span>')+'</div>';
+  shell(head,b,'<button class="btn" type="button" data-a="edit">Edit details</button>');
+  if(!canWrite)$('panel-root').querySelectorAll('.pb button,.pf button').forEach(function(x){if(!/showscan|hidescan/.test(x.getAttribute('data-a')||''))x.disabled=true;});}
+
+/* ---------- Stocktake ---------- */
+function openStock(where){var here=tools.filter(function(t){return!isRetired(t)&&locName(t)===where;});
+  openPanel({kind:'stock',where:where,ticks:{},by:me(),ask:false,ids:here.map(function(t){return t.id;})});}
+function drawStock(){var all=P.ids.map(find).filter(Boolean),inPlace=all.filter(function(t){return!isOut(t);}),out=all.filter(isOut);
+  P.counts=P.counts||{};var n=inPlace.filter(function(t){return P.ticks[t.id]||P.counts[t.id]!=null;}).length;
+  function row(t){var on=!!P.ticks[t.id];
+    if(isMulti(t))return'<div class="sk"><input type="number" class="qcount" data-qc="'+t.id+'" min="0" inputmode="numeric" value="'+(P.counts[t.id]!=null?P.counts[t.id]:'')+'" placeholder="'+cnt(t,'active')+'" aria-label="How many '+esc(t.name)+' are here">'+
+      '<div class="nm"><b>'+esc(title(t))+' <span class="qty">×'+cnt(t,'active')+' expected</span></b><small>'+esc([t.asset,breakdown(t)].filter(Boolean).join(' · '))+'</small></div><div class="ctl dim" style="font-size:13px">Type how many you can see. Change others in the tool file.</div></div>';
+    return'<div class="sk"><button type="button" class="here'+(on?' on':'')+'" data-tick="'+t.id+'" aria-pressed="'+on+'" aria-label="'+esc(title(t))+' is here">✓</button>'+
+    '<div class="nm"><b>'+esc(title(t))+'</b><small>'+esc([t.asset,t.serial?'Serial '+t.serial:''].filter(Boolean).join(' · '))+'</small></div>'+
+    '<div class="ctl">'+icon(t.status,24)+'<select data-sst="'+t.id+'" aria-label="Status of '+esc(t.name)+'">'+IN_USE.map(function(s){return'<option value="'+s+'"'+(t.status===s?' selected':'')+'>'+ST[s].n+'</option>';}).join('')+'</select>'+
+      (t.tagNeeded?tickHTML(tagDue(t),'Test and tag')+'<button type="button" class="btn sm" data-stag="'+t.id+'">Tagged today</button>':'')+'</div></div>';}
+  var b='<div class="two">'+inp('sk-by','Who’s doing the stocktake?',P.by,{list:'dl-names'})+inp('sk-date','Date',iso(today()),{type:'date'})+'</div>'+dl('dl-names',knownNames())+
+    '<div class="sect"><h3>Should be here ('+inPlace.length+')</h3><span class="dim">Tick each tool you can see, or type how many for tools kept in a set. Change the status of anything that needs repair or service.</span>'+(inPlace.length?'<div class="stk">'+inPlace.map(row).join('')+'</div>':'<span class="dim">Nothing should be here right now.</span>')+'</div>'+
+    (out.length?'<div class="sect"><h3>Out with someone ('+out.length+')</h3><div class="stk">'+out.map(function(t){return'<div class="sk"><span class="si s-active" style="width:24px;height:24px;background:var(--accent);color:var(--accent-ink)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h12M13 7l5 5-5 5"/></svg></span><div class="nm"><b>'+esc(title(t))+'</b><small>With '+esc(t.holder)+' since '+esc(nice(t.outSince))+'</small></div></div>';}).join('')+'</div></div>':'')+
+    (P.ask?'<div class="confirm"><b>'+(P.short||0)+' not found</b><span class="dim">Mark them as missing so they show up for follow-up?</span><div class="btns"><button class="btn ghost" type="button" data-a="finishLeave">Leave them as they are</button><button class="btn danger" type="button" data-a="finishMissing">Mark missing</button></div></div>':'');
+  shell('<div class="tt"><div><small>Stocktake</small><h2>'+esc(P.where)+'</h2></div></div>',b,'<span class="dim" id="sk-n" style="flex:1 1 100%">'+n+' of '+inPlace.length+' checked</span><button class="btn ghost" type="button" data-a="close">Cancel</button><button class="btn main" type="button" data-a="finish">Finish stocktake</button>');}
+function finishStock(markMissing){var by=($('sk-by')&&$('sk-by').value.trim())||P.by||'',date=($('sk-date')&&dv('sk-date'))||iso(today());if(by)lsSet(KEY_ME,by);
+  var all=P.ids.map(find).filter(Boolean),inPlace=all.filter(function(t){return!isOut(t);}),seen=0,missing=0,jobs=[];
+  inPlace.forEach(function(t){var n=Object.assign({},t);
+    if(isMulti(t)){var exp=cnt(t,'active'),fnd=P.counts[t.id],qc=Object.assign({},t.counts);
+      if(fnd!=null){seen++;fnd=Math.max(0,+fnd||0);if(fnd>0){n.lastSeen=date;n.lastSeenAt=P.where;}
+        if(fnd<exp&&markMissing){qc.active=fnd;qc.missing=cnt(t,'missing')+exp-fnd;missing+=exp-fnd;}
+        else if(fnd>exp&&cnt(t,'missing')>0){var back=Math.min(fnd-exp,cnt(t,'missing'));qc.active=exp+back;qc.missing=cnt(t,'missing')-back;}
+        n.counts=qc;norm(n);n.log=logged(t,'Stocktake at '+P.where+(by?' ('+by+').':'.')+'\nFound '+fnd+' of '+exp,by);jobs.push(saveTool(n));}
+      else if(markMissing&&exp>0){qc.missing=cnt(t,'missing')+exp;delete qc.active;missing+=exp;n.counts=qc;norm(n);n.log=logged(t,'Not counted in stocktake at '+P.where+(by?' ('+by+').':'.')+'\n'+exp+' marked missing',by);jobs.push(saveTool(n));}
+      return;}
+    if(P.ticks[t.id]){seen++;n.lastSeen=date;n.lastSeenAt=P.where;if(t.status==='missing'){n.status='active';n.statusNote='';}n.log=logged(t,'Seen in stocktake at '+P.where+(by?' ('+by+').':'.'),by);jobs.push(saveTool(n));}
+    else if(markMissing&&t.status!=='missing'){missing++;n.status='missing';n.statusDate=date;n.statusNote='Not found in stocktake at '+P.where;n.log=logged(t,'Not found in stocktake at '+P.where+(by?' ('+by+').':'.')+'\nMarked missing',by);jobs.push(saveTool(n));}});
+  var rec={id:uid('s'),where:P.where,date:date,by:by,seen:seen,total:inPlace.length,missing:missing};
+  if(store.kind!=='local')stocks.push(rec);jobs.push(store.put('stocktakes',rec));
+  var w=P.where;closePanel();
+  Promise.all(jobs).then(function(){say('Stocktake saved for '+w+': '+seen+' of '+rec.total+' ticked'+(missing?', '+missing+' marked missing':'')+'.');renderAll();},function(){});}
+
+/* ---------- Panel actions ---------- */
+$('panel-root').addEventListener('change',function(e){var s=e.target.closest('[data-sst]');if(!s||!P||P.kind!=='stock')return;var t=find(s.getAttribute('data-sst'));if(!t)return;var skw=($('sk-by')&&$('sk-by').value.trim())||'';if(!skw){s.value=t.status;mark('sk-by','Add your name first. Status changes are logged with it.');return;}P.by=skw;lsSet(KEY_ME,skw);var n=Object.assign({},t);n.status=s.value;n.statusDate=iso(today());n.statusTime=nowTime();n.statusBy=skw;n.statusNote='';n.log=logged(t,'Status set to '+ST[s.value].n+' during stocktake ('+skw+').',skw);saveTool(n).then(function(){keepScroll();},function(){});});
+$('panel-root').addEventListener('click',function(e){
+  var cb=e.target.closest('[data-cal]');if(cb){var nat=cb.parentNode.querySelector('.dtnative'),tx=$(cb.getAttribute('data-cal'));nat.value=readD(tx.value)||iso(today());try{nat.showPicker();}catch(err){cb.hidden=true;tx.focus();}return;}
+  var tg=e.target.closest('[data-tog]');if(tg&&P){P.open=P.open||{};P.open[tg.getAttribute('data-tog')]=!P.open[tg.getAttribute('data-tog')];keepScroll();return;}
+  var sc=e.target.closest('[data-scope]');if(sc&&P&&P.kind==='export'){P.scope=sc.getAttribute('data-scope');keepScroll();return;}
+  var el=e.target.closest('[data-a],[data-power],[data-svc],[data-fill],[data-st],[data-tick],[data-stag],[data-copy]');if(!el||el.disabled||!P)return;
+  if(P.kind==='export'){var ea=el.getAttribute('data-a');if(ea==='exDownload'){exDownload();return;}if(ea==='exShare'){exShare();return;}if(ea==='exCopy'){exCopy(el);return;}}
+  if(el.hasAttribute('data-copy')){var src0=find(el.getAttribute('data-copy'));if(!src0)return;var dd=P.d,S2={};
+    ['name','category','brand','model','power','supplier','price','where'].forEach(function(k){if(src0[k]){dd[k]=src0[k];S2[k]=1;}});
+    if(isRetired(src0)&&knownPlaces().indexOf(dd.where)<0){dd.where='';delete S2.where;}
+    dd.tagNeeded=!!src0.tagNeeded;dd.tagEvery=+src0.tagEvery||3;dd.serviceEvery=+src0.serviceEvery||0;dd.serviceDue='';dd.tagDate='';
+    dd.scanned=S2;dd.copiedFrom=title(src0)+(src0.asset?' ('+src0.asset+')':'');P.step=1;drawPanel(true);$('pb').scrollTop=0;return;}
+  if(el.hasAttribute('data-fill')){var tgt=$(el.getAttribute('data-fill'));if(tgt){tgt.value=el.getAttribute('data-v');tgt.classList.add('filled');var w=tgt.closest('.f');if(w){w.classList.remove('bad');var nn=w.querySelector('.note');if(nn)nn.remove();}}return;}
+  var d=P.d;
+  if(el.hasAttribute('data-power')){collect(2,d);d.power=el.getAttribute('data-power');d.tagNeeded=d.power==='240v'||d.power==='lead';keepScroll();return;}
+  if(el.hasAttribute('data-svc')){collect(4,d);d.serviceEvery=+el.getAttribute('data-svc');if(d.serviceEvery&&!d.serviceDue)d.serviceDue=iso(addMonths(parse(d.loggedOn)||today(),d.serviceEvery));if(!d.serviceEvery)d.serviceDue='';keepScroll();return;}
+  if(el.hasAttribute('data-tick')){var id=el.getAttribute('data-tick');P.by=($('sk-by')&&$('sk-by').value)||P.by;P.ticks[id]=!P.ticks[id];P.ask=false;keepScroll();return;}
+  if(el.hasAttribute('data-stag')){var tt=find(el.getAttribute('data-stag'));if(tt){var nt=Object.assign({},tt);nt.tagDate=iso(today());nt.log=logged(tt,'Tested and tagged during stocktake');saveTool(nt).then(function(){keepScroll();},function(){});}return;}
+  if(el.hasAttribute('data-st')){var t0=find(P.id),s=el.getAttribute('data-st');if(!t0||s===t0.status)return;
+    P.retire=s;drawPanel(true);var cf0=$('panel-root').querySelector('.confirm');if(cf0)cf0.scrollIntoView({block:'nearest'});return;}
+  var a=el.getAttribute('data-a'),t=P.id?find(P.id):null;
+  if(a==='close'){closePanel();return;}
+  // add flow
+  if(a==='snap'||a==='retake'){$('cam').click();return;}
+  if(a==='skip'||(a==='next'&&P.step===0)){P.step=1;drawPanel(true);return;}
+  if(a==='usebarcode'){collect(1,d);d.serial=d.barcode;keepScroll();return;}
+  if(a==='next'){collect(P.step,d);if(!check(P.step,d))return;if(P.step===1&&!d.power&&CAT_POWER[d.category]){d.power=CAT_POWER[d.category];d.tagNeeded=d.power==='240v';}P.step++;drawPanel(true);$('pb').scrollTop=0;return;}
+  if(a==='back'){collect(P.step,d);P.step=Math.max(0,P.step-1);drawPanel(true);return;}
+  if(a==='saveNew'){collect(5,d);if(!check(5,d))return;var n=Object.assign({},d);delete n._preview;delete n.scanned;
+    delete n.counts;if(QTY_CATS.indexOf(n.category)>=0&&+n.qty>1)n.counts={active:+n.qty};delete n.qty;
+    if(!n.asset)n.asset=nextAsset();if(n.loggedBy)lsSet(KEY_ME,n.loggedBy);if(!+n.serviceEvery)n.serviceDue='';if(!n.tagNeeded)n.tagDate='';
+    n.log=logged(n,'Added to the registry'+(n.loggedBy?' ('+n.loggedBy+').':'.'),n.loggedBy);
+    if(tools.length===0){setTile('all');}
+    saveTool(n,title(n)+' added as '+n.asset+'.').then(function(){},function(){});P.step=6;P.saved=n.id;drawPanel(true);return;}
+  if(a==='openNew'){openPanel({kind:'tool',id:P.saved});return;}
+  if(a==='another'){openAdd();return;}
+  // edit
+  if(a==='edit'){P={kind:'edit',id:t.id,d:Object.assign({scanned:{},qty:isMulti(t)?inUseQty(t):1},t)};drawPanel(true);$('pb').scrollTop=0;return;}
+  if(a==='toTool'){P={kind:'tool',id:P.id};drawPanel(true);return;}
+  if(a==='saveEdit'){[1,2,3,4,5].forEach(function(i){collect(i,d);});if(!check(1,d)||!check(3,d))return;var ne=Object.assign({},d);delete ne.scanned;delete ne._preview;if(!+ne.serviceEvery)ne.serviceDue='';
+    var t0=find(d.id),newQ=+ne.qty||1;delete ne.qty;if(t0&&(isMulti(t0)||(newQ>1&&QTY_CATS.indexOf(ne.category)>=0))){var qc0=Object.assign({},t0.counts||{});if(!t0.counts)qc0[t0.status]=1;qc0.active=(+qc0.active||0)+newQ-inUseQty({counts:qc0});
+      if(qc0.active<0){mark('d-qty','Some are in repair, service or missing. Move them back first.');return;}if(!qc0.active)delete qc0.active;ne.counts=qc0;ne.status=deriveStatus(qc0);}
+    ne.log=logged(ne,'Details edited');saveTool(ne,'Changes saved.').then(function(){},function(){});P={kind:'tool',id:ne.id};drawPanel(true);return;}
+  if(a==='askdel'){P.confirmDel=true;drawPanel(false);var c=$('panel-root').querySelector('.confirm');if(c)c.scrollIntoView({block:'nearest'});return;}
+  if(a==='nodel'){P.confirmDel=false;drawPanel(false);return;}
+  if(a==='del'){var nm=d.name;store.remove('tools',d.id).then(function(){say(nm+' deleted.');renderAll();},function(){say('That didn’t delete. You may only have view access to this page.',true);});if(store.kind!=='local')tools=tools.filter(function(x){return x.id!==d.id;});closePanel();renderAll();return;}
+  // stocktake
+  if(a==='finish'){P.by=($('sk-by')&&$('sk-by').value)||P.by;var all=P.ids.map(find).filter(Boolean).filter(function(x){return!isOut(x);});var pc=P.counts||{},un=all.filter(function(x){return!P.ticks[x.id]&&pc[x.id]==null;}).length+all.filter(function(x){return isMulti(x)&&pc[x.id]!=null&&pc[x.id]<cnt(x,'active');}).reduce(function(a2,x){return a2+cnt(x,'active')-pc[x.id];},0);P.short=un;
+    if(un>0&&!P.ask){P.ask=true;drawPanel(false);var cf=$('panel-root').querySelector('.confirm');if(cf)cf.scrollIntoView({block:'nearest'});return;}finishStock(false);return;}
+  if(a==='finishLeave'){finishStock(false);return;}
+  if(a==='finishMissing'){finishStock(true);return;}
+  // tool file
+  if(!t)return;var n2=Object.assign({},t);
+  if(a==='showscan'){P.showScan=true;keepScroll();return;}
+  if(a==='hidescan'){P.showScan=false;keepScroll();return;}
+  if(a==='noretire'){P.retire=null;drawPanel(false);return;}
+  if(a==='retire'){var who2=$('st-who').value.trim();if(!who2){mark('st-who','Add your name for the history log.');return;}lsSet(KEY_ME,who2);
+    var note=$('st-note')?$('st-note').value.trim():'',r2=P.retire,ret2=RETIRED.indexOf(r2)>=0,back2=r2==='active';
+    n2.status=r2;n2.statusDate=iso(today());n2.statusTime=nowTime();n2.statusBy=who2;n2.statusNote=note;if(ret2){n2.holder='';n2.outSince='';}
+    n2.log=logged(t,(back2?'Back in service':ret2?'Retired: '+ST[r2].n:'Out of action: '+ST[r2].n)+' ('+who2+').'+(note?'\n'+note:''),who2);P.retire=null;
+    saveTool(n2,back2?title(t)+' is back in service.':ret2?title(t)+' marked '+ST[r2].n.toLowerCase()+'. Find it under Status: Retired.':title(t)+' is now '+ST[r2].n.toLowerCase()+'.').then(function(){keepScroll();},function(){});return;}
+  if(a==='qmove'){var qn=parseInt($('qm-n').value,10),qf=$('qm-from').value,qt=$('qm-to').value,qnote=$('qm-note').value.trim(),qwho=$('qm-who').value.trim();
+    if(!qwho){mark('qm-who','Add your name for the history log.');return;}lsSet(KEY_ME,qwho);
+    if(qf===qt){say('Pick a different status to move them to.',true);return;}if(!(qn>=1)||qn>cnt(t,qf)){say('There '+(cnt(t,qf)===1?'is':'are')+' only '+cnt(t,qf)+' '+ST[qf].n.toLowerCase()+'.',true);return;}
+    var qc=Object.assign({},t.counts);qc[qf]=cnt(t,qf)-qn;qc[qt]=cnt(t,qt)+qn;if(!qc[qf])delete qc[qf];n2.counts=qc;n2.status=deriveStatus(qc);n2.statusDate=iso(today());n2.statusTime=nowTime();n2.statusBy=qwho;
+    n2.log=logged(t,qn+' moved from '+ST[qf].n+' to '+ST[qt].n+' ('+qwho+').'+(qnote?'\n'+qnote:''),qwho);saveTool(n2,qn+' '+title(t)+' moved to '+ST[qt].n.toLowerCase()+'.').then(function(){keepScroll();},function(){});return;}
+  if(a==='checkout'){var who=$('co-who').value.trim();if(!who){mark('co-who','Add who’s taking it.');return;}var at=$('co-at').value.trim();
+    n2.holder=who;n2.holderAt=at;n2.outSince=iso(today());n2.log=logged(t,'Checked out to '+who+(at?' for '+at:''),who);saveTool(n2,title(t)+' checked out to '+who+'.').then(function(){keepScroll();},function(){});return;}
+  if(a==='checkin'){n2.log=logged(t,'Back to '+locName(t)+(t.holder?' from '+t.holder:''),t.holder);n2.holder='';n2.holderAt='';n2.outSince='';saveTool(n2,title(t)+' is back.').then(function(){keepScroll();},function(){});return;}
+  if(a==='rtToday'){var rd=$('rt-date');rd.value=fmtD(iso(today()));rd.classList.add('filled');var rw=rd.closest('.f');rw.classList.remove('bad');var rn=rw.querySelector('.note');if(rn)rn.remove();return;}
+  if(a==='tagged'){var tdv=dv('rt-date'),tby=$('rt-by').value.trim();if(!parse(tdv)){mark('rt-date','Tap Today or type the date on the new tag.');return;}if(!tby){mark('rt-by','Add the name of who tagged it.');return;}
+    lsSet(KEY_ME,tby);n2.tagDate=tdv;var nd=nice(iso(addMonths(parse(tdv),+t.tagEvery||3)));n2.log=logged(t,'Tag renewed ('+tby+').\nTagged '+nice(tdv)+'. Next due '+nd,tby);saveTool(n2,'Tag renewed. Next due '+nd+'.').then(function(){keepScroll();},function(){});return;}
+  if(a==='rsToday'){var sdi=$('rs-date');sdi.value=fmtD(iso(today()));sdi.classList.add('filled');var sw=sdi.closest('.f');sw.classList.remove('bad');var sn=sw.querySelector('.note');if(sn)sn.remove();return;}
+  if(a==='serviced'){var sdv=dv('rs-date'),sby=$('rs-by').value.trim();if(!parse(sdv)){mark('rs-date','Tap Today or type the service date.');return;}if(!sby){mark('rs-by','Add the name of who serviced it.');return;}
+    lsSet(KEY_ME,sby);n2.lastService=sdv;n2.serviceDue=iso(addMonths(parse(sdv),+t.serviceEvery));n2.log=logged(t,'Serviced ('+sby+').\nServiced '+nice(sdv)+'. Next due '+nice(n2.serviceDue),sby);saveTool(n2,'Service recorded. Next due '+nice(n2.serviceDue)+'.').then(function(){keepScroll();},function(){});return;}
+});
+$('panel-root').addEventListener('input',function(e){var el=e.target;if(!el.classList||!el.classList.contains('dt'))return;
+  var raw=el.value,out;
+  if(/[\/.,\- ]/.test(raw)){var pt=raw.replace(/[^\d\/.,\- ]/g,'').replace(/[.,\- ]/g,'/').replace(/\/+/g,'/').split('/').slice(0,3);
+    for(var k=0;k<pt.length&&k<2;k++){if(pt[k].length>2&&k===pt.length-1){pt.push(pt[k].slice(2));pt[k]=pt[k].slice(0,2);}}
+    out=pt.slice(0,3).map(function(x,k){return x.slice(0,k<2?2:4);}).join('/');}
+  else{var dg=raw.replace(/\D/g,'').slice(0,8);out=dg.slice(0,2);if(dg.length>2)out+='/'+dg.slice(2,4);if(dg.length>4)out+='/'+dg.slice(4);}
+  if(raw!==out)el.value=out;});
+$('panel-root').addEventListener('focusout',function(e){var el=e.target;if(!el.classList||!el.classList.contains('dt'))return;var w=el.closest('.f');if(!w)return;
+  var good=readD(el.value);if(good){el.value=fmtD(good);el.classList.add('filled');}
+  if(el.value&&!good){w.classList.add('bad');if(!w.querySelector('.note')){var n=document.createElement('div');n.className='note';n.textContent='Check the date. Use dd/mm/yyyy, e.g. 05/03/2027.';w.appendChild(n);}}});
+$('panel-root').addEventListener('change',function(e){var el=e.target;if(!el.classList||!el.classList.contains('dtnative'))return;var t=el.parentNode.querySelector('.dt');if(t&&el.value){t.value=fmtD(el.value);t.classList.add('filled');t.dispatchEvent(new Event('input',{bubbles:true}));var w=t.closest('.f');if(w){w.classList.remove('bad');var n=w.querySelector('.note');if(n)n.remove();}}});
+$('panel-root').addEventListener('input',function(e){var q=e.target.closest&&e.target.closest('[data-qc]');if(!q||!P||P.kind!=='stock')return;P.counts=P.counts||{};if(q.value==='')delete P.counts[q.getAttribute('data-qc')];else P.counts[q.getAttribute('data-qc')]=Math.max(0,parseInt(q.value,10)||0);P.ask=false;
+  var all=P.ids.map(find).filter(Boolean).filter(function(x){return!isOut(x);}),k=all.filter(function(x){return P.ticks[x.id]||P.counts[x.id]!=null;}).length;if($('sk-n'))$('sk-n').textContent=k+' of '+all.length+' checked';});
+function cpShow(){var r=$('cp-res'),q=$('cp-q');if(!r||!q)return;r.innerHTML=copyResults(q.value);r.hidden=false;}
+function cpHide(){var r=$('cp-res');if(r)r.hidden=true;}
+$('panel-root').addEventListener('input',function(e){if(e.target.id==='cp-q')cpShow();if(e.target.id==='d-model'||e.target.id==='d-serial'){var el=e.target,p=el.selectionStart,u=el.value.toUpperCase();if(el.value!==u){el.value=u;try{el.setSelectionRange(p,p);}catch(err){}}}});
+$('panel-root').addEventListener('change',function(e){if(P&&P.d&&e.target.id==='d-cat'){collect(1,P.d);keepScroll();}});
+$('panel-root').addEventListener('focusin',function(e){if(e.target.id==='cp-q')cpShow();});
+$('panel-root').addEventListener('focusout',function(e){if(e.target.id==='cp-q')setTimeout(function(){var r=$('cp-res');if(r&&!r.contains(document.activeElement))cpHide();},150);});
+$('panel-root').addEventListener('pointerdown',function(e){if(e.target.closest('#cp-res'))e.preventDefault();});
+$('panel-root').addEventListener('keydown',function(e){if(e.key==='Escape'&&$('cp-res')&&!$('cp-res').hidden){cpHide();e.stopPropagation();}});
+$('panel-root').addEventListener('change',function(e){if(P&&e.target.id==='d-wsel'){P.newPlace=e.target.value==='__new';if(!P.newPlace){P.d.where=e.target.value;}else P.d.where='';var keep=P.kind==='edit';if(keep)[1,2,4,5].forEach(function(k){collect(k,P.d);});var pb=$('pb'),y=pb?pb.scrollTop:0;drawPanel(false);if($('pb'))$('pb').scrollTop=y;if(P.newPlace&&$('d-where'))$('d-where').focus();return;}
+  if(!P||e.target.id!=='d-tagneed')return;var i=P.kind==='edit'?2:P.step;collect(2,P.d);if(P.kind==='edit')[1,3,4,5].forEach(function(k){collect(k,P.d);});keepScroll();});
+function keepScroll(){var pb=$('pb'),y=pb?pb.scrollTop:0;if(P&&P.kind==='edit')[1,2,3,4,5].forEach(function(i){collect(i,P.d);});drawPanel(false);var pb2=$('pb');if(pb2)pb2.scrollTop=y;}
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&P&&!document.querySelector('details[open]'))closePanel();});
+$('add').addEventListener('click',openAdd);
+
+/* ---------- CSV ---------- */
+function csvCell(v){v=String(v==null?'':v);return/[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
+function stWord(s){return{na:'Not needed',over:'Overdue','30':'Due within 30 days','60':'Due within 60 days',ok:'Current'}[s];}
+function buildCSV(rowsIn){
+  var cols=[['Asset number','asset'],['Model','model'],['Description','name'],['Category','category'],['Brand','brand'],['Serial number','serial'],['Quantity',function(t){return isMulti(t)?inUseQty(t):1;}],['Quantity breakdown',function(t){return isMulti(t)?breakdown(t):'';}],['Status',function(t){return ST[t.status].n;}],['Status note','statusNote'],
+    ['Stored at','where'],['Who has it','holder'],['Out since','outSince'],['Power',function(t){return powerName(t.power);}],
+    ['Needs test and tag',function(t){return t.tagNeeded?'Yes':'No';}],['Current tag date','tagDate'],['Tag every (months)',function(t){return t.tagNeeded?t.tagEvery:'';}],['Test and tag due',function(t){return tagDue(t)||'';}],['Test and tag status',function(t){return stWord(state(tagDue(t)));}],
+    ['Service every (months)',function(t){return+t.serviceEvery||'';}],['Service due',function(t){return svcDue(t)||'';}],['Service status',function(t){return stWord(state(svcDue(t)));}],
+    ['Supplier','supplier'],['Purchase date','purchased'],['Price','price'],['Warranty until','warranty'],['Logged by','loggedBy'],['Date logged','loggedOn'],['Last seen in stocktake','lastSeen'],['Notes','notes']];
+  var rows=(rowsIn||tools).slice().sort(function(a,b){return assetNum(a.asset)-assetNum(b.asset);});
+  var lines=[cols.map(function(c){return csvCell(c[0]);}).join(',')];
+  rows.forEach(function(t){lines.push(cols.map(function(c){return csvCell(typeof c[1]==='function'?c[1](t):t[c[1]]);}).join(','));});
+  return'﻿'+lines.join('\r\n')+'\r\n';}
+function exRows(){return P&&P.scope==='shown'?shown:tools;}
+function exName(){var lab=P&&P.scope==='shown'&&shownLabel?'-'+shownLabel.toLowerCase().replace(/[“”]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40):'';return'tool-list'+lab+'-'+iso(today())+'.csv';}
+function exText(){var rows=exRows().slice().sort(function(a,b){return assetNum(a.asset)-assetNum(b.asset);});
+  var head='Tool list'+(P.scope==='shown'&&shownLabel?' – '+shownLabel.replace(/[“”]/g,''):'')+' – '+nice(iso(today()))+' ('+rows.length+(rows.length===1?' tool':' tools')+')';
+  return head+'\n\n'+rows.map(function(t){var td=tagDue(t),sd=svcDue(t);
+    return[t.asset,title(t)+(isMulti(t)?' ×'+inUseQty(t):''),t.serial?'S/N '+t.serial:'',locName(t)+(isOut(t)?' (with '+t.holder+')':''),ST[t.status].n,td===null?'':'Tag due '+(td?nice(td):'no date'),sd===null?'':'Service due '+(sd?nice(sd):'no date')].filter(Boolean).join(' | ');}).join('\n');}
+function canShare(){return!!(navigator.share)&&!(window.claude&&typeof window.claude.use==='function');}
+function drawExport(){var n1=shown.length,n2=tools.length;if(!P.scope)P.scope=(n1&&n1<n2)?'shown':'all';
+  var b='<p class="dim" style="margin:0">Filter the list first (location, category, status or search) to export just those tools.</p>'+
+   '<div class="opts" role="radiogroup" aria-label="What to export">'+
+   '<button type="button" class="opt'+(P.scope==='shown'?' on':'')+'" data-scope="shown" role="radio" aria-checked="'+(P.scope==='shown')+'"'+(n1?'':' disabled')+'>The list on screen ('+n1+')<small>'+esc(shownLabel?shownLabel.replace(/[“”]/g,''):'No filters, so this is everything in use')+'</small></button>'+
+   '<button type="button" class="opt'+(P.scope==='all'?' on':'')+'" data-scope="all" role="radio" aria-checked="'+(P.scope==='all')+'">Everything ('+n2+')<small>Every tool, retired ones included</small></button></div>'+
+   '<div class="sect"><h3>Send it</h3>'+
+   (canShare()?'<button type="button" class="btn main big" data-a="exShare">Share or email</button><span class="dim">Opens your phone’s share menu: Mail, Messages, Save to Files and so on.</span>':'')+
+   '<button type="button" class="btn'+(canShare()?'':' main')+'" data-a="exDownload">Download spreadsheet (CSV)</button><span class="dim">Opens in Excel, Google Sheets or Numbers. To email it, attach the file from your Downloads or Files.</span>'+
+   '<button type="button" class="btn" data-a="exCopy">Copy as text</button><span class="dim">Paste straight into an email or a message.</span></div>';
+  shell('<div class="tt"><div><small>'+(P.scope==='shown'?n1:n2)+' tools</small><h2>Export list</h2></div></div>',b,'');}
+function exDownload(){var rows=exRows();if(!rows.length){say('Nothing to export yet.',true);return;}var name=exName(),data=buildCSV(rows);
+  if(window.claude&&typeof window.claude.use==='function'){
+    window.claude.use('downloads').then(function(dl){if(!dl){say('Downloads aren’t available here. Use Copy as text instead.',true);return;}
+      dl.save({filename:name,data:data}).then(function(){say('List saved as '+name+'.');},function(e){if(e&&e.code==='declined')return;say('The download didn’t go through. Try again.',true);});});
+  }else{try{var blob=new Blob([data],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1000);say('List downloaded as '+name+'.');}catch(e){say('Your browser blocked the download.',true);}}}
+function exShare(){var rows=exRows();if(!rows.length)return;var name=exName(),file=null;try{file=new File([buildCSV(rows)],name,{type:'text/csv'});}catch(e){}
+  var data={title:'Tool list',text:exText()};if(file&&navigator.canShare&&navigator.canShare({files:[file]}))data={title:'Tool list',text:exText().split('\n')[0],files:[file]};
+  navigator.share(data).then(function(){say('List shared.');},function(e){if(e&&e.name==='AbortError')return;say('Sharing didn’t work here. Download it or copy it instead.',true);});}
+function exCopy(btn){var txt=exText();function done(){say('List copied. Paste it into an email or message.');btn.textContent='Copied';}
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(done,function(){fallback();});else fallback();
+  function fallback(){var ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='width:100%;min-height:160px;margin-top:8px';btn.insertAdjacentElement('afterend',ta);ta.focus();ta.select();say('Select all and copy the text below the button.',true);}}
+$('csv').addEventListener('click',function(){if(!tools.length){say('Add a tool first. The examples aren’t included in an export.',true);return;}openPanel({kind:'export'});});
+
+/* ---------- Did you know ---------- */
+var TIPS=['Snap the nameplate, not the whole tool. The model and serial number are easier to read up close.',
+  'Run a stocktake on each tool bay once a month. Anything you don’t tick can be marked missing in one tap.',
+  'On construction sites, portable electrical gear is usually tested and tagged every 3 months. Check what your site and state require.',
+  'Keep the purchase date and price. If a tool is stolen, your insurer will ask for both.',
+  'Retire a tool instead of deleting it. Its history stays on record for insurance and audits.'];
+$('tip').textContent=TIPS[Math.floor(Math.random()*TIPS.length)];
+
+renderAll();start();
+setInterval(renderAll,60*60*1000);
+})();
+/* ---------- Navigation kit v1 script ---------- */
+(function () {
+  var dds = document.querySelectorAll('details.dd, details.rp');
+  dds.forEach(function (d) {
+    d.addEventListener('toggle', function () { if (d.open) dds.forEach(function (o) { if (o !== d) o.open = false; }); });
+  });
+  document.addEventListener('click', function (e) { dds.forEach(function (d) { if (d.open && !d.contains(e.target)) d.open = false; }); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') dds.forEach(function (d) { if (d.open) { d.open = false; d.querySelector('summary').focus(); } }); });
+})();
+/* Same as the Calculator: while a menu is open, an outside tap only closes it */
+document.addEventListener('click',function(e){var openD=document.querySelector('details.dd[open],details.rp[open]');if(!openD||openD.contains(e.target))return;if(e.target.closest('details.dd>summary,details.rp>summary'))return;openD.open=false;e.preventDefault();e.stopPropagation();},true);
+(function () {
+  var rb = document.getElementById('rail-theme'), main = document.getElementById('theme');
+  if (!rb || !main) return;
+  function sync() {
+    var dark = main.getAttribute('aria-label') === 'Switch to day mode';
+    document.getElementById('rail-theme-t').textContent = dark ? 'Day' : 'Night';
+    rb.setAttribute('aria-label', main.getAttribute('aria-label'));
+    document.getElementById('rail-theme-ic').innerHTML = document.getElementById('theme-ic').innerHTML;
+  }
+  rb.addEventListener('click', function () { main.click(); sync(); });
+  main.addEventListener('click', function () { setTimeout(sync, 0); });
+  sync();
+})();
+
+</script>
+
+</body></html>
