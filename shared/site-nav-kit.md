@@ -23,6 +23,22 @@ Look and behaviour are explained in the Design Brief ("Navigation on tool pages"
 6. Paste the script at the end of the tool's `<script>`. It needs the page's existing Night/Day button to have `id="theme"` and its icon `id="theme-ic"` (all our tools already do).
 7. Check: no sideways scrolling at 360px, 390px and 1280px; Night/Day from the rail and the page stay in step; menus close on an outside tap and on Escape.
 
+## Fit fixes found when applying the kit (do these too)
+Found in the Calculator, Trig Solver and Plan Triangle. Each tool needed them:
+1. Paste the CSS at the end of the tool's MAIN style block. Claude pages start with a small reset style; pasted there, the tool's own styles win and the page's Night/Day button stays visible beside the rail's.
+2. Give the tool's top row `position: relative; z-index: 5`. Without it the phone menus can open at the bottom of the page instead of under their buttons.
+3. If the tool styles plain `details { }` or `summary { }` (e.g. a "Show the formulas" box), limit that style to its own class (e.g. `details.fx`), or the menus get boxed in.
+4. Tools with tappable content (keys, chips, boxes) add this to the script, so a tap outside an open menu only closes it and doesn't also press what's underneath:
+```js
+document.addEventListener('click', function (e) {
+  var open = document.querySelectorAll('details.dd[open], details.rp[open]');
+  if (!open.length) return;
+  if (e.target.closest && e.target.closest('details.dd, details.rp')) return;
+  open.forEach(function (d) { d.open = false; });
+  e.stopPropagation(); e.preventDefault();
+}, true);
+```
+
 ## CSS
 ```css
 /* Top menus: Tools and The Vault drop down from the nav */
